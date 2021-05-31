@@ -142,11 +142,14 @@ function init() {
 }
 
 function keyOps(keyCode){
+    //This is fired whenever a key is pressed.
+    //Either on the on screen keyboard or the
+    //hardware keyboard.
     if (keyboards[1].keylist.hasOwnProperty(keyCode)){
         var thisCode=keyboards[1].keylist[keyCode]
         switch (keyCode){
             case "Enter":
-                PictoString.addToString("\n");
+                PictoString.addToString("+n");
                 break;
             case "Space":
                 PictoString.addToString(" ");
@@ -190,8 +193,10 @@ function  handleKeyboardEvent(keyEvent, type){
 function renderPictoString(){
     //This function displays the pictostring;
     //Only run after update.
-    var startX=63 + offset;
-    var startY=4 + offset;
+
+    //TO DO: ADD DEFAULT.
+    var startX=63 + drawOffX;
+    var startY=4 + drawOffY;
     var imX=0;
     var imY=0;
     var burn=false;
@@ -201,19 +206,10 @@ function renderPictoString(){
             var glyphX=glyphs.glyphs[current].px;
             var glyphY=glyphs.glyphs[current].py;
             var charwidth=glyphs.glyphs[current].width;
-        if(burn){
-             for (imX=0;imX<9; imX++){
-                 for (imY=0;imY<12; imY++){
-                     var data=(pctx.getImageData(imX+glyphX*10, imY+glyphY*13, 1, 1).data);
-                     if ((data[3])>200){
-                        pictoStringArray[startX+imX][startY+imY]=2;
-                    }
-                     else{
-                         pictoStringArray[startX+imX][startY+imY]=null;
-                     }
-                }
-             }
-         }
+        if(current=="+n"){
+            startY=startY+16;
+            startX=3+drawOffX;
+        }
          else{
              ctx.drawImage(glyph, glyphX*10, glyphY*13, charwidth, 12, startX, startY, charwidth, 12);
          }
