@@ -24,8 +24,13 @@ var keyDown=null;
 
 var keyboards={
     1:{
+        keyboardMode:"Code",
         keylist:{"Digit1":{xpos:4,ypos:2,xsize:15,ysize:14, char:"1",schar:"!", caps:false},"Digit2":{xpos:20,ypos:2,xsize:15,ysize:14, char:"2",schar:"@", caps:false},"Digit3":{xpos:36,ypos:2,xsize:15,ysize:14, char:"3",schar:"#", caps:false},"Digit4":{xpos:52,ypos:2,xsize:15,ysize:14, char:"4",schar:"$", caps:false},"Digit5":{xpos:68,ypos:2,xsize:15,ysize:14, char:"5",schar:"%", caps:false},"Digit6":{xpos:84,ypos:2,xsize:15,ysize:14, char:"6",schar:"^", caps:false},"Digit7":{xpos:100,ypos:2,xsize:15,ysize:14,char:"7",schar:"&", caps:false},"Digit8":{xpos:116,ypos:2,xsize:15,ysize:14,char:"8",schar:"*", caps:false},"Digit9":{xpos:132,ypos:2,xsize:15,ysize:14,char:"9",schar:"(", caps:false},"Digit0":{xpos:148,ypos:2,xsize:15,ysize:14,char:"0",schar:")", caps:false},"Minus": {xpos:164,ypos:2,xsize:15,ysize:14,char:"-",schar:"_", caps:false},"Equal": {xpos:180,ypos:2,xsize:15,ysize:14,char:"=",schar:"+", caps:false},"KeyW":{xpos:29,ypos:17,xsize:15,ysize:15, char:"w",schar:"W", caps:true},"KeyE":{xpos:45,ypos:17,xsize:15,ysize:15, char:"e",schar:"E", caps:true},"KeyQ":{xpos:13,ypos:17,xsize:15,ysize:15, char:"q",schar:"Q", caps:true},    "KeyR":{xpos:61,ypos:17,xsize:15,ysize:15, char:"r",schar:"R", caps:true},   "KeyT":{xpos:77,ypos:17,xsize:15,ysize:15, char:"t",schar:"T", caps:true},    "KeyY":{xpos:93,ypos:17,xsize:15,ysize:15, char:"y",schar:"Y", caps:true},   "KeyU":{xpos:109,ypos:17,xsize:15,ysize:15,char:"u",schar:"U", caps:true},    "KeyI":{xpos:125,ypos:17,xsize:15,ysize:15,char:"i",schar:"I", caps:true},   "KeyO":{xpos:141,ypos:17,xsize:15,ysize:15,char:"o",schar:"O", caps:true},    "KeyP":{xpos:157,ypos:17,xsize:15,ysize:15,char:"p",schar:"P", caps:true},   "KeyA":{xpos:20,ypos:33,xsize:15,ysize:15,char:"a",schar:"A", caps:true},    "KeyS":{xpos:36,ypos:33,xsize:15,ysize:15,char:"s",schar:"S", caps:true},   "KeyD":{xpos:52,ypos:33,xsize:15,ysize:15,char:"d",schar:"D", caps:true},    "KeyF":{xpos:68,ypos:33,xsize:15,ysize:15,char:"f",schar:"F", caps:true},   "KeyG":{xpos:84,ypos:33,xsize:15,ysize:15,char:"g",schar:"G", caps:true},    "KeyH":{xpos:100,ypos:33,xsize:15,ysize:15,char:"h",schar:"H", caps:true},   "KeyJ":{xpos:116,ypos:33,xsize:15,ysize:15,char:"j",schar:"J", caps:true},    "KeyK":{xpos:132,ypos:33,xsize:15,ysize:15,char:"k",schar:"K", caps:true},   "KeyL":{xpos:148,ypos:33,xsize:15,ysize:15,char:"l",schar:"L", caps:true},    "KeyZ":  {xpos:28,ypos:49,xsize:15,ysize:15,char:"z",schar:"Z", caps:true},   "KeyX":  {xpos:44,ypos:49,xsize:15,ysize:15,char:"x",schar:"X", caps:true},    "KeyC":  {xpos:60,ypos:49,xsize:15,ysize:15,char:"c",schar:"C", caps:true},   "KeyV":  {xpos:76,ypos:49,xsize:15,ysize:15,char:"v",schar:"V", caps:true},    "KeyB":  {xpos:92,ypos:49,xsize:15,ysize:15,char:"b",schar:"B", caps:true},    "KeyN":  {xpos:108,ypos:49,xsize:15,ysize:15,char:"n",schar:"N", caps:true},    "KeyM":  {xpos:124,ypos:49,xsize:15,ysize:15,char:"m",schar:"M", caps:true},    "Comma": {xpos:140,ypos:49,xsize:15,ysize:15,char:",",schar:"<", caps:false},    "Period":{xpos:156,ypos:49,xsize:15,ysize:15,char:".",schar:">", caps:false},    "Slash": {xpos:172,ypos:49,xsize:15,ysize:15,char:"/",schar:"?", caps:false},        "ShiftLeft":{xpos:2,ypos:49,xsize:25,ysize:15,char:null,schar:null, caps:false},    "CapsLock":{xpos:2,ypos:33,xsize:17,ysize:15,char:null,schar:null, caps:false},    "ShiftRight":{xpos:2,ypos:49,xsize:25,ysize:15,char:null,schar:null, caps:false},    "Semicolon":{xpos:36,ypos:65,xsize:15,ysize:14,char:";",schar:":", caps:false},    "BracketLeft":{xpos:148,ypos:65,xsize:15,ysize:14,char:"[",schar:"{", caps:false},    "BracketRight":{xpos:164,ypos:65,xsize:15,ysize:14,char:"{",schar:"}", caps:false},    "Backquote":{xpos:52,ypos:65,xsize:15,ysize:14,char:"`",schar:"~", caps:false},    "Backspace":{xpos:173,ypos:17,xsize:25,ysize:15,char:null,schar:null, caps:false},    "Space":{xpos:68,ypos:65,xsize:79,ysize:14,char:" ",schar:" ", caps:false},    "Enter":{xpos:164,ypos:33,xsize:34,ysize:15,char:null,schar:null, caps:false}}
-    }
+    },
+    2:{},
+    3:{},
+    4:{},
+    5:{}
 }
 
 var PictoString = {
@@ -44,7 +49,7 @@ const backgroundImg=new Image (234, 85); backgroundImg.src = 'PictochatWindow.pn
 const keyboard1=new Image (200, 81); keyboard1.src = 'Keyboard1Normal.png';
 const keyboard1s=new Image (200, 81); keyboard1s.src = 'Keyboard1Shift.png';
 const keyboard1c=new Image (200, 81); keyboard1c.src = 'Keyboard1Caps.png';
-
+const keyboard2=new Image (200, 81); keyboard2.src = 'KeyboardAccent.png';
 const glyph=new Image (320, 377); glyph.src = 'Glyphs.png';
 
 
@@ -54,10 +59,6 @@ function newBox(posX, posY, sizeX, sizeY){
         xpos: posX, ypos:posY,
         xsize:sizeX, ysize:sizeY,
         inBounds:function(cx, cy, offX, offY){
-            //console.log("Checking.")
-            //console.log(cx, cy);
-            //console.log((offX+this.xpos), (offX+this.xpos+this.xsize))
-        //    console.log((offY+this.ypos), (offY+this.ypos+this.ysize))
             var xCond=((cx>=(offX+this.xpos)) &&(cx<=(offX+this.xpos+this.xsize)));
             var yCond=((cy>=(offY+this.ypos)) &&(cy<=(offY+this.ypos+this.ysize)));
             if (xCond && yCond){
@@ -74,6 +75,9 @@ function init() {
       .then(response => response.json())
       .then(glyp => glyphs=glyp);
 
+      fetch('./keyboard2.json')
+        .then(response => response.json())
+        .then(glyp => keyboards[2]=glyp);
 
 
     canvas = document.getElementById('drawing');
@@ -141,12 +145,13 @@ function init() {
     dotDraw(ctx);
 }
 
-function keyOps(keyCode){
+function keyOps(keyCode, fireContext){
     //This is fired whenever a key is pressed.
     //Either on the on screen keyboard or the
     //hardware keyboard.
-    if (keyboards[1].keylist.hasOwnProperty(keyCode)){
-        var thisCode=keyboards[1].keylist[keyCode]
+    //Fire Context can be 'keyboard' or 'mouse'
+    if (keyboards[keyboard_selected].keylist.hasOwnProperty(keyCode)){
+        var thisCode=keyboards[keyboard_selected].keylist[keyCode]
         switch (keyCode){
             case "Enter":
                 PictoString.addToString("+n");
@@ -158,13 +163,17 @@ function keyOps(keyCode){
                 PictoString.removeFromString();
                 break;
             default:
-                if (SHIFT) { PictoString.addToString(thisCode.schar);}
-                else if (CAPS && thisCode.caps){PictoString.addToString(thisCode.schar);}
-                else{PictoString.addToString(thisCode.char);}
+
+                if (keyboards[keyboard_selected].keyboardMode=="Code"){
+                    if (SHIFT) { PictoString.addToString(thisCode.schar);}
+                    else if (CAPS && thisCode.caps){PictoString.addToString(thisCode.schar);}
+                    else{PictoString.addToString(thisCode.char);}
+                }else{PictoString.addToString(thisCode.char);}
         }
     }
 }
 function  handleKeyboardEvent(keyEvent, type){
+    //currently matches with keyboard 1 only.
     if (type == "down"){
         if (keyEvent.key=="Shift"){
             SHIFT=true;
@@ -175,7 +184,11 @@ function  handleKeyboardEvent(keyEvent, type){
         else{
             if (keyboards[1].keylist.hasOwnProperty(keyEvent.code)){
                 keyboards[1].keylist[keyEvent.code].pressed=true;
-                keyOps(keyEvent.code);
+                keyOps(keyEvent.code, 'keyboard');
+            }
+            else if(keyboards[keyboard_selected].hasOwnProperty(keyEvent.key)){
+                keyboards[keyboard_selected].keylist[keyEvent.key].pressed=true;
+                keyOps(keyEvent.code, 'keyboard');
             }
         }
     }
@@ -186,6 +199,10 @@ function  handleKeyboardEvent(keyEvent, type){
 
         if (keyboards[1].keylist.hasOwnProperty(keyEvent.code)){
             keyboards[1].keylist[keyEvent.code].pressed=false;
+        }
+        else if(keyboards[keyboard_selected].hasOwnProperty(keyEvent.key)){
+            keyboards[keyboard_selected].keylist[keyEvent.key].pressed=false;
+            keyOps(keyEvent.code, 'keyboard');
         }
     }
     dotDraw(ctx);
@@ -200,6 +217,7 @@ function renderPictoString(){
     var imX=0;
     var imY=0;
     var burn=false;
+
     for (index = 0; index < PictoString.currentString.length; index++) {
         var current=(PictoString.currentString[index]);
         if (glyphs.glyphs.hasOwnProperty(current)){
@@ -225,9 +243,9 @@ function checkIfInKeyboardButtons(cx, cy){
     var offY=offset+100;
 
 
-    var keys=Object.keys(keyboards[1].keylist);
+    var keys=Object.keys(keyboards[keyboard_selected].keylist);
     for (var k=0;k<keys.length;k++){
-        var thisEntry=keyboards[1].keylist[keys[k]];
+        var thisEntry=keyboards[keyboard_selected].keylist[keys[k]];
 
                 xCond=((cx>=(offX+thisEntry.xpos)) &&(cx<=(offX+thisEntry.xpos+thisEntry.xsize)));
                 yCond=((cy>=(offY+thisEntry.ypos)) &&(cy<=(offY+thisEntry.ypos+thisEntry.ysize)));
@@ -288,6 +306,33 @@ function drawKeyboardSelect(){
     //drawBoxes(ctx);
 }
 
+function keyboardDraw(cont){
+    var offX=offset+25;
+    var offY=offset+100;
+    if (keyboard_selected==1){
+        if (SHIFT){
+            cont.drawImage(keyboard1s,offX,100+offset);
+        }
+        else if(CAPS){
+            cont.drawImage(keyboard1c,offX,100+offset);
+        }else{
+            cont.drawImage(keyboard1, offX, 100+offset);
+        }
+    }
+    else if (keyboard_selected==2){
+        cont.drawImage(keyboard2, offX, 100+offset);
+    }
+    var keys=Object.keys(keyboards[keyboard_selected].keylist);
+    for (var k=0;k<keys.length;k++){
+        var thisEntry=keyboards[keyboard_selected].keylist[keys[k]];
+        if (thisEntry.hasOwnProperty("pressed")){
+            if (thisEntry.pressed==true){
+                cont.fillRect(offX+thisEntry.xpos, offY+thisEntry.ypos, thisEntry.xsize, thisEntry.ysize);
+            }
+        }
+    }
+}
+
 function dotDraw(cont){
     //This draws the entire window.
     cont.clearRect(0, 0, w, h);
@@ -303,25 +348,7 @@ function dotDraw(cont){
         }
     }
     //Keyboard Drawing.
-    var offX=offset+25;
-    var offY=offset+100;
-    if (SHIFT){
-        cont.drawImage(keyboard1s,offX,100+offset);
-    }
-    else if(CAPS){
-        cont.drawImage(keyboard1c,offX,100+offset);
-    }else{
-        cont.drawImage(keyboard1, offX, 100+offset);
-    }
-    var keys=Object.keys(keyboards[1].keylist);
-    for (var k=0;k<keys.length;k++){
-        var thisEntry=keyboards[1].keylist[keys[k]];
-        if (thisEntry.hasOwnProperty("pressed")){
-            if (thisEntry.pressed==true){
-                cont.fillRect(offX+thisEntry.xpos, offY+thisEntry.ypos, thisEntry.xsize, thisEntry.ysize);
-            }
-        }
-    }
+    keyboardDraw(cont)
     drawKeyboardSelect();
 
     //Make Text.
@@ -386,7 +413,7 @@ function handleMouse(mouseEvent, type) {
         var isIn=checkIfInKeyboardButtons(currX, currY);
         if (isIn!=null){
             keyDown=isIn;
-            keyboards[1].keylist[keyDown].pressed=true;
+            keyboards[keyboard_selected].keylist[keyDown].pressed=true;
         }
         //ToggleButtonChecks
         checkIfInKeyboardSelect(currX,currY);
@@ -396,11 +423,11 @@ function handleMouse(mouseEvent, type) {
         if (isIn!=null){
             if (keyDown==isIn)
             {
-                keyOps(keyDown);
+                keyOps(keyDown, 'mouse');
             }
         }
         if (keyDown!=null){
-            keyboards[1].keylist[keyDown].pressed=false;
+            keyboards[keyboard_selected].keylist[keyDown].pressed=false;
 
             keyDown=null;
         }
