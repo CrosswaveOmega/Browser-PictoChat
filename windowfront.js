@@ -12,14 +12,19 @@ var CAPS=false;
 var SHIFT=false;
 var inKeybutton=false;
 var drawing=false;
+
 const dotsize=1;
 
 var cols=228;
 var rows=80;
 let array2D= Array.from(Array(cols), () => new Array(rows));
 let pictoStringArray= Array.from(Array(cols), () => new Array(rows));
+
+//Tools
 var keyboard_selected=1;
 
+var toolActive=0;
+var toolSize=0;
 var keyDown=null;
 
 var keyboards={
@@ -44,6 +49,9 @@ let glyphs={}
 //    "A":{px:1,py:1, width=5}, "a":{px:1, py:2}
 //}
 //Resources:
+
+var keyboardSelectArea=null;
+var drawingToolArea=null;
 var drawingBox=null;
 const backgroundImg=new Image (234, 85); backgroundImg.src = 'PictochatWindow.png';
 const keyboard1=new Image (200, 81); keyboard1.src = 'Keyboard1Normal.png';
@@ -69,7 +77,7 @@ function newBox(posX, posY, sizeX, sizeY){
     }
     return box;
 }
-var keyboardSelectArea=null;
+
 function init() {
     fetch('./glyphs.json')
       .then(response => response.json())
@@ -118,6 +126,17 @@ function init() {
     keyboardSelectArea.bindBoxes[3]=newBox(0,34,14,14);
     keyboardSelectArea.bindBoxes[4]=newBox(0,51,14,14);
     keyboardSelectArea.bindBoxes[5]=newBox(0,68,14,14);
+    toolActive=1;
+    toolSize=1;
+    drawingToolArea={
+        offX:5, offY:25,
+        bindBoxes:[null, null, null, null, null]
+    }
+    drawingToolArea.Imm0= new Image(14,62); drawingToolArea.Imm0.src="drawingTools.png";
+    drawingToolArea.bindBoxes[1]=newBox(0,0,14,13);
+    drawingToolArea.bindBoxes[2]=newBox(0,14,14,13);
+    drawingToolArea.bindBoxes[3]=newBox(0,33,14,14);
+    drawingToolArea.bindBoxes[4]=newBox(0,48,14,14);
 
 
 
@@ -267,6 +286,33 @@ function checkIfInKeyboardSelect(cx, cy){
         }
     }
 }
+function checkIfInToolArea(cx, cy){
+    var offX=drawingToolArea.offX;
+    var offY=drawingToolArea.offY;
+    for (var k=1;k<drawingToolArea.bindBoxes.length;k++){
+        if (drawingToolArea.bindBoxes[k].inBounds(cx, cy,offX, offY)){
+            switch(k){
+                case 1:
+                    toolActive=1;
+                    break;
+                case 2:
+                    toolActive=2;
+                    break;
+                case 3:
+                    toolSize=2;
+                    break;
+                case 4:
+                    toolSize=1;
+                    break;
+            }
+        }
+    }
+}
+
+function drawBox(cont, offX, offY, box){
+    cont.fillRect(offX+box.xpos, offY+box.ypos, box.xsize, box.ysize);
+
+}
 
 function drawBoxes(cont){
     //For debugging.
@@ -284,6 +330,30 @@ function drawBoxes(cont){
 }
 }
 
+
+
+function drawToolsArea(){
+    var offX=drawingToolArea.offX;
+    var offY=drawingToolArea.offY;
+    ctx.drawImage(drawingToolArea.Imm0, drawingToolArea.offX, drawingToolArea.offY)
+    ctx.fillStyle = "rgba(0, 0, 255, 0.5)";
+    switch (toolActive){
+        case 1:
+            drawBox(ctx, offX, offY, drawingToolArea.bindBoxes[1]);
+            break;
+        case 2:
+            drawBox(ctx, offX, offY, drawingToolArea.bindBoxes[2]);
+            break;
+    }
+    switch (toolSize){
+        case 2:
+            drawBox(ctx, offX, offY, drawingToolArea.bindBoxes[3]);
+            break;
+        case 1:
+            drawBox(ctx, offX, offY, drawingToolArea.bindBoxes[4]);
+            break;
+    }
+}
 function drawKeyboardSelect(){
     ctx.drawImage(keyboardSelectArea.Imm0,keyboardSelectArea.offX,keyboardSelectArea.offY);
     switch (keyboard_selected){
@@ -336,7 +406,8 @@ function keyboardDraw(cont){
 function dotDraw(cont){
     //This draws the entire window.
     cont.clearRect(0, 0, w, h);
-    cont.drawImage(backgroundImg,drawOffX,drawOffY);
+    cont.drawImage(backgroundImg,drawOffX-2,drawOffY-2);
+    ctx.fillStyle = "rgb(0, 0, 0)";
     for (var i=0;i<array2D.length;i++){
         var row =array2D[i];
         for (var j=0; j<row.length;j++){
@@ -350,29 +421,107 @@ function dotDraw(cont){
     //Keyboard Drawing.
     keyboardDraw(cont)
     drawKeyboardSelect();
-
+    drawToolsArea();
     //Make Text.
     renderPictoString();
 }
 
 function dotAt(i, j){
+    //will apply tiik
     if (i <array2D.length && i>=0){
         if (j<array2D[i].length && j>=0){
-            array2D[i][j]=2;
+            if (toolActive==1){
+                array2D[i][j]=2;
+            }
+            else if(toolActive==2){
+                array2D[i][j]=0;
+            }
+
         }
     }
 }
-function dotFill(x,y){
+
+function dotFill(i,j){
+    switch(toolSize){
+        case 1:
+            dotAt(i,j);
+            break;
+        case 2:
+            dotAt(i,j);
+            dotAt(i,j+1);
+            dotAt(i+1,j);
+            dotAt(i+1,j+1);
+            break;
+    }
+}
+function dotPoint(x,y){
     //Convert to Dot.
     var i= Math.floor((x-drawOffX)/dotsize);
     var j = Math.floor((y-drawOffY)/dotsize);
-    dotAt(i,j)
+    dotFill(i,j)
 }
 
-function dotlinedraw(lx,ly,x,y){
-    //need to impliment line algoritm.
+function dotlinedraw(x0,y0,x1,y1){
+    //derived from: https://en.wikipedia.org/wiki/Bresenham%27s_line_algorithm
+    //Modified
 
-    dotAt(x,y)
+    var startX, endX, startY, endY, cX, cY, erInt, step;
+    var dx =x1-x0; var dy=y1-y0;
+    var adx = Math.abs(dx); var ady=Math.abs(dy);
+    step=-1;
+
+    if (ady<=adx){
+        if (dx>=0){
+            startX=x0;
+            startY=y0;
+            endX=x1;
+            if (dy>0){ step=1;} //the same.
+        }
+        else if (dx<0){
+            startX=x1;
+            startY=y1;
+            endX=x0;
+            if (dy<0){ step=1;} //the same.
+
+        }
+        erInt=(2*ady)-adx;
+        cY=startY;
+        for( cX=startX; cX<=endX;cX++){
+            dotFill(cX,cY);
+            if (erInt>0){
+                cY=cY+step;
+                erInt= erInt+ 2 *(ady-adx);
+            }else{
+                erInt= erInt+ 2 *(ady);
+            }
+        }
+    }
+    else{
+        if (dy>=0){
+            startX=x0;
+            startY=y0;
+            endY=y1;
+            if (dx>0){ step=1;} //the same.
+        }
+        else if (dy<0){
+            startX=x1;
+            startY=y1;
+            endY=y0;
+            if (dx<0){ step=1;} //the same.
+
+        }
+        erInt=(2*adx)-ady;
+        cX=startX;
+        for( cY=startY; cY<=endY;cY++){
+            dotFill(cX,cY);
+            if (erInt>0){
+                cX=cX+step;
+                erInt= erInt+ 2 *(adx-ady);
+            }else{
+                erInt= erInt+ 2 *(adx);
+            }
+        }
+    }
 }
 function dotLineFill(lx, ly, x, y){
     //Convert two sets of coordinates to the type used by the dot matrix.
@@ -400,11 +549,11 @@ function handleMouse(mouseEvent, type) {
     currY = mouseEvent.clientY - canvas.offsetTop;
     if (type == 'down') {
         //Check if in drawing box.
-        if (drawingBox.inBounds(currX, currY, drawOffX, drawOffY)){
+        if (drawingBox.inBounds(currX, currY, 0, 0)){
             draw_flag = true;
             tap_flag = true;
             if (tap_flag) {
-                dotFill(currX, currY);
+                dotPoint(currX, currY);
                 tap_flag = false;
             }
         }
@@ -417,6 +566,8 @@ function handleMouse(mouseEvent, type) {
         }
         //ToggleButtonChecks
         checkIfInKeyboardSelect(currX,currY);
+        //CheckIfInTools
+        checkIfInToolArea(currX, currY);
     }
     if (type== 'up'){
         var isIn=checkIfInKeyboardButtons(currX, currY);
@@ -442,7 +593,6 @@ function handleMouse(mouseEvent, type) {
     }
     dotDraw(ctx);
     ctx.beginPath();
-    ctx.rect(currX-2, currY-2, 4, 4);
-    ctx.stroke();
+    ctx.fillRect(currX, currY, 2, 2);
     ctx.closePath();
 }
