@@ -40,6 +40,10 @@ var keyboards={
 
 var PictoString = {
     currentString:[],
+    defaultX:63, defaultY:2,
+    startX:0, startY:0,
+    resetString:function(){this.startX=this.defaultX;this.startY=this.defaultY; this.currentString=[];},
+    setStart:function(x, y){this.startX=x; this.startY=y;},
     addToString:function(char){ this.currentString.push(char);},
     removeFromString:function(){ this.currentString.pop();}
 }
@@ -138,7 +142,7 @@ function init() {
     drawingToolArea.bindBoxes[3]=newBox(0,33,14,14);
     drawingToolArea.bindBoxes[4]=newBox(0,48,14,14);
 
-
+    PictoString.resetString();
 
     canvas.addEventListener("mousemove", function (e) {
         handleMouse(e, 'move')
@@ -162,6 +166,15 @@ function init() {
         handleMouse(e, 'in')
     }, false);
     dotDraw(ctx);
+}
+
+function getCharFromKey(keyCode){
+    var thisCode=keyboards[keyboard_selected].keylist[keyCode]
+    if (keyboards[keyboard_selected].keyboardMode=="Code"){
+        if (SHIFT) { return thisCode.schar;}
+        else if (CAPS && thisCode.caps){ return thisCode.schar;}
+        else{return thisCode.char;}
+    }else{return thisCode.char;}
 }
 
 function keyOps(keyCode, fireContext){
@@ -226,16 +239,24 @@ function  handleKeyboardEvent(keyEvent, type){
     }
     dotDraw(ctx);
 }
+
+function burnInPictoString(){
+    displayPictoString(true);
+}
 function renderPictoString(){
+    displayPictoString(false);
+}
+function displayPictoString(mode){
     //This function displays the pictostring;
     //Only run after update.
 
     //TO DO: ADD DEFAULT.
-    var startX=63 + drawOffX;
-    var startY=4 + drawOffY;
+    var startX=PictoString.startX + drawOffX;
+    var startY=PictoString.startY + drawOffY;
+    var im=0;
     var imX=0;
     var imY=0;
-    var burn=false;
+    var burn=mode;
 
     for (index = 0; index < PictoString.currentString.length; index++) {
         var current=(PictoString.currentString[index]);
@@ -248,9 +269,29 @@ function renderPictoString(){
             startX=3+drawOffX;
         }
          else{
-             ctx.drawImage(glyph, glyphX*10, glyphY*13, charwidth, 12, startX, startY, charwidth, 12);
-         }
+             if (burn){
+                 var data=(pctx.getImageData(glyphX*10, glyphY*13, charwidth, 12).data);
+                 for (im=0;im<12*charwidth;im++){
+                     imX=im%charwidth;
+                     imY=Math.floor(im/charwidth);
+                     if(data[im*4+3]>200){
+                         array2D[startX-drawOffX+imX][startY-drawOffY+imY]=2;
+                     }
+                 }
 
+                // for (imX=0;imX<9; imX++){
+                //     for (imY=0;imY<12; imY++){
+                //         var data=(pctx.getImageData(imX+glyphX*10, imY+glyphY*13, 1, 1).data);
+                //         if ((data[3])>200){
+                //            array2D[startX-drawOffX+imX][startY-drawOffY+imY]=2;
+                //        }
+                //    }
+                }
+
+             else{
+                 ctx.drawImage(glyph, glyphX*10, glyphY*13, charwidth, 12, startX, startY, charwidth, 12);
+             }
+         }
             startX=startX+charwidth+1;
         }
     }
@@ -375,7 +416,31 @@ function drawKeyboardSelect(){
     }
     //drawBoxes(ctx);
 }
+function setDraggedGlyph(cX, cY){
+    if (keyDown!=null){
+        var current=getCharFromKey(keyDown);
 
+        if (glyphs.glyphs.hasOwnProperty(current)){
+            burnInPictoString();
+            PictoString.resetString();
+            PictoString.setStart(cX-drawOffX, cY-drawOffY);
+            PictoString.addToString(current);
+         }
+
+    }
+}
+function drawDraggedGlyph(cont, cX, cY){
+    if (keyDown!=null){
+        var current=getCharFromKey(keyDown);
+        if (glyphs.glyphs.hasOwnProperty(current)){
+            var glyphX=glyphs.glyphs[current].px;
+            var glyphY=glyphs.glyphs[current].py;
+            var charwidth=glyphs.glyphs[current].width;
+             cont.drawImage(glyph, glyphX*10, glyphY*13, charwidth, 12, cX, cY, charwidth, 12);
+         }
+
+    }
+}
 function keyboardDraw(cont){
     var offX=offset+25;
     var offY=offset+100;
@@ -461,7 +526,7 @@ function dotPoint(x,y){
     dotFill(i,j)
 }
 
-function dotlinedraw(x0,y0,x1,y1){
+function dotLineDraw(x0,y0,x1,y1){
     //derived from: https://en.wikipedia.org/wiki/Bresenham%27s_line_algorithm
     //Modified
 
@@ -529,7 +594,7 @@ function dotLineFill(lx, ly, x, y){
     var j1=Math.floor((ly-drawOffY)/dotsize);
     var i2= Math.floor((x-drawOffX)/dotsize);
     var j2 = Math.floor((y-drawOffY)/dotsize);
-    dotlinedraw(i1,j1,i2,j2);
+    dotLineDraw(i1,j1,i2,j2);
 }
 
 function clearmatrix() {
@@ -578,6 +643,9 @@ function handleMouse(mouseEvent, type) {
             }
         }
         if (keyDown!=null){
+            if (drawingBox.inBounds(currX, currY, 0, 0)){
+                setDraggedGlyph(currX, currY)
+            }
             keyboards[keyboard_selected].keylist[keyDown].pressed=false;
 
             keyDown=null;
@@ -592,6 +660,7 @@ function handleMouse(mouseEvent, type) {
         }
     }
     dotDraw(ctx);
+    drawDraggedGlyph(ctx, currX, currY);
     ctx.beginPath();
     ctx.fillRect(currX, currY, 2, 2);
     ctx.closePath();
