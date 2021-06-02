@@ -57,12 +57,12 @@ let glyphs={}
 var keyboardSelectArea=null;
 var drawingToolArea=null;
 var drawingBox=null;
-const backgroundImg=new Image (234, 85); backgroundImg.src = 'PictochatWindow.png';
-const keyboard1=new Image (200, 81); keyboard1.src = 'Keyboard1Normal.png';
-const keyboard1s=new Image (200, 81); keyboard1s.src = 'Keyboard1Shift.png';
-const keyboard1c=new Image (200, 81); keyboard1c.src = 'Keyboard1Caps.png';
-const keyboard2=new Image (200, 81); keyboard2.src = 'KeyboardAccent.png';
-const glyph=new Image (320, 377); glyph.src = 'Glyphs.png';
+const backgroundImg=new Image (234, 85); backgroundImg.src = 'images/PictochatWindow.png';
+const keyboard1=new Image (200, 81); keyboard1.src = 'images/Keyboard1Normal.png';
+const keyboard1s=new Image (200, 81); keyboard1s.src = 'images/Keyboard1Shift.png';
+const keyboard1c=new Image (200, 81); keyboard1c.src = 'images/Keyboard1Caps.png';
+const keyboard2=new Image (200, 81); keyboard2.src = 'images/KeyboardAccent.png';
+const glyph=new Image (320, 377); glyph.src = 'images/Glyphs.png';
 
 
 //backgroundImg.onload = drawImageActualSize; // Draw when image has loaded
@@ -119,12 +119,12 @@ function init() {
         offX:5, offY:100,
         bindBoxes:[null, null, null, null, null, null]
     };
-    keyboardSelectArea.Imm0=new Image(14,82); keyboardSelectArea.Imm0.src="KeyboardSelectOFF.png";
-    keyboardSelectArea.Imm1=new Image(14,82); keyboardSelectArea.Imm1.src="KeyboardSelectON1.png";
-    keyboardSelectArea.Imm2=new Image(14,82); keyboardSelectArea.Imm2.src="KeyboardSelectON2.png";
-    keyboardSelectArea.Imm3=new Image(14,82); keyboardSelectArea.Imm3.src="KeyboardSelectON3.png";
-    keyboardSelectArea.Imm4=new Image(14,82); keyboardSelectArea.Imm4.src="KeyboardSelectON4.png";
-    keyboardSelectArea.Imm5=new Image(14,82); keyboardSelectArea.Imm5.src="KeyboardSelectON5.png";
+    keyboardSelectArea.Imm0=new Image(14,82); keyboardSelectArea.Imm0.src="images/KeyboardSelectOFF.png";
+    keyboardSelectArea.Imm1=new Image(14,82); keyboardSelectArea.Imm1.src="images/KeyboardSelectON1.png";
+    keyboardSelectArea.Imm2=new Image(14,82); keyboardSelectArea.Imm2.src="images/KeyboardSelectON2.png";
+    keyboardSelectArea.Imm3=new Image(14,82); keyboardSelectArea.Imm3.src="images/KeyboardSelectON3.png";
+    keyboardSelectArea.Imm4=new Image(14,82); keyboardSelectArea.Imm4.src="images/KeyboardSelectON4.png";
+    keyboardSelectArea.Imm5=new Image(14,82); keyboardSelectArea.Imm5.src="images/KeyboardSelectON5.png";
     keyboardSelectArea.bindBoxes[1]=newBox(0,0,14,14);
     keyboardSelectArea.bindBoxes[2]=newBox(0,17,14,14);
     keyboardSelectArea.bindBoxes[3]=newBox(0,34,14,14);
@@ -136,7 +136,7 @@ function init() {
         offX:5, offY:25,
         bindBoxes:[null, null, null, null, null]
     }
-    drawingToolArea.Imm0= new Image(14,62); drawingToolArea.Imm0.src="drawingTools.png";
+    drawingToolArea.Imm0= new Image(14,62); drawingToolArea.Imm0.src="images/drawingTools.png";
     drawingToolArea.bindBoxes[1]=newBox(0,0,14,13);
     drawingToolArea.bindBoxes[2]=newBox(0,14,14,13);
     drawingToolArea.bindBoxes[3]=newBox(0,33,14,14);
@@ -278,14 +278,6 @@ function displayPictoString(mode){
                          array2D[startX-drawOffX+imX][startY-drawOffY+imY]=2;
                      }
                  }
-
-                // for (imX=0;imX<9; imX++){
-                //     for (imY=0;imY<12; imY++){
-                //         var data=(pctx.getImageData(imX+glyphX*10, imY+glyphY*13, 1, 1).data);
-                //         if ((data[3])>200){
-                //            array2D[startX-drawOffX+imX][startY-drawOffY+imY]=2;
-                //        }
-                //    }
                 }
 
              else{
