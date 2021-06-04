@@ -5,10 +5,18 @@
     <header>
           <h1>Frontend WIP</h1>
     </header>
+ <style>
+ canvas {
 
+   image-rendering: -moz-crisp-edges;
+   image-rendering: -webkit-crisp-edges;
+   image-rendering: pixelated;
+   image-rendering: crisp-edges;
+ }
+ </style>
     <body onload="init()">
-        <div style="cursor: none;">
-        <canvas id="drawing" width="720px" height="500px" style="position:absolute;z-index:1;">
+        <div style="cursor: none; ">
+        <canvas id="drawing" width="720px", height="500px">
                 Sorry, your browser doesn't support canvas technology.
             </canvas>
 

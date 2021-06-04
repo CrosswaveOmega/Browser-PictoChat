@@ -13,7 +13,7 @@ var SHIFT=false;
 var inKeybutton=false;
 var drawing=false;
 
-const dotsize=1;
+var dotsize=1;
 
 var cols=228;
 var rows=80;
@@ -62,8 +62,11 @@ const keyboard1=new Image (200, 81); keyboard1.src = 'images/Keyboard1Normal.png
 const keyboard1s=new Image (200, 81); keyboard1s.src = 'images/Keyboard1Shift.png';
 const keyboard1c=new Image (200, 81); keyboard1c.src = 'images/Keyboard1Caps.png';
 const keyboard2=new Image (200, 81); keyboard2.src = 'images/KeyboardAccent.png';
-const glyph=new Image (320, 377); glyph.src = 'images/Glyphs.png';
-
+const keyboard4=new Image (200, 81); keyboard4.src = 'images/KeyboardSymbol.png';
+const keyboard5=new Image (200, 81); keyboard5.src = 'images/KeyboardPictogram.png';
+//const keyboard2=new Image (200, 81); keyboard2.src = 'images/KeyboardAccent.png';
+const glyph=new Image (320*2, 377*2); glyph.src = 'images/Glyphs.png';
+const glyphX1=new Image (320, 377); glyphX1.src = 'images/Glyphs11.png';
 
 //backgroundImg.onload = drawImageActualSize; // Draw when image has loaded
 function newBox(posX, posY, sizeX, sizeY){
@@ -71,8 +74,10 @@ function newBox(posX, posY, sizeX, sizeY){
         xpos: posX, ypos:posY,
         xsize:sizeX, ysize:sizeY,
         inBounds:function(cx, cy, offX, offY){
-            var xCond=((cx>=(offX+this.xpos)) &&(cx<=(offX+this.xpos+this.xsize)));
-            var yCond=((cy>=(offY+this.ypos)) &&(cy<=(offY+this.ypos+this.ysize)));
+            var cdx=cx/dotsize
+            var cdy=cy/dotsize
+            var xCond=((cdx>=(offX+this.xpos)) &&(cdx<=(offX+this.xpos+this.xsize)));
+            var yCond=((cdy>=(offY+this.ypos)) &&(cdy<=(offY+this.ypos+this.ysize)));
             if (xCond && yCond){
                 return true;
             }
@@ -87,21 +92,29 @@ function init() {
       .then(response => response.json())
       .then(glyp => glyphs=glyp);
 
-      fetch('./keyboard2.json')
-        .then(response => response.json())
-        .then(glyp => keyboards[2]=glyp);
+    fetch('./keyboard2.json')
+      .then(response => response.json())
+      .then(glyp => keyboards[2]=glyp);
 
+    fetch('./keyboard4.json')
+      .then(response => response.json())
+      .then(glyp => keyboards[4]=glyp);
+
+    fetch('./keyboard5.json')
+      .then(response => response.json())
+      .then(glyp => keyboards[5]=glyp);
 
     canvas = document.getElementById('drawing');
     preview =  document.getElementById('animating');
-    offscreen = new OffscreenCanvas(320, 377);
+    offscreen = new OffscreenCanvas(320*2, 377*2);
 
 
-    drawingBox=newBox(drawOffX,drawOffY,cols*dotsize,rows*dotsize);
+    drawingBox=newBox(drawOffX,drawOffY,cols,rows);
 
     ctx = canvas.getContext("2d");
     pctx = offscreen.getContext("2d");
-    pctx.drawImage(glyph, 0,0);
+    ctx.imageSmoothingEnabled = false;
+    pctx.drawImage(glyphX1, 0,0);
     w = canvas.width;
     h = canvas.height;
     for (var i=0;i<array2D.length;i++){
@@ -240,19 +253,24 @@ function  handleKeyboardEvent(keyEvent, type){
     dotDraw(ctx);
 }
 
+function drawScaledImage(cont, image, X, Y){
+    cont.drawImage(image, X*dotsize, Y*dotsize, image.naturalWidth*dotsize, image.naturalHeight*dotsize)
+}
+
 function burnInPictoString(){
-    displayPictoString(true);
+    renderPictoString(true);
 }
-function renderPictoString(){
-    displayPictoString(false);
+function displayPictoString(){
+    renderPictoString(false);
 }
-function displayPictoString(mode){
+function renderPictoString(mode){
     //This function displays the pictostring;
     //Only run after update.
 
     //TO DO: ADD DEFAULT.
     var startX=PictoString.startX + drawOffX;
     var startY=PictoString.startY + drawOffY;
+    var ims=0;
     var im=0;
     var imX=0;
     var imY=0;
@@ -264,6 +282,10 @@ function displayPictoString(mode){
             var glyphX=glyphs.glyphs[current].px;
             var glyphY=glyphs.glyphs[current].py;
             var charwidth=glyphs.glyphs[current].width;
+        if (((startX-drawOffX)+charwidth+1)>cols){
+            startY=startY+16;
+            startX=3+drawOffX;
+        }
         if(current=="+n"){
             startY=startY+16;
             startX=3+drawOffX;
@@ -272,16 +294,19 @@ function displayPictoString(mode){
              if (burn){
                  var data=(pctx.getImageData(glyphX*10, glyphY*13, charwidth, 12).data);
                  for (im=0;im<12*charwidth;im++){
+                     //im=im*2;
                      imX=im%charwidth;
                      imY=Math.floor(im/charwidth);
+
                      if(data[im*4+3]>200){
+                         console.log(imX, imY);
                          array2D[startX-drawOffX+imX][startY-drawOffY+imY]=2;
                      }
                  }
                 }
 
              else{
-                 ctx.drawImage(glyph, glyphX*10, glyphY*13, charwidth, 12, startX, startY, charwidth, 12);
+                 ctx.drawImage(glyph, glyphX*10*2, glyphY*13*2, charwidth*2, 12*2, startX*dotsize, startY*dotsize, charwidth*dotsize, 12*dotsize);
              }
          }
             startX=startX+charwidth+1;
@@ -299,8 +324,8 @@ function checkIfInKeyboardButtons(cx, cy){
     for (var k=0;k<keys.length;k++){
         var thisEntry=keyboards[keyboard_selected].keylist[keys[k]];
 
-                xCond=((cx>=(offX+thisEntry.xpos)) &&(cx<=(offX+thisEntry.xpos+thisEntry.xsize)));
-                yCond=((cy>=(offY+thisEntry.ypos)) &&(cy<=(offY+thisEntry.ypos+thisEntry.ysize)));
+                xCond=((cx/dotsize>=(offX+thisEntry.xpos)) &&(cx/dotsize<=(offX+thisEntry.xpos+thisEntry.xsize)));
+                yCond=((cy/dotsize>=(offY+thisEntry.ypos)) &&(cy/dotsize<=(offY+thisEntry.ypos+thisEntry.ysize)));
 
                 if (xCond && yCond){
                     return keys[k];
@@ -343,7 +368,7 @@ function checkIfInToolArea(cx, cy){
 }
 
 function drawBox(cont, offX, offY, box){
-    cont.fillRect(offX+box.xpos, offY+box.ypos, box.xsize, box.ysize);
+    cont.fillRect((offX+box.xpos)*dotsize, (offY+box.ypos)*dotsize, (box.xsize)*dotsize, (box.ysize)*dotsize);
 
 }
 
@@ -356,11 +381,11 @@ function drawBoxes(cont){
         var thisEntry=keyboardSelectArea.bindBoxes[k];
 
         cont.beginPath();
-        cont.rect(offX+thisEntry.xpos, offY+thisEntry.ypos, thisEntry.xsize, thisEntry.ysize);
+        cont.rect( (offX+thisEntry.xpos)*dotsize, (offY+thisEntry.ypos)*dotsize, (thisEntry.xsize)*dotsize, (thisEntry.ysize)*dotsize);
         cont.stroke();
         cont.closePath();
 
-}
+    }
 }
 
 
@@ -368,7 +393,8 @@ function drawBoxes(cont){
 function drawToolsArea(){
     var offX=drawingToolArea.offX;
     var offY=drawingToolArea.offY;
-    ctx.drawImage(drawingToolArea.Imm0, drawingToolArea.offX, drawingToolArea.offY)
+    drawScaledImage(ctx, drawingToolArea.Imm0, drawingToolArea.offX, drawingToolArea.offY)
+    //ctx.drawImage(drawingToolArea.Imm0, drawingToolArea.offX*dotsize, drawingToolArea.offY*dotsize)
     ctx.fillStyle = "rgba(0, 0, 255, 0.5)";
     switch (toolActive){
         case 1:
@@ -388,22 +414,28 @@ function drawToolsArea(){
     }
 }
 function drawKeyboardSelect(){
-    ctx.drawImage(keyboardSelectArea.Imm0,keyboardSelectArea.offX,keyboardSelectArea.offY);
+    drawScaledImage(ctx, keyboardSelectArea.Imm0, keyboardSelectArea.offX, keyboardSelectArea.offY)
+    //ctx.drawImage(keyboardSelectArea.Imm0,keyboardSelectArea.offX*dotsize,keyboardSelectArea.offY*dotsize);
     switch (keyboard_selected){
         case 1:
-            ctx.drawImage(keyboardSelectArea.Imm1,keyboardSelectArea.offX,keyboardSelectArea.offY);
+            drawScaledImage(ctx, keyboardSelectArea.Imm1, keyboardSelectArea.offX, keyboardSelectArea.offY)
+            //ctx.drawImage(keyboardSelectArea.Imm1,keyboardSelectArea.offX,keyboardSelectArea.offY);
             break;
         case 2:
-            ctx.drawImage(keyboardSelectArea.Imm2,keyboardSelectArea.offX,keyboardSelectArea.offY);
+            drawScaledImage(ctx, keyboardSelectArea.Imm2, keyboardSelectArea.offX, keyboardSelectArea.offY)
+            //ctx.drawImage(keyboardSelectArea.Imm2,keyboardSelectArea.offX,keyboardSelectArea.offY);
             break;
         case 3:
-            ctx.drawImage(keyboardSelectArea.Imm3,keyboardSelectArea.offX,keyboardSelectArea.offY);
+            drawScaledImage(ctx, keyboardSelectArea.Imm3, keyboardSelectArea.offX, keyboardSelectArea.offY)
+            //ctx.drawImage(keyboardSelectArea.Imm3,keyboardSelectArea.offX,keyboardSelectArea.offY);
             break;
         case 4:
-            ctx.drawImage(keyboardSelectArea.Imm4,keyboardSelectArea.offX,keyboardSelectArea.offY);
+            drawScaledImage(ctx, keyboardSelectArea.Imm4, keyboardSelectArea.offX, keyboardSelectArea.offY)
+            //ctx.drawImage(keyboardSelectArea.Imm4,keyboardSelectArea.offX,keyboardSelectArea.offY);
             break;
         case 5:
-            ctx.drawImage(keyboardSelectArea.Imm5,keyboardSelectArea.offX,keyboardSelectArea.offY);
+            drawScaledImage(ctx, keyboardSelectArea.Imm5, keyboardSelectArea.offX, keyboardSelectArea.offY)
+            //ctx.drawImage(keyboardSelectArea.Imm5,keyboardSelectArea.offX,keyboardSelectArea.offY);
             break;
     }
     //drawBoxes(ctx);
@@ -415,7 +447,7 @@ function setDraggedGlyph(cX, cY){
         if (glyphs.glyphs.hasOwnProperty(current)){
             burnInPictoString();
             PictoString.resetString();
-            PictoString.setStart(cX-drawOffX, cY-drawOffY);
+            PictoString.setStart(Math.floor(cX/dotsize)-drawOffX, Math.floor(cY/dotsize)-drawOffY);
             PictoString.addToString(current);
          }
 
@@ -428,7 +460,7 @@ function drawDraggedGlyph(cont, cX, cY){
             var glyphX=glyphs.glyphs[current].px;
             var glyphY=glyphs.glyphs[current].py;
             var charwidth=glyphs.glyphs[current].width;
-             cont.drawImage(glyph, glyphX*10, glyphY*13, charwidth, 12, cX, cY, charwidth, 12);
+             cont.drawImage(glyph, glyphX*10*2, glyphY*13*2, charwidth*2, 12*2, cX, cY, charwidth*dotsize, 12*dotsize);
          }
 
     }
@@ -438,23 +470,29 @@ function keyboardDraw(cont){
     var offY=offset+100;
     if (keyboard_selected==1){
         if (SHIFT){
-            cont.drawImage(keyboard1s,offX,100+offset);
+            drawScaledImage(cont,keyboard1s,offX,offY);
         }
         else if(CAPS){
-            cont.drawImage(keyboard1c,offX,100+offset);
+            drawScaledImage(cont,keyboard1c,offX,offY);
         }else{
-            cont.drawImage(keyboard1, offX, 100+offset);
+            drawScaledImage(cont,keyboard1, offX, offY);
         }
     }
     else if (keyboard_selected==2){
-        cont.drawImage(keyboard2, offX, 100+offset);
+        drawScaledImage(cont,keyboard2, offX, offY);
+    }
+    else if (keyboard_selected==4){
+        drawScaledImage(cont,keyboard4, offX, offY);
+    }
+    else if (keyboard_selected==5){
+        drawScaledImage(cont,keyboard5, offX, offY);
     }
     var keys=Object.keys(keyboards[keyboard_selected].keylist);
     for (var k=0;k<keys.length;k++){
         var thisEntry=keyboards[keyboard_selected].keylist[keys[k]];
         if (thisEntry.hasOwnProperty("pressed")){
             if (thisEntry.pressed==true){
-                cont.fillRect(offX+thisEntry.xpos, offY+thisEntry.ypos, thisEntry.xsize, thisEntry.ysize);
+                cont.fillRect((offX+thisEntry.xpos)*dotsize, (offY+thisEntry.ypos)*dotsize, (thisEntry.xsize)*dotsize, (thisEntry.ysize)*dotsize);
             }
         }
     }
@@ -463,14 +501,14 @@ function keyboardDraw(cont){
 function dotDraw(cont){
     //This draws the entire window.
     cont.clearRect(0, 0, w, h);
-    cont.drawImage(backgroundImg,drawOffX-2,drawOffY-2);
+    drawScaledImage(cont,backgroundImg,drawOffX-2,drawOffY-2);
     ctx.fillStyle = "rgb(0, 0, 0)";
     for (var i=0;i<array2D.length;i++){
         var row =array2D[i];
         for (var j=0; j<row.length;j++){
             if ((row[j]!=null) || (pictoStringArray[i][j]!=null)){
                 if (array2D[i][j]==2){
-                cont.fillRect(drawOffX+i*dotsize, drawOffY+j*dotsize, dotsize, dotsize);
+                cont.fillRect((drawOffX+i)*dotsize, (drawOffY+j)*dotsize, dotsize, dotsize);
                 }
             }
         }
@@ -480,7 +518,7 @@ function dotDraw(cont){
     drawKeyboardSelect();
     drawToolsArea();
     //Make Text.
-    renderPictoString();
+    displayPictoString();
 }
 
 function dotAt(i, j){
@@ -511,12 +549,7 @@ function dotFill(i,j){
             break;
     }
 }
-function dotPoint(x,y){
-    //Convert to Dot.
-    var i= Math.floor((x-drawOffX)/dotsize);
-    var j = Math.floor((y-drawOffY)/dotsize);
-    dotFill(i,j)
-}
+
 
 function dotLineDraw(x0,y0,x1,y1){
     //derived from: https://en.wikipedia.org/wiki/Bresenham%27s_line_algorithm
@@ -580,12 +613,20 @@ function dotLineDraw(x0,y0,x1,y1){
         }
     }
 }
+function dotPoint(x,y){
+    //Convert to Dot.
+    //var i= Math.floor((x-drawOffX)/dotsize);
+    //var j = Math.floor((y-drawOffY)/dotsize);
+    var i=Math.floor((x/dotsize))-drawOffX;
+    var j=Math.floor((y/dotsize))-drawOffY;
+    dotFill(i,j)
+}
 function dotLineFill(lx, ly, x, y){
     //Convert two sets of coordinates to the type used by the dot matrix.
-    var i1=Math.floor((lx-drawOffX)/dotsize);
-    var j1=Math.floor((ly-drawOffY)/dotsize);
-    var i2= Math.floor((x-drawOffX)/dotsize);
-    var j2 = Math.floor((y-drawOffY)/dotsize);
+    var i1=Math.floor((lx/dotsize))-drawOffX;
+    var j1=Math.floor((ly/dotsize))-drawOffY;
+    var i2= Math.floor((x/dotsize))-drawOffX;
+    var j2 = Math.floor((y/dotsize))-drawOffY;
     dotLineDraw(i1,j1,i2,j2);
 }
 
@@ -607,6 +648,8 @@ function handleMouse(mouseEvent, type) {
     if (type == 'down') {
         //Check if in drawing box.
         if (drawingBox.inBounds(currX, currY, 0, 0)){
+            console.log(drawingBox.xpos, drawingBox.ypos, drawingBox.xsize, drawingBox.ysize)
+            console.log(currX/dotsize, currY/dotsize)
             draw_flag = true;
             tap_flag = true;
             if (tap_flag) {
@@ -654,6 +697,6 @@ function handleMouse(mouseEvent, type) {
     dotDraw(ctx);
     drawDraggedGlyph(ctx, currX, currY);
     ctx.beginPath();
-    ctx.fillRect(currX, currY, 2, 2);
+    ctx.fillRect(currX, currY, 2*dotsize, 2*dotsize);
     ctx.closePath();
 }
