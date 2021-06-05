@@ -3,8 +3,11 @@ var draw_flag = false;
 var prevX, currX, prevY, currY=0;
 var tap_flag = false;
 var offset=4;
-var drawOffX=25;
-var drawOffY=4;
+var drawOffX=26;
+var drawOffY=6;
+
+var keyboardOffX=24;
+var keyboardOffY=91;
 
 //For modes.
 //Forthe keyboard.
@@ -27,10 +30,11 @@ var toolActive=0;
 var toolSize=0;
 var keyDown=null;
 
+
 var keyboards={
     1:{
         keyboardMode:"Code",
-        keylist:{"Digit1":{xpos:4,ypos:2,xsize:15,ysize:14, char:"1",schar:"!", caps:false},"Digit2":{xpos:20,ypos:2,xsize:15,ysize:14, char:"2",schar:"@", caps:false},"Digit3":{xpos:36,ypos:2,xsize:15,ysize:14, char:"3",schar:"#", caps:false},"Digit4":{xpos:52,ypos:2,xsize:15,ysize:14, char:"4",schar:"$", caps:false},"Digit5":{xpos:68,ypos:2,xsize:15,ysize:14, char:"5",schar:"%", caps:false},"Digit6":{xpos:84,ypos:2,xsize:15,ysize:14, char:"6",schar:"^", caps:false},"Digit7":{xpos:100,ypos:2,xsize:15,ysize:14,char:"7",schar:"&", caps:false},"Digit8":{xpos:116,ypos:2,xsize:15,ysize:14,char:"8",schar:"*", caps:false},"Digit9":{xpos:132,ypos:2,xsize:15,ysize:14,char:"9",schar:"(", caps:false},"Digit0":{xpos:148,ypos:2,xsize:15,ysize:14,char:"0",schar:")", caps:false},"Minus": {xpos:164,ypos:2,xsize:15,ysize:14,char:"-",schar:"_", caps:false},"Equal": {xpos:180,ypos:2,xsize:15,ysize:14,char:"=",schar:"+", caps:false},"KeyW":{xpos:29,ypos:17,xsize:15,ysize:15, char:"w",schar:"W", caps:true},"KeyE":{xpos:45,ypos:17,xsize:15,ysize:15, char:"e",schar:"E", caps:true},"KeyQ":{xpos:13,ypos:17,xsize:15,ysize:15, char:"q",schar:"Q", caps:true},    "KeyR":{xpos:61,ypos:17,xsize:15,ysize:15, char:"r",schar:"R", caps:true},   "KeyT":{xpos:77,ypos:17,xsize:15,ysize:15, char:"t",schar:"T", caps:true},    "KeyY":{xpos:93,ypos:17,xsize:15,ysize:15, char:"y",schar:"Y", caps:true},   "KeyU":{xpos:109,ypos:17,xsize:15,ysize:15,char:"u",schar:"U", caps:true},    "KeyI":{xpos:125,ypos:17,xsize:15,ysize:15,char:"i",schar:"I", caps:true},   "KeyO":{xpos:141,ypos:17,xsize:15,ysize:15,char:"o",schar:"O", caps:true},    "KeyP":{xpos:157,ypos:17,xsize:15,ysize:15,char:"p",schar:"P", caps:true},   "KeyA":{xpos:20,ypos:33,xsize:15,ysize:15,char:"a",schar:"A", caps:true},    "KeyS":{xpos:36,ypos:33,xsize:15,ysize:15,char:"s",schar:"S", caps:true},   "KeyD":{xpos:52,ypos:33,xsize:15,ysize:15,char:"d",schar:"D", caps:true},    "KeyF":{xpos:68,ypos:33,xsize:15,ysize:15,char:"f",schar:"F", caps:true},   "KeyG":{xpos:84,ypos:33,xsize:15,ysize:15,char:"g",schar:"G", caps:true},    "KeyH":{xpos:100,ypos:33,xsize:15,ysize:15,char:"h",schar:"H", caps:true},   "KeyJ":{xpos:116,ypos:33,xsize:15,ysize:15,char:"j",schar:"J", caps:true},    "KeyK":{xpos:132,ypos:33,xsize:15,ysize:15,char:"k",schar:"K", caps:true},   "KeyL":{xpos:148,ypos:33,xsize:15,ysize:15,char:"l",schar:"L", caps:true},    "KeyZ":  {xpos:28,ypos:49,xsize:15,ysize:15,char:"z",schar:"Z", caps:true},   "KeyX":  {xpos:44,ypos:49,xsize:15,ysize:15,char:"x",schar:"X", caps:true},    "KeyC":  {xpos:60,ypos:49,xsize:15,ysize:15,char:"c",schar:"C", caps:true},   "KeyV":  {xpos:76,ypos:49,xsize:15,ysize:15,char:"v",schar:"V", caps:true},    "KeyB":  {xpos:92,ypos:49,xsize:15,ysize:15,char:"b",schar:"B", caps:true},    "KeyN":  {xpos:108,ypos:49,xsize:15,ysize:15,char:"n",schar:"N", caps:true},    "KeyM":  {xpos:124,ypos:49,xsize:15,ysize:15,char:"m",schar:"M", caps:true},    "Comma": {xpos:140,ypos:49,xsize:15,ysize:15,char:",",schar:"<", caps:false},    "Period":{xpos:156,ypos:49,xsize:15,ysize:15,char:".",schar:">", caps:false},    "Slash": {xpos:172,ypos:49,xsize:15,ysize:15,char:"/",schar:"?", caps:false},        "ShiftLeft":{xpos:2,ypos:49,xsize:25,ysize:15,char:null,schar:null, caps:false},    "CapsLock":{xpos:2,ypos:33,xsize:17,ysize:15,char:null,schar:null, caps:false},    "ShiftRight":{xpos:2,ypos:49,xsize:25,ysize:15,char:null,schar:null, caps:false},    "Semicolon":{xpos:36,ypos:65,xsize:15,ysize:14,char:";",schar:":", caps:false},    "BracketLeft":{xpos:148,ypos:65,xsize:15,ysize:14,char:"[",schar:"{", caps:false},    "BracketRight":{xpos:164,ypos:65,xsize:15,ysize:14,char:"{",schar:"}", caps:false},    "Backquote":{xpos:52,ypos:65,xsize:15,ysize:14,char:"`",schar:"~", caps:false},    "Backspace":{xpos:173,ypos:17,xsize:25,ysize:15,char:null,schar:null, caps:false},    "Space":{xpos:68,ypos:65,xsize:79,ysize:14,char:" ",schar:" ", caps:false},    "Enter":{xpos:164,ypos:33,xsize:34,ysize:15,char:null,schar:null, caps:false}}
+        keylist:{"Digit1":{xpos:4,ypos:2,xsize:15,ysize:14, char:"1",schar:"!", caps:false},"Digit2":{xpos:20,ypos:2,xsize:15,ysize:14, char:"2",schar:"@", caps:false},"Digit3":{xpos:36,ypos:2,xsize:15,ysize:14, char:"3",schar:"#", caps:false},"Digit4":{xpos:52,ypos:2,xsize:15,ysize:14, char:"4",schar:"$", caps:false},"Digit5":{xpos:68,ypos:2,xsize:15,ysize:14, char:"5",schar:"%", caps:false},"Digit6":{xpos:84,ypos:2,xsize:15,ysize:14, char:"6",schar:"^", caps:false},"Digit7":{xpos:100,ypos:2,xsize:15,ysize:14,char:"7",schar:"&", caps:false},"Digit8":{xpos:116,ypos:2,xsize:15,ysize:14,char:"8",schar:"*", caps:false},"Digit9":{xpos:132,ypos:2,xsize:15,ysize:14,char:"9",schar:"(", caps:false},"Digit0":{xpos:148,ypos:2,xsize:15,ysize:14,char:"0",schar:")", caps:false},"Minus": {xpos:164,ypos:2,xsize:15,ysize:14,char:"-",schar:"_", caps:false},"Equal": {xpos:180,ypos:2,xsize:15,ysize:14,char:"=",schar:"+", caps:false},"KeyW":{xpos:29,ypos:17,xsize:15,ysize:15, char:"w",schar:"W", caps:true},"KeyE":{xpos:45,ypos:17,xsize:15,ysize:15, char:"e",schar:"E", caps:true},"KeyQ":{xpos:13,ypos:17,xsize:15,ysize:15, char:"q",schar:"Q", caps:true},    "KeyR":{xpos:61,ypos:17,xsize:15,ysize:15, char:"r",schar:"R", caps:true},   "KeyT":{xpos:77,ypos:17,xsize:15,ysize:15, char:"t",schar:"T", caps:true},    "KeyY":{xpos:93,ypos:17,xsize:15,ysize:15, char:"y",schar:"Y", caps:true},   "KeyU":{xpos:109,ypos:17,xsize:15,ysize:15,char:"u",schar:"U", caps:true},    "KeyI":{xpos:125,ypos:17,xsize:15,ysize:15,char:"i",schar:"I", caps:true},   "KeyO":{xpos:141,ypos:17,xsize:15,ysize:15,char:"o",schar:"O", caps:true},    "KeyP":{xpos:157,ypos:17,xsize:15,ysize:15,char:"p",schar:"P", caps:true},   "KeyA":{xpos:20,ypos:33,xsize:15,ysize:15,char:"a",schar:"A", caps:true},    "KeyS":{xpos:36,ypos:33,xsize:15,ysize:15,char:"s",schar:"S", caps:true},   "KeyD":{xpos:52,ypos:33,xsize:15,ysize:15,char:"d",schar:"D", caps:true},    "KeyF":{xpos:68,ypos:33,xsize:15,ysize:15,char:"f",schar:"F", caps:true},   "KeyG":{xpos:84,ypos:33,xsize:15,ysize:15,char:"g",schar:"G", caps:true},    "KeyH":{xpos:100,ypos:33,xsize:15,ysize:15,char:"h",schar:"H", caps:true},   "KeyJ":{xpos:116,ypos:33,xsize:15,ysize:15,char:"j",schar:"J", caps:true},    "KeyK":{xpos:132,ypos:33,xsize:15,ysize:15,char:"k",schar:"K", caps:true},   "KeyL":{xpos:148,ypos:33,xsize:15,ysize:15,char:"l",schar:"L", caps:true},    "KeyZ":  {xpos:28,ypos:49,xsize:15,ysize:15,char:"z",schar:"Z", caps:true},   "KeyX":  {xpos:44,ypos:49,xsize:15,ysize:15,char:"x",schar:"X", caps:true},    "KeyC":  {xpos:60,ypos:49,xsize:15,ysize:15,char:"c",schar:"C", caps:true},   "KeyV":  {xpos:76,ypos:49,xsize:15,ysize:15,char:"v",schar:"V", caps:true},    "KeyB":  {xpos:92,ypos:49,xsize:15,ysize:15,char:"b",schar:"B", caps:true},    "KeyN":  {xpos:108,ypos:49,xsize:15,ysize:15,char:"n",schar:"N", caps:true},    "KeyM":  {xpos:124,ypos:49,xsize:15,ysize:15,char:"m",schar:"M", caps:true},    "Comma": {xpos:140,ypos:49,xsize:15,ysize:15,char:",",schar:"<", caps:false},    "Period":{xpos:156,ypos:49,xsize:15,ysize:15,char:".",schar:">", caps:false},    "Slash": {xpos:172,ypos:49,xsize:15,ysize:15,char:"/",schar:"?", caps:false},        "ShiftLeft":{xpos:2,ypos:49,xsize:25,ysize:15,char:null,schar:null, caps:false},    "CapsLock":{xpos:2,ypos:33,xsize:17,ysize:15,char:null,schar:null, caps:false},    "ShiftRight":{xpos:2,ypos:49,xsize:25,ysize:15,char:null,schar:null, caps:false},    "Semicolon":{xpos:36,ypos:65,xsize:15,ysize:14,char:";",schar:":", caps:false},    "BracketLeft":{xpos:148,ypos:65,xsize:15,ysize:14,char:"[",schar:"{", caps:false},    "BracketRight":{xpos:164,ypos:65,xsize:15,ysize:14,char:"{",schar:"}", caps:false},    "Quote":{xpos:52,ypos:65,xsize:15,ysize:14,char:"'",schar:"\"", caps:false}, "Backquote":{xpos:20,ypos:65,xsize:15,ysize:14,char:"`",schar:"~", caps:false},    "Backspace":{xpos:173,ypos:17,xsize:25,ysize:15,char:null,schar:null, caps:false},    "Space":{xpos:68,ypos:65,xsize:79,ysize:14,char:" ",schar:" ", caps:false},    "Enter":{xpos:164,ypos:33,xsize:34,ysize:15,char:null,schar:null, caps:false}}
     },
     2:{},
     3:{},
@@ -57,16 +61,22 @@ let glyphs={}
 var keyboardSelectArea=null;
 var drawingToolArea=null;
 var drawingBox=null;
+var SCCArea=null;
+
 const backgroundImg=new Image (234, 85); backgroundImg.src = 'images/PictochatWindow.png';
+
+const backcomp1=new Image (238, 176); backcomp1.src = 'images/Back01.png';
 const keyboard1=new Image (200, 81); keyboard1.src = 'images/Keyboard1Normal.png';
 const keyboard1s=new Image (200, 81); keyboard1s.src = 'images/Keyboard1Shift.png';
 const keyboard1c=new Image (200, 81); keyboard1c.src = 'images/Keyboard1Caps.png';
 const keyboard2=new Image (200, 81); keyboard2.src = 'images/KeyboardAccent.png';
 const keyboard4=new Image (200, 81); keyboard4.src = 'images/KeyboardSymbol.png';
 const keyboard5=new Image (200, 81); keyboard5.src = 'images/KeyboardPictogram.png';
+
 //const keyboard2=new Image (200, 81); keyboard2.src = 'images/KeyboardAccent.png';
 const glyph=new Image (320*2, 377*2); glyph.src = 'images/Glyphs.png';
 const glyphX1=new Image (320, 377); glyphX1.src = 'images/Glyphs11.png';
+
 
 //backgroundImg.onload = drawImageActualSize; // Draw when image has loaded
 function newBox(posX, posY, sizeX, sizeY){
@@ -117,19 +127,19 @@ function init() {
     pctx.drawImage(glyphX1, 0,0);
     w = canvas.width;
     h = canvas.height;
-    for (var i=0;i<array2D.length;i++){
-        var row =array2D[i];
-        for (var j=0; j<row.length;j++){
-            if (row[j]!=null){
-                ctx.beginPath();
-                ctx.fillRect(offset+i*dotsize, offset+j*dotsize, dotsize, dotsize);
-                ctx.stroke();
-                ctx.closePath();
-            }
-        }
-    }
+    // for (var i=0;i<array2D.length;i++){
+    //     var row =array2D[i];
+    //     for (var j=0; j<row.length;j++){
+    //         if (row[j]!=null){
+    //             ctx.beginPath();
+    //             ctx.fillRect(offset+i*dotsize, offset+j*dotsize, dotsize, dotsize);
+    //             ctx.stroke();
+    //             ctx.closePath();
+    //         }
+    //     }
+    // }
     keyboardSelectArea={
-        offX:5, offY:100,
+        offX:4, offY:keyboardOffY+5,
         bindBoxes:[null, null, null, null, null, null]
     };
     keyboardSelectArea.Imm0=new Image(14,82); keyboardSelectArea.Imm0.src="images/KeyboardSelectOFF.png";
@@ -146,7 +156,7 @@ function init() {
     toolActive=1;
     toolSize=1;
     drawingToolArea={
-        offX:5, offY:25,
+        offX:4, offY:25,
         bindBoxes:[null, null, null, null, null]
     }
     drawingToolArea.Imm0= new Image(14,62); drawingToolArea.Imm0.src="images/drawingTools.png";
@@ -154,6 +164,17 @@ function init() {
     drawingToolArea.bindBoxes[2]=newBox(0,14,14,13);
     drawingToolArea.bindBoxes[3]=newBox(0,33,14,14);
     drawingToolArea.bindBoxes[4]=newBox(0,48,14,14);
+
+    SCCArea = {
+        offX:keyboardOffX+202, offY:keyboardOffY,
+        bindBoxes:[null,
+            newBox(2,2,29,28),
+            newBox(2,33,29,21),
+            newBox(2,57,29,22)],
+        Imm0:null,
+        herePress:0
+    }
+    SCCArea.Imm0= new Image(32,81); SCCArea.Imm0.src="images/SendCopyClear.png";
 
     PictoString.resetString();
 
@@ -299,7 +320,6 @@ function renderPictoString(mode){
                      imY=Math.floor(im/charwidth);
 
                      if(data[im*4+3]>200){
-                         console.log(imX, imY);
                          array2D[startX-drawOffX+imX][startY-drawOffY+imY]=2;
                      }
                  }
@@ -316,8 +336,8 @@ function renderPictoString(mode){
 function checkIfInKeyboardButtons(cx, cy){
 
     //Check if mouse cursor is in a keyboard button.
-    var offX=offset+25;
-    var offY=offset+100;
+    var offX=keyboardOffX;
+    var offY=keyboardOffY;
 
 
     var keys=Object.keys(keyboards[keyboard_selected].keylist);
@@ -367,6 +387,43 @@ function checkIfInToolArea(cx, cy){
     }
 }
 
+function checkIfInSCCArea(cx, cy, status){
+    //Status can be up or down.
+    var offX=SCCArea.offX;
+    var offY=SCCArea.offY;
+    var toset=0;
+    for (var k=1;k<SCCArea.bindBoxes.length;k++){
+        if (SCCArea.bindBoxes[k].inBounds(cx, cy,offX, offY)){
+            if(status=='down'){
+                console.log(k);
+                toset=k;
+            }
+            else if(status=='up'){
+                if (SCCArea.herePress==k){
+                    switch(k){
+                        case 1:
+                            sendmatrix();
+                            SCCArea.herePress=0;
+                            break;
+                        case 2:
+                            console.log("There's nothing to copy.")
+                            SCCArea.herePress=0;
+                            break;
+                        case 3:
+                            console.log("Clearing.");
+                            clearmatrix();
+                            SCCArea.herePress=0;
+                            break;
+                    }
+
+                }
+            }
+        }
+    }
+    SCCArea.herePress=toset;
+
+}
+
 function drawBox(cont, offX, offY, box){
     cont.fillRect((offX+box.xpos)*dotsize, (offY+box.ypos)*dotsize, (box.xsize)*dotsize, (box.ysize)*dotsize);
 
@@ -410,6 +467,24 @@ function drawToolsArea(){
             break;
         case 1:
             drawBox(ctx, offX, offY, drawingToolArea.bindBoxes[4]);
+            break;
+    }
+}
+function drawSCCArea(){
+    var offX=SCCArea.offX;
+    var offY=SCCArea.offY;
+    drawScaledImage(ctx, SCCArea.Imm0, SCCArea.offX, SCCArea.offY);
+    //ctx.drawImage(drawingToolArea.Imm0, drawingToolArea.offX*dotsize, drawingToolArea.offY*dotsize)
+    ctx.fillStyle = "rgba(0, 0, 255, 0.5)";
+    switch (SCCArea.herePress){
+        case 1:
+            drawBox(ctx, offX, offY, SCCArea.bindBoxes[1]);
+            break;
+        case 2:
+            drawBox(ctx, offX, offY, SCCArea.bindBoxes[2]);
+            break;
+        case 3:
+            drawBox(ctx, offX, offY, SCCArea.bindBoxes[3]);
             break;
     }
 }
@@ -465,9 +540,9 @@ function drawDraggedGlyph(cont, cX, cY){
 
     }
 }
-function keyboardDraw(cont){
-    var offX=offset+25;
-    var offY=offset+100;
+function drawKeyboard(cont){
+    var offX=keyboardOffX;
+    var offY=keyboardOffY;
     if (keyboard_selected==1){
         if (SHIFT){
             drawScaledImage(cont,keyboard1s,offX,offY);
@@ -501,7 +576,8 @@ function keyboardDraw(cont){
 function dotDraw(cont){
     //This draws the entire window.
     cont.clearRect(0, 0, w, h);
-    drawScaledImage(cont,backgroundImg,drawOffX-2,drawOffY-2);
+    drawScaledImage(cont, backcomp1, drawOffX-6,drawOffY-5)
+    drawScaledImage(cont,backgroundImg,drawOffX-3,drawOffY-2);
     ctx.fillStyle = "rgb(0, 0, 0)";
     for (var i=0;i<array2D.length;i++){
         var row =array2D[i];
@@ -514,9 +590,10 @@ function dotDraw(cont){
         }
     }
     //Keyboard Drawing.
-    keyboardDraw(cont)
+    drawKeyboard(cont);
     drawKeyboardSelect();
     drawToolsArea();
+    drawSCCArea();
     //Make Text.
     displayPictoString();
 }
@@ -632,6 +709,14 @@ function dotLineFill(lx, ly, x, y){
 
 function clearmatrix() {
     console.log("Placeholder.");
+    PictoString.resetString();
+    for (var i=0;i<array2D.length;i++){
+        var row =array2D[i];
+        for (var j=0; j<row.length;j++){
+            array2D[i][j]=null;
+
+        }
+    }
 }
 
 function sendmatrix() {
@@ -668,6 +753,8 @@ function handleMouse(mouseEvent, type) {
         checkIfInKeyboardSelect(currX,currY);
         //CheckIfInTools
         checkIfInToolArea(currX, currY);
+        //checkIfInSCCArea
+        checkIfInSCCArea(currX, currY, 'down');
     }
     if (type== 'up'){
         var isIn=checkIfInKeyboardButtons(currX, currY);
@@ -684,6 +771,10 @@ function handleMouse(mouseEvent, type) {
             keyboards[keyboard_selected].keylist[keyDown].pressed=false;
 
             keyDown=null;
+        }
+        console.log(SCCArea.herePress)
+        if (SCCArea.herePress>0){
+            checkIfInSCCArea(currX, currY, 'up')
         }
         draw_flag = false;
     }
