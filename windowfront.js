@@ -431,6 +431,7 @@ function checkIfInSCCArea(cx, cy, status){
                         case 3:
                             console.log("Clearing.");
                             clearmatrix();
+                            dotChange=true;
                             SCCArea.herePress=0;
                             break;
                     }
