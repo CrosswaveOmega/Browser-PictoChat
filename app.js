@@ -6,6 +6,7 @@ const bodyParser = require('body-parser');
 const fetch = require('node-fetch');
 const fs = require('fs');
 const FormData = require('form-data');
+const cors = require("cors");
 const { createCanvas, loadImage } = require('canvas');
 const width = 228*2;
 const height = 80*2;
@@ -20,13 +21,7 @@ const app = express();
 const router = express.Router();
 
 //middleware
-app.use(
-session({
-secret: 'thisisasecret',
-saveUninitialized: false,
-resave: false
-})
-);
+app.use(cors());
 app.use(bodyParser.json());
 app.use(
 bodyParser.urlencoded({
@@ -36,9 +31,7 @@ extended: true
 app.use(express.static(__dirname));
 //app.use('/images');
 
-var sess; //is a global variable, NOT RECOMMENDED!
-var count=0;
-let sessions={}
+
 //ROUTERS
 
 
@@ -60,7 +53,7 @@ function postMessageToDiscord(message, buffer) {
 
 }
 
-router.post('/sendmatrix', (req, res) => {
+router.post('sendmatrix', (req, res) => {
 console.log("Serverside.");
 
 var dotsize=2;
