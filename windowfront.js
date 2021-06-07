@@ -767,7 +767,7 @@ function sendmatrix() {
     //post dot matrix to back end.
     var xhr = new XMLHttpRequest();
     burnInPictoString();
-    xhr.open("POST", '/sendmatrix', true);
+    xhr.open("POST", 'sendmatrix', true);
 
     //Send the proper header information along with the request
     xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
