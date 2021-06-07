@@ -53,6 +53,38 @@ function postMessageToDiscord(message, buffer) {
         .then(json => console.log(json));
 
 }
+router.get('sendmatrix', (req, res) => {
+console.log("Serverside.");
+
+var dotsize=2;
+var parce=JSON.parse(req.body.matrix);
+context.clearRect(0, 0, width, height);
+context.clearRect(0, 0, width, height);
+loadImage('./images/PictochatWindowClear.png').then((image) => {
+  context.drawImage(image, 0, 0, 234*2, 85*2);
+
+for (var i=0;i<parce.length;i++){
+    var row =parce[i];
+    for (var j=0; j<row.length;j++){
+            //console.log(parce[i][j])
+            if (parce[i][j]==2){
+                context.fillStyle = '#000000';
+                context.fillRect((i+3)*dotsize, (j+2)*dotsize, dotsize, dotsize);
+            }
+            else{
+                //context.fillStyle = '#fff';
+                //context.fillRect((i)*dotsize, (j)*dotsize, dotsize, dotsize);
+            }
+    }
+}
+
+var buffer = canvas.toBuffer('image/png');
+console.log(buffer);
+fs.writeFileSync('./test.png', buffer);
+postMessageToDiscord("Test", buffer);
+});
+res.end('done');
+});
 
 router.post('sendmatrix', (req, res) => {
 console.log("Serverside.");
