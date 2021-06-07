@@ -36,6 +36,9 @@ app.use(express.static(__dirname));
 //ROUTERS
 
 
+router.get('/',(req, res) => {
+  res.sendfile("index.html");
+});
 
 function postMessageToDiscord(message, buffer) {
     console.log("GO.")
