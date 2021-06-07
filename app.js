@@ -25,14 +25,9 @@ const router = express.Router();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true})
 );
+app.use(express.static(__dirname));
 app.use(cors());
-app.use(express.static(__dirname +"windowfront.js"));
-app.use(express.static(__dirname +"glyphs.json"));
-app.use(express.static(__dirname +"keyboard2.json"));
-app.use(express.static(__dirname +"keyboard4.json"));
-app.use(express.static(__dirname +"keyboard5.json"));
-app.use(express.static(__dirname +"images/"));
-app.use(express.static(__dirname +"index.html"));
+
 //app.use('/images');
 
 
@@ -40,7 +35,7 @@ app.use(express.static(__dirname +"index.html"));
 
 
 router.get('/',(req, res) => {
-  res.sendfile("index.html");
+    res.sendFile(__dirname + '/draw.html');
 });
 
 function postMessageToDiscord(message, buffer) {
@@ -59,7 +54,7 @@ function postMessageToDiscord(message, buffer) {
         .then(json => console.log(json));
 
 }
-router.get('/sendmatrix', (req, res) => {
+router.post('/sendmatrix', (req, res) => {
 console.log("Serverside.");
 
 var dotsize=2;
@@ -92,39 +87,8 @@ postMessageToDiscord("Test", buffer);
 res.end('done');
 });
 
-router.post('sendmatrix', (req, res) => {
-console.log("Serverside.");
 
-var dotsize=2;
-var parce=JSON.parse(req.body.matrix);
-context.clearRect(0, 0, width, height);
-context.clearRect(0, 0, width, height);
-loadImage('./images/PictochatWindowClear.png').then((image) => {
-  context.drawImage(image, 0, 0, 234*2, 85*2);
-
-for (var i=0;i<parce.length;i++){
-    var row =parce[i];
-    for (var j=0; j<row.length;j++){
-            //console.log(parce[i][j])
-            if (parce[i][j]==2){
-                context.fillStyle = '#000000';
-                context.fillRect((i+3)*dotsize, (j+2)*dotsize, dotsize, dotsize);
-            }
-            else{
-                //context.fillStyle = '#fff';
-                //context.fillRect((i)*dotsize, (j)*dotsize, dotsize, dotsize);
-            }
-    }
-}
-
-var buffer = canvas.toBuffer('image/png');
-console.log(buffer);
-fs.writeFileSync('./test.png', buffer);
-postMessageToDiscord("Test", buffer);
-});
-res.end('done');
-});
-
+app.use('/', router);
 //Router 4: for session destruction
 
 app.listen(process.env.PORT || 3000, () => {
