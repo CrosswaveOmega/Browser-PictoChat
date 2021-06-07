@@ -1,4 +1,4 @@
-var canvas, preview, offscreen, ctx, pctx = null;
+var canvas, preview, offscreen, matrixCanvas, ctx, pctx, dctx = null;
 var draw_flag = false;
 var prevX, currX, prevY, currY=0;
 var tap_flag = false;
@@ -9,10 +9,15 @@ var drawOffY=6;
 var keyboardOffX=24;
 var keyboardOffY=91;
 
+var dotChange=false;
+
+
+var overlayColor="rgba(0, 0, 255, 0.5)";
 //For modes.
 //Forthe keyboard.
 var CAPS=false;
 var SHIFT=false;
+
 var inKeybutton=false;
 var drawing=false;
 
@@ -20,6 +25,7 @@ var dotsize=1;
 
 var cols=228;
 var rows=80;
+
 let array2D= Array.from(Array(cols), () => new Array(rows));
 let pictoStringArray= Array.from(Array(cols), () => new Array(rows));
 
@@ -29,7 +35,7 @@ var keyboard_selected=1;
 var toolActive=0;
 var toolSize=0;
 var keyDown=null;
-
+var mShift=false;
 
 var keyboards={
     1:{
@@ -63,7 +69,9 @@ var drawingToolArea=null;
 var drawingBox=null;
 var SCCArea=null;
 
-const backgroundImg=new Image (234, 85); backgroundImg.src = 'images/PictochatWindow.png';
+const backgroundImg=new Image (234, 85); backgroundImg.src = 'images/PictochatWindowLines.png';
+const backgroundImg2=new Image (234, 85); backgroundImg2.src = 'images/PictochatWindowOverlay.png';
+
 
 const backcomp1=new Image (238, 176); backcomp1.src = 'images/Back01.png';
 const keyboard1=new Image (200, 81); keyboard1.src = 'images/Keyboard1Normal.png';
@@ -116,15 +124,21 @@ function init() {
 
     canvas = document.getElementById('drawing');
     preview =  document.getElementById('animating');
-    offscreen = new OffscreenCanvas(320*2, 377*2);
+    matrixCanvas =  document.getElementById('dotDraw');
+    //offscreen = new OffscreenCanvas(320*2, 377*2);
 
+    //discordsender = new OffscreenCanvas(cols*2, rows*2);
+    //offscreen= new OffscreenCanvas(320*2, 377*2);
 
+    overlayColor="rgba(0, 0, 255, 0.5)";
     drawingBox=newBox(drawOffX,drawOffY,cols,rows);
 
     ctx = canvas.getContext("2d");
-    pctx = offscreen.getContext("2d");
+    pctx = preview.getContext("2d");
+    dctx = matrixCanvas.getContext("2d");
     ctx.imageSmoothingEnabled = false;
     pctx.drawImage(glyphX1, 0,0);
+    pctx.imageSmoothingEnabled = false;
     w = canvas.width;
     h = canvas.height;
     // for (var i=0;i<array2D.length;i++){
@@ -228,12 +242,16 @@ function keyOps(keyCode, fireContext){
             case "Backspace":
                 PictoString.removeFromString();
                 break;
+            case "ShiftLeft":
+                if (fireContext=='mouse'){SHIFT=true; mShift=true;}
+                break;
             default:
 
                 if (keyboards[keyboard_selected].keyboardMode=="Code"){
                     if (SHIFT) { PictoString.addToString(thisCode.schar);}
                     else if (CAPS && thisCode.caps){PictoString.addToString(thisCode.schar);}
                     else{PictoString.addToString(thisCode.char);}
+                    if (mShift) {SHIFT=false; mShift=false;}
                 }else{PictoString.addToString(thisCode.char);}
         }
     }
@@ -321,6 +339,7 @@ function renderPictoString(mode){
 
                      if(data[im*4+3]>200){
                          array2D[startX-drawOffX+imX][startY-drawOffY+imY]=2;
+                         dotChange=true;
                      }
                  }
                 }
@@ -452,7 +471,7 @@ function drawToolsArea(){
     var offY=drawingToolArea.offY;
     drawScaledImage(ctx, drawingToolArea.Imm0, drawingToolArea.offX, drawingToolArea.offY)
     //ctx.drawImage(drawingToolArea.Imm0, drawingToolArea.offX*dotsize, drawingToolArea.offY*dotsize)
-    ctx.fillStyle = "rgba(0, 0, 255, 0.5)";
+    ctx.fillStyle = overlayColor;
     switch (toolActive){
         case 1:
             drawBox(ctx, offX, offY, drawingToolArea.bindBoxes[1]);
@@ -475,7 +494,7 @@ function drawSCCArea(){
     var offY=SCCArea.offY;
     drawScaledImage(ctx, SCCArea.Imm0, SCCArea.offX, SCCArea.offY);
     //ctx.drawImage(drawingToolArea.Imm0, drawingToolArea.offX*dotsize, drawingToolArea.offY*dotsize)
-    ctx.fillStyle = "rgba(0, 0, 255, 0.5)";
+    ctx.fillStyle = overlayColor;
     switch (SCCArea.herePress){
         case 1:
             drawBox(ctx, offX, offY, SCCArea.bindBoxes[1]);
@@ -563,6 +582,7 @@ function drawKeyboard(cont){
         drawScaledImage(cont,keyboard5, offX, offY);
     }
     var keys=Object.keys(keyboards[keyboard_selected].keylist);
+    cont.fillStyle=overlayColor;
     for (var k=0;k<keys.length;k++){
         var thisEntry=keyboards[keyboard_selected].keylist[keys[k]];
         if (thisEntry.hasOwnProperty("pressed")){
@@ -573,22 +593,44 @@ function drawKeyboard(cont){
     }
 }
 
-function dotDraw(cont){
-    //This draws the entire window.
-    cont.clearRect(0, 0, w, h);
-    drawScaledImage(cont, backcomp1, drawOffX-6,drawOffY-5)
-    drawScaledImage(cont,backgroundImg,drawOffX-3,drawOffY-2);
-    ctx.fillStyle = "rgb(0, 0, 0)";
-    for (var i=0;i<array2D.length;i++){
-        var row =array2D[i];
-        for (var j=0; j<row.length;j++){
-            if ((row[j]!=null) || (pictoStringArray[i][j]!=null)){
-                if (array2D[i][j]==2){
-                cont.fillRect((drawOffX+i)*dotsize, (drawOffY+j)*dotsize, dotsize, dotsize);
+function dotUpdate(cont){
+    if (dotChange){
+        dctx.clearRect(0, 0, 228, 80);
+        dctx.drawImage(backgroundImg,0-3,0-2)
+        dctx.fillStyle = "rgb(0, 0, 0)";
+        for (var i=0;i<array2D.length;i++){
+            var row =array2D[i];
+            for (var j=0; j<row.length;j++){
+                if ((row[j]!=null)){
+                    if (array2D[i][j]==2){
+                        dctx.fillRect((i), (j), 1, 1);
+                    }
                 }
             }
         }
+        dotChange=false;
     }
+    cont.putImageData(dctx.getImageData(0,0,cols, rows),  drawOffX, drawOffY, 0,0,cols*dotsize, rows*dotsize)
+}
+
+function dotDraw(cont){
+    //This draws the entire window.
+    cont.clearRect(0, 0, w, h);
+    drawScaledImage(cont, backcomp1, drawOffX-6,drawOffY-5);
+    drawScaledImage(cont,backgroundImg,drawOffX-3,drawOffY-2);
+     dotUpdate(cont);
+    //drawScaledImage(cont, dotUpdate(dctx), drawOffX, drawOffY);
+    drawScaledImage(cont,backgroundImg2,drawOffX-3,drawOffY-2);
+    // for (var i=0;i<array2D.length;i++){
+    //     var row =array2D[i];
+    //     for (var j=0; j<row.length;j++){
+    //         if ((row[j]!=null) || (pictoStringArray[i][j]!=null)){
+    //             if (array2D[i][j]==2){
+    //             cont.fillRect((drawOffX+i)*dotsize, (drawOffY+j)*dotsize, dotsize, dotsize);
+    //             }
+    //         }
+    //     }
+    // }
     //Keyboard Drawing.
     drawKeyboard(cont);
     drawKeyboardSelect();
@@ -604,9 +646,11 @@ function dotAt(i, j){
         if (j<array2D[i].length && j>=0){
             if (toolActive==1){
                 array2D[i][j]=2;
+                dotChange=true;
             }
             else if(toolActive==2){
                 array2D[i][j]=0;
+                dotChange=true;
             }
 
         }
@@ -721,6 +765,36 @@ function clearmatrix() {
 
 function sendmatrix() {
     //post dot matrix to back end.
+    var xhr = new XMLHttpRequest();
+    burnInPictoString();
+    xhr.open("POST", '/sendmatrix', true);
+
+    //Send the proper header information along with the request
+    xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+
+    xhr.onreadystatechange = function() { // Call a function when the state changes.
+        if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
+            console.log("Finished.");
+            // Request finished. Do processing here.
+        }
+    }
+    resp="";
+    for (var i=0;i<array2D.length;i++){
+        var row =array2D[i];
+        for (var j=0; j<row.length;j++){
+                if (array2D[i][j]==2){
+                    resp=resp+"2";
+                //cont.fillRect((drawOffX+i)*dotsize, (drawOffY+j)*dotsize, dotsize, dotsize);
+                }
+                else{
+                    resp=resp+"1";
+                }
+        }
+    }
+    content=JSON.stringify(array2D);
+    xhr.send("username=bar&matrix="+content);
+// xhr.send(new Int8Array());
+// xhr.send(document);
     console.log("Placeholder.");
 }
 
