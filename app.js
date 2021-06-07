@@ -37,17 +37,14 @@ app.use(express.static(__dirname));
 //app.use('/images');
 
 var sess; //is a global variable, NOT RECOMMENDED!
-
+var count=0;
+let sessions={}
 //ROUTERS
 
 //Router 1: for redering the hompage
 //Returns the client.
 router.get('/', (req, res) => {
-sess = req.session;
-if (sess.email && sess.visits) {
-return res.redirect('/admin');
-} else {
-sess.visits = 1;
+
 res.sendFile(__dirname + '/drawing.html');
 }
 });
@@ -71,7 +68,6 @@ function postMessageToDiscord(message, buffer) {
 }
 
 router.post('/sendmatrix', (req, res) => {
-sess = req.session;
 console.log("Serverside.");
 
 var dotsize=2;
