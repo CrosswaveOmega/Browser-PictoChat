@@ -41,13 +41,6 @@ var count=0;
 let sessions={}
 //ROUTERS
 
-//Router 1: for redering the hompage
-//Returns the client.
-router.get('/', (req, res) => {
-
-res.sendFile(__dirname + '/drawing.html');
-}
-});
 
 
 function postMessageToDiscord(message, buffer) {
@@ -101,16 +94,7 @@ res.end('done');
 });
 
 //Router 4: for session destruction
-router.get('/logout', (req, res) => {
-req.session.destroy(err => {
-if (err) {
-return console.log(err);
-}
-res.redirect('/');
-});
-});
 
-app.use('/', router);
 app.listen(process.env.PORT || 3000, () => {
 console.log(`App Started on PORT ${process.env.PORT || 3000}`);
 });
