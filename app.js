@@ -23,13 +23,16 @@ const router = express.Router();
 //middleware
 
 app.use(bodyParser.json());
-app.use(
-bodyParser.urlencoded({
-extended: true
-})
+app.use(bodyParser.urlencoded({extended: true})
 );
 app.use(cors());
-app.use(express.static(__dirname));
+app.use(express.static(__dirname +"windowfront.js"));
+app.use(express.static(__dirname +"glyphs.json"));
+app.use(express.static(__dirname +"keyboard2.json"));
+app.use(express.static(__dirname +"keyboard4.json"));
+app.use(express.static(__dirname +"keyboard5.json"));
+app.use(express.static(__dirname +"images/"));
+app.use(express.static(__dirname +"index.html"));
 //app.use('/images');
 
 
