@@ -56,7 +56,7 @@ function postMessageToDiscord(message, buffer) {
         .then(json => console.log(json));
 
 }
-router.get('sendmatrix', (req, res) => {
+router.get('/sendmatrix', (req, res) => {
 console.log("Serverside.");
 
 var dotsize=2;
