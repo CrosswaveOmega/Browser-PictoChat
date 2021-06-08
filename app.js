@@ -32,7 +32,7 @@ app.use(cors());
 
 
 //ROUTERS
-
+var messageLog=[];
 
 router.get('/',(req, res) => {
     res.sendFile(__dirname + '/draw.html');
@@ -54,37 +54,56 @@ function postMessageToDiscord(message, buffer) {
         .then(json => console.log(json));
 
 }
-router.post('/sendmatrix', (req, res) => {
-console.log("Serverside.");
-
-var dotsize=2;
-var parce=JSON.parse(req.body.matrix);
-context.clearRect(0, 0, width, height);
-context.clearRect(0, 0, width, height);
-loadImage('./images/PictochatWindowClear.png').then((image) => {
-  context.drawImage(image, 0, 0, 234*2, 85*2);
-
-for (var i=0;i<parce.length;i++){
-    var row =parce[i];
-    for (var j=0; j<row.length;j++){
-            //console.log(parce[i][j])
-            if (parce[i][j]==2){
-                context.fillStyle = '#000000';
-                context.fillRect((i+3)*dotsize, (j+2)*dotsize, dotsize, dotsize);
-            }
-            else{
-                //context.fillStyle = '#fff';
-                //context.fillRect((i)*dotsize, (j)*dotsize, dotsize, dotsize);
-            }
+router.get('/getmatrix', (req, res) => {
+    var position=0; //(req.body.position);
+    let returnArray=[];
+    console.log(req);
+    for (let i=position;i<messageLog.length;i++){
+        returnArray.push(messageLog[i]);
     }
-}
+    res.write(JSON.stringify(returnArray));
+    res.end('');
+})
 
-var buffer = canvas.toBuffer('image/png');
-console.log(buffer);
-fs.writeFileSync('./test.png', buffer);
-postMessageToDiscord("Test", buffer);
-});
-res.end('done');
+router.post('/sendmatrix', (req, res) => {
+    console.log("Serverside.");
+
+    var dotsize=2;
+    var parce=JSON.parse(req.body.matrix);
+    context.clearRect(0, 0, width, height);
+    context.clearRect(0, 0, width, height);
+    loadImage('./images/PictochatWindowClear.png').then((image) => {
+
+        context.drawImage(image, 0, 0, 234*2, 85*2);
+        for (var i=0;i<parce.length;i++){
+            var row =parce[i];
+            for (var j=0; j<row.length;j++){
+                    //console.log(parce[i][j])
+                    if((i>57 || j>16)||(j==16 && i>=54) ||(j==15 && i>=55)||(j==14 && i>=56)||(j==13 && i==57)) {
+                        if (parce[i][j]==2){
+                            context.fillStyle = '#000000';
+                            context.fillRect((i+3)*dotsize, (j+3)*dotsize, dotsize, dotsize);
+                        }
+                        else{
+                            //context.fillStyle = '#fff';
+                            //context.fillRect((i)*dotsize, (j)*dotsize, dotsize, dotsize);
+                        }
+                }
+            }
+        }
+
+
+        let buffer = canvas.toBuffer('image/png');
+        console.log(buffer);
+        fs.writeFileSync('./test.png', buffer);
+        postMessageToDiscord("Test", buffer);
+        let dataUrl = canvas.toDataURL('image/png');
+        console.log(dataUrl);
+        messageLog.push(dataUrl);
+        console.log(messageLog.length);
+    });
+    res.write("Finishsed.;")
+    res.end('done');
 });
 
 

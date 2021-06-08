@@ -1,4 +1,7 @@
 var canvas, preview, offscreen, matrixCanvas, ctx, pctx, dctx = null;
+
+var outputCanvas, octx=null;
+
 var draw_flag = false;
 var prevX, currX, prevY, currY=0;
 var tap_flag = false;
@@ -9,8 +12,10 @@ var drawOffY=6;
 var keyboardOffX=24;
 var keyboardOffY=91;
 
-var dotChange=false;
+var dotChange=true;
 
+
+var outputimgs=[];
 
 var overlayColor="rgba(0, 0, 255, 0.5)";
 //For modes.
@@ -27,7 +32,7 @@ var cols=228;
 var rows=80;
 
 let array2D= Array.from(Array(cols), () => new Array(rows));
-let pictoStringArray= Array.from(Array(cols), () => new Array(rows));
+let arr2DChanges= Array.from(Array(cols), () => new Array(rows));
 
 //Tools
 var keyboard_selected=1;
@@ -84,7 +89,7 @@ const keyboard5=new Image (200, 81); keyboard5.src = 'images/KeyboardPictogram.p
 //const keyboard2=new Image (200, 81); keyboard2.src = 'images/KeyboardAccent.png';
 const glyph=new Image (320*2, 377*2); glyph.src = 'images/Glyphs.png';
 const glyphX1=new Image (320, 377); glyphX1.src = 'images/Glyphs11.png';
-
+var drawingImage=new Image();// drawingImage.src = '/images/PictochatWindowOverlay.png';
 
 //backgroundImg.onload = drawImageActualSize; // Draw when image has loaded
 function newBox(posX, posY, sizeX, sizeY){
@@ -125,6 +130,8 @@ function init() {
     canvas = document.getElementById('drawing');
     preview =  document.getElementById('animating');
     matrixCanvas =  document.getElementById('dotDraw');
+    outputCanvas =  document.getElementById('output')
+
     //offscreen = new OffscreenCanvas(320*2, 377*2);
 
     //discordsender = new OffscreenCanvas(cols*2, rows*2);
@@ -136,14 +143,20 @@ function init() {
     ctx = canvas.getContext("2d");
     pctx = preview.getContext("2d");
     dctx = matrixCanvas.getContext("2d");
+    octx= outputCanvas.getContext("2d");
+
     ctx.imageSmoothingEnabled = false;
     pctx.drawImage(glyphX1, 0,0);
     pctx.imageSmoothingEnabled = false;
+    octx.imageSmoothingEnabled= false;
     w = canvas.width;
     h = canvas.height;
-    // for (var i=0;i<array2D.length;i++){
-    //     var row =array2D[i];
-    //     for (var j=0; j<row.length;j++){
+     for (var i=0;i<arr2DChanges.length;i++){
+         var row =arr2DChanges[i];
+         for (var j=0; j<row.length;j++){
+                arr2DChanges[i][j]=false;
+        }
+    }
     //         if (row[j]!=null){
     //             ctx.beginPath();
     //             ctx.fillRect(offset+i*dotsize, offset+j*dotsize, dotsize, dotsize);
@@ -338,7 +351,7 @@ function renderPictoString(mode){
                      imY=Math.floor(im/charwidth);
 
                      if(data[im*4+3]>200){
-                         array2D[startX-drawOffX+imX][startY-drawOffY+imY]=2;
+                         dotAt(startX-drawOffX+imX,startY-drawOffY+imY,2);
                          dotChange=true;
                      }
                  }
@@ -427,12 +440,13 @@ function checkIfInSCCArea(cx, cy, status){
                             break;
                         case 2:
                             console.log("There's nothing to copy.")
+                            getmessages();
                             SCCArea.herePress=0;
                             break;
                         case 3:
                             console.log("Clearing.");
                             clearmatrix();
-                            dotChange=true;
+                        //    dotChange=true;
                             SCCArea.herePress=0;
                             break;
                     }
@@ -596,37 +610,68 @@ function drawKeyboard(cont){
 }
 
 function dotUpdate(cont){
+
     if (dotChange){
-        dctx.clearRect(0, 0, 228, 80);
-        dctx.drawImage(backgroundImg,0-3,0-2)
+    //    dctx.clearRect(0, 0, 228, 80);
+    //    dctx.drawImage(backgroundImg,0-3,0-2)
         dctx.fillStyle = "rgb(0, 0, 0)";
-        for (var i=0;i<array2D.length;i++){
-            var row =array2D[i];
-            for (var j=0; j<row.length;j++){
+        for (let i=0;i<array2D.length;i++){
+            let row =array2D[i];
+            for (let j=0; j<row.length;j++){
                 if ((row[j]!=null)){
-                    if (array2D[i][j]==2){
-                        dctx.fillRect((i), (j), 1, 1);
+                    if (arr2DChanges[i][j]){
+                        if (array2D[i][j]==2){
+                            dctx.fillRect((i), (j), 1, 1);
+                        }else{
+                            dctx.clearRect((i), (j), 1, 1);
+                        }
+                        arr2DChanges[i][j]=false;
                     }
                 }
             }
         }
         dotChange=false;
-    }
-    cont.putImageData(dctx.getImageData(0,0,cols, rows),  drawOffX, drawOffY, 0,0,cols*dotsize, rows*dotsize)
-}
 
+    }
+    drawingImage.src=matrixCanvas.toDataURL();
+    //console.log(drawingImage.src);
+    //return drawingImage;
+    //cont.putImageData(dctx.getImageData(0,0,cols, rows),  drawOffX, drawOffY, 0,0,cols*dotsize, rows*dotsize)
+}
+function updateOutput(elements){
+    outputimgs=[];
+    document.getElementById('outputzone').innerHTML = "";
+
+    for (var i=0;i<elements.length;i++){
+        let img=new Image( 228,80 );
+        img.src=elements[i];
+        outputimgs.push(img);
+        document.getElementById('outputzone').appendChild(img);
+    }
+
+}
+function drawOutput(){
+    octx.clearRect(0,0,w,h);
+    for (var i=0;i<outputimgs.length;i++){
+
+        octx.drawImage(outputimgs[i], i*228, 0, 228,80);
+        //drawScaledImage(octx, img,i*228,4);
+    }
+}
 function dotDraw(cont){
     //This draws the entire window.
     cont.clearRect(0, 0, w, h);
-    drawScaledImage(cont, backcomp1, drawOffX-6,drawOffY-5);
-    drawScaledImage(cont,backgroundImg,drawOffX-3,drawOffY-2);
-     dotUpdate(cont);
-    //drawScaledImage(cont, dotUpdate(dctx), drawOffX, drawOffY);
-    drawScaledImage(cont,backgroundImg2,drawOffX-3,drawOffY-2);
+    //drawOutput();
+    drawScaledImage(cont, backcomp1, drawOffX-6,drawOffY-6);
+    drawScaledImage(cont,backgroundImg,drawOffX-3,drawOffY-3);
+    // dotUpdate(cont);
+    dotUpdate(cont);
+    drawScaledImage(cont, drawingImage, drawOffX, drawOffY);
+    drawScaledImage(cont,backgroundImg2,drawOffX-3,drawOffY-3);
     // for (var i=0;i<array2D.length;i++){
     //     var row =array2D[i];
     //     for (var j=0; j<row.length;j++){
-    //         if ((row[j]!=null) || (pictoStringArray[i][j]!=null)){
+    //         if ((row[j]!=null) || (arr2DChanges[i][j]!=null)){
     //             if (array2D[i][j]==2){
     //             cont.fillRect((drawOffX+i)*dotsize, (drawOffY+j)*dotsize, dotsize, dotsize);
     //             }
@@ -642,33 +687,40 @@ function dotDraw(cont){
     displayPictoString();
 }
 
-function dotAt(i, j){
-    //will apply tiik
+function dotAt(i,j,val){
     if (i <array2D.length && i>=0){
         if (j<array2D[i].length && j>=0){
-            if (toolActive==1){
-                array2D[i][j]=2;
-                dotChange=true;
-            }
-            else if(toolActive==2){
-                array2D[i][j]=0;
-                dotChange=true;
+            if (array2D[i][j]!=val){
+                array2D[i][j]=val;
+                arr2DChanges[i][j]=true;
             }
 
         }
+    }
+}
+function dotWithTool(i, j){
+    //will apply tiik
+    if (toolActive==1){
+        dotAt(i,j,2);
+
+        dotChange=true;
+    }
+    else if(toolActive==2){
+        dotAt(i,j,0);
+        dotChange=true;
     }
 }
 
 function dotFill(i,j){
     switch(toolSize){
         case 1:
-            dotAt(i,j);
+            dotWithTool(i,j);
             break;
         case 2:
-            dotAt(i,j);
-            dotAt(i,j+1);
-            dotAt(i+1,j);
-            dotAt(i+1,j+1);
+            dotWithTool(i,j);
+            dotWithTool(i,j+1);
+            dotWithTool(i+1,j);
+            dotWithTool(i+1,j+1);
             break;
     }
 }
@@ -759,12 +811,37 @@ function clearmatrix() {
     for (var i=0;i<array2D.length;i++){
         var row =array2D[i];
         for (var j=0; j<row.length;j++){
-            array2D[i][j]=null;
-
+            dotAt(i,j,0);
+            //array2D[i][j]=null;
         }
     }
+    dotChange=true;
 }
 
+function getmessages(){
+    var xhr = new XMLHttpRequest();
+
+    xhr.open("GET", '/getmatrix', true);
+
+    //Send the proper header information along with the request
+    xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+    xhr.overrideMimeType("text/plain");
+    xhr.onreadystatechange = function() { // Call a function when the state changes.
+        if (xhr.readyState == XMLHttpRequest.DONE) {
+        //    alert(xhr.responseText);
+            let elem=JSON.parse(xhr.responseText);
+            updateOutput(elem);
+            //outputimgs=elem;
+            console.log(elem);
+        }
+    }
+
+    content=JSON.stringify(array2D);
+    xhr.send("?position=0");
+// xhr.send(new Int8Array());
+// xhr.send(document);
+    console.log("Placeholder.");
+}
 function sendmatrix() {
     //post dot matrix to back end.
     var xhr = new XMLHttpRequest();
@@ -773,7 +850,7 @@ function sendmatrix() {
 
     //Send the proper header information along with the request
     xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-
+    xhr.overrideMimeType("text/plain");
     xhr.onreadystatechange = function() { // Call a function when the state changes.
         if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
             console.log("Finished.");
@@ -794,7 +871,7 @@ function sendmatrix() {
         }
     }
     content=JSON.stringify(array2D);
-    xhr.send("username=bar&matrix="+content);
+    xhr.send("?username=bar&matrix="+content);
 // xhr.send(new Int8Array());
 // xhr.send(document);
     console.log("Placeholder.");
