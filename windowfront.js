@@ -21,7 +21,7 @@ var SHIFT=false;
 var inKeybutton=false;
 var drawing=false;
 
-var dotsize=2;
+var dotsize=1;
 
 var cols=228;
 var rows=80;
