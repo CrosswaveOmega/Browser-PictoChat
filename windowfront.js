@@ -612,21 +612,22 @@ function drawKeyboard(cont){
 function dotUpdate(cont){
 
     if (dotChange){
-    //    dctx.clearRect(0, 0, 228, 80);
+        dctx.clearRect(0, 0, 228, 80);
     //    dctx.drawImage(backgroundImg,0-3,0-2)
         dctx.fillStyle = "rgb(0, 0, 0)";
         for (let i=0;i<array2D.length;i++){
             let row =array2D[i];
             for (let j=0; j<row.length;j++){
                 if ((row[j]!=null)){
-                    if (arr2DChanges[i][j]){
+                //    if (arr2DChanges[i][j]){
                         if (array2D[i][j]==2){
                             dctx.fillRect((i), (j), 1, 1);
-                        }else{
-                            dctx.clearRect((i), (j), 1, 1);
                         }
-                        arr2DChanges[i][j]=false;
-                    }
+                        //else{
+                    //        dctx.clearRect((i), (j), 1, 1);
+                //        }
+                    //    arr2DChanges[i][j]=false;
+                    //}
                 }
             }
         }
