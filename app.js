@@ -54,10 +54,9 @@ function postMessageToDiscord(message, buffer) {
         .then(json => console.log(json));
 
 }
-router.get('/getmatrix', (req, res) => {
-    var position=0; //(req.body.position);
+router.post('/getmatrix', (req, res) => {
+    var position=req.body.position; //(req.body.position);
     let returnArray=[];
-    console.log(req);
     for (let i=position;i<messageLog.length;i++){
         returnArray.push(messageLog[i]);
     }

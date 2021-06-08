@@ -154,7 +154,8 @@ function init() {
      for (var i=0;i<arr2DChanges.length;i++){
          var row =arr2DChanges[i];
          for (var j=0; j<row.length;j++){
-                arr2DChanges[i][j]=false;
+                arr2DChanges[i][j]=true;
+                array2D[i][j]=0;
         }
     }
     //         if (row[j]!=null){
@@ -227,8 +228,12 @@ function init() {
         handleMouse(e, 'in')
     }, false);
     dotDraw(ctx);
+    setInterval(getmessages, 3000);
+    setInterval(animDot, 1000);
 }
-
+function animDot(){
+    dotDraw(ctx);
+}
 function getCharFromKey(keyCode){
     var thisCode=keyboards[keyboard_selected].keylist[keyCode]
     if (keyboards[keyboard_selected].keyboardMode=="Code"){
@@ -614,17 +619,20 @@ function dotUpdate(cont){
     if (dotChange){
     //    dctx.clearRect(0, 0, 228, 80);
     //    dctx.drawImage(backgroundImg,0-3,0-2)
-        dctx.fillStyle = "rgb(0, 0, 0)";
+
         for (let i=0;i<array2D.length;i++){
             let row =array2D[i];
             for (let j=0; j<row.length;j++){
                 if ((row[j]!=null)){
                     if (arr2DChanges[i][j]){
                         if (array2D[i][j]==2){
+                            dctx.fillStyle = "rgb(0, 0, 0)";
                             dctx.fillRect((i), (j), 1, 1);
                         }
                         else{
                             dctx.clearRect((i), (j), 1, 1);
+                            if (j%16 == 0){dctx.fillStyle = "rgb(178, 195, 219)"; dctx.fillRect((i), (j), 1, 1);}
+
                         }
                         arr2DChanges[i][j]=false;
                     }
@@ -640,14 +648,18 @@ function dotUpdate(cont){
     cont.putImageData(dctx.getImageData(0,0,cols, rows),  drawOffX, drawOffY, 0,0,cols*dotsize, rows*dotsize)
 }
 function updateOutput(elements){
-    outputimgs=[];
+    //outputimgs=[];
     document.getElementById('outputzone').innerHTML = "";
 
-    for (var i=0;i<elements.length;i++){
+    for (let i=0;i<elements.length;i++){
         let img=new Image( 228,80 );
         img.src=elements[i];
         outputimgs.push(img);
-        document.getElementById('outputzone').appendChild(img);
+        //document.getElementById('outputzone').appendChild(img);
+    }
+    for (let i=0; i<outputimgs.length;i++){
+        //img
+        document.getElementById('outputzone').appendChild(outputimgs[i]);
     }
 
 }
@@ -664,10 +676,12 @@ function dotDraw(cont){
     cont.clearRect(0, 0, w, h);
     //drawOutput();
     drawScaledImage(cont, backcomp1, drawOffX-6,drawOffY-6);
-    drawScaledImage(cont,backgroundImg,drawOffX-3,drawOffY-3);
+
     // dotUpdate(cont);
+    drawScaledImage(cont,backgroundImg,drawOffX-3,drawOffY-3);
     dotUpdate(cont);
 //    drawScaledImage(cont, drawingImage, drawOffX, drawOffY);
+
     drawScaledImage(cont,backgroundImg2,drawOffX-3,drawOffY-3);
     // for (var i=0;i<array2D.length;i++){
     //     var row =array2D[i];
@@ -820,9 +834,9 @@ function clearmatrix() {
 }
 
 function getmessages(){
-    var xhr = new XMLHttpRequest();
+    let xhr = new XMLHttpRequest();
 
-    xhr.open("GET", '/getmatrix', true);
+    xhr.open("POST", '/getmatrix', true);
 
     //Send the proper header information along with the request
     xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
@@ -836,13 +850,12 @@ function getmessages(){
             console.log(elem);
         }
     }
-
-    content=JSON.stringify(array2D);
-    xhr.send("?position=0");
+    xhr.send("position="+outputimgs.length);
 // xhr.send(new Int8Array());
 // xhr.send(document);
     console.log("Placeholder.");
 }
+
 function sendmatrix() {
     //post dot matrix to back end.
     var xhr = new XMLHttpRequest();
