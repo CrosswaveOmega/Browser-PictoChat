@@ -422,6 +422,7 @@ function checkIfInSCCArea(cx, cy, status){
                     switch(k){
                         case 1:
                             sendmatrix();
+                            clearmatrix();
                             SCCArea.herePress=0;
                             break;
                         case 2:
