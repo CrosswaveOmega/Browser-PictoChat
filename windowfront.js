@@ -849,27 +849,32 @@ function clearmatrix() {
     dotChange=true;
 }
 
+var getdebounce=true;
 function getmessages(){
-    let xhr = new XMLHttpRequest();
+    if (getdebounce){
+        getdebounce=false;
+        let xhr = new XMLHttpRequest();
 
-    xhr.open("POST", '/getmatrix', true);
+        xhr.open("POST", '/getmatrix', true);
 
-    //Send the proper header information along with the request
-    xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-    xhr.overrideMimeType("text/plain");
-    xhr.onreadystatechange = function() { // Call a function when the state changes.
-        if (xhr.readyState == XMLHttpRequest.DONE) {
-        //    alert(xhr.responseText);
-            let elem=JSON.parse(xhr.responseText);
-            updateOutput(elem);
-            //outputimgs=elem;
-            //console.log(elem);
-            lastTime= new Date();
-            //...toISOString();
+        //Send the proper header information along with the request
+        xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+        xhr.overrideMimeType("text/plain");
+        xhr.onreadystatechange = function() { // Call a function when the state changes.
+            if (xhr.readyState == XMLHttpRequest.DONE) {
+            //    alert(xhr.responseText);
+                let elem=JSON.parse(xhr.responseText);
+                updateOutput(elem);
+                //outputimgs=elem;
+                //console.log(elem);
+                lastTime= new Date();
+                //...toISOString();
+            }
+            getdebounce=true;
         }
-    }
 
-    xhr.send("position="+lastTime.toISOString());
+        xhr.send("position="+lastTime.toISOString());
+    }
 // xhr.send(new Int8Array());
 // xhr.send(document);
     //console.log("Placeholder.");
