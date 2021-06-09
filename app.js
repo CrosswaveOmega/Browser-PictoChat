@@ -13,7 +13,7 @@ const height = 80*2;
 
 const discordUrl='https://discord.com/api/webhooks/851232711075168266/RgkH5r8_dKtTbv68zEEf444Amkq02mwPXAnDNKfLd3b1ZC6DgzMw3AjyqJHZWD0M4CO6'
 
-var canvas = createCanvas(234*2,  85*2)
+var canvas = createCanvas(234,  85)
 var context = canvas.getContext('2d')
 
 //initialize the app as an express app
