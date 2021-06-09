@@ -33,6 +33,8 @@ app.use(session({
     store: new MemoryStore({
       checkPeriod: 86400000 // prune expired entries every 24h
     }),
+    maxAge: Date.now() + (400000) ,
+    secure: true,
     saveUninitialized:true
 }));
 const startupHead=`<html><head><title>Enter Display Name.</title></head>`
@@ -49,7 +51,7 @@ const startupBody=`
 
 
 //ROUTERS
-var messageLog=[];
+var messageLog={};
 var glyphs= {};
 var glyph= null;
 router.get('/',(req, res) => {
@@ -127,14 +129,31 @@ function makeName(context, name){
             }
         }
 }
-router.post('/getmatrix', (req, res) => {
-    var position=req.body.position%100; //(req.body.position);
+router.post('/getmatrix',  [
+   check('position').isISO8601()
+ //  check('email').isEmail().normalizeEmail(),
+  // check('age').isNumeric().trim().escape()
+], (req, res) => {
+    try{
+    var position=Date.parse(req.body.position); //(req.body.position);
     let returnArray=[];
-    for (let i=position;i<messageLog.length;i++){
-        returnArray.push(messageLog[i]);
+    Object.keys(messageLog).forEach(function(key){
+        console.log(key);
+        console.log(position);
+        if (key>position){
+            returnArray.push(messageLog[key]);
+        }
     }
+    ) ;
+//    for (let i=position;i<messageLog.length;i++){
+//        returnArray.push(messageLog[i]);
+//    }
     res.write(JSON.stringify(returnArray));
     res.end('');
+    }catch(err){
+        console.log(err);
+        res.end();
+    }
 })
 
 router.post('/sendmatrix', (req, res) => {
@@ -143,6 +162,7 @@ router.post('/sendmatrix', (req, res) => {
     var dotsize=1;
     var parce=JSON.parse(req.body.matrix);
     let most=0;
+    var time=0;
     for (var i=0;i<parce.length;i++){
         var row =parce[i];
         for (var j=0; j<row.length;j++){
@@ -207,9 +227,10 @@ router.post('/sendmatrix', (req, res) => {
         postMessageToDiscord("Test", buffer);
         let dataUrl = canvas.toDataURL('image/png');
         console.log(dataUrl);
-        messageLog.push(dataUrl);
-        if (messageLog.length>=100){
-            messageLog=[];
+        time=Date.now();
+        messageLog[time]=(dataUrl);
+        if (messageLog.length>=250){
+            messageLog={};
             messageLog.push(dataUrl);
         }
         console.log(messageLog.length);

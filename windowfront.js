@@ -2,6 +2,9 @@ var canvas, preview, offscreen, matrixCanvas, ctx, pctx, dctx = null;
 
 var outputCanvas, octx=null;
 
+
+var lastTime= new Date();
+
 var draw_flag = false;
 var prevX, currX, prevY, currY=0;
 var tap_flag = false;
@@ -861,9 +864,12 @@ function getmessages(){
             updateOutput(elem);
             //outputimgs=elem;
             console.log(elem);
+            lastTime= new Date();
+            //...toISOString();
         }
     }
-    xhr.send("position="+outputimgs.length);
+
+    xhr.send("position="+lastTime.toISOString());
 // xhr.send(new Int8Array());
 // xhr.send(document);
     console.log("Placeholder.");
