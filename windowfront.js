@@ -672,6 +672,7 @@ function updateOutput(elements){
         //img
         document.getElementById('outputzone').appendChild(outputimgs[i]);
     }
+    document.getElementById('outputzone').scrollTop = document.getElementById('outputzone').scrollHeight;
 
 }
 function drawOutput(){
