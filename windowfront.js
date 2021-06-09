@@ -863,7 +863,7 @@ function getmessages(){
             let elem=JSON.parse(xhr.responseText);
             updateOutput(elem);
             //outputimgs=elem;
-            console.log(elem);
+            //console.log(elem);
             lastTime= new Date();
             //...toISOString();
         }
@@ -872,7 +872,7 @@ function getmessages(){
     xhr.send("position="+lastTime.toISOString());
 // xhr.send(new Int8Array());
 // xhr.send(document);
-    console.log("Placeholder.");
+    //console.log("Placeholder.");
 }
 
 function sendmatrix() {
