@@ -52,16 +52,22 @@ var keyboards={
     4:{},
     5:{}
 }
-
-var PictoString = {
-    currentString:[],
-    defaultX:63, defaultY:2,
-    startX:0, startY:0,
-    resetString:function(){this.startX=this.defaultX;this.startY=this.defaultY; this.currentString=[];},
-    setStart:function(x, y){this.startX=x; this.startY=y;},
-    addToString:function(char){ this.currentString.push(char);},
-    removeFromString:function(){ this.currentString.pop();}
+function newPictoString(defX, defY){
+    let PictoString = {
+        currentString:[],
+        defaultX:defX, defaultY:defY,
+        startX:0, startY:0,
+        resetString:function(){this.startX=this.defaultX;this.startY=this.defaultY; this.currentString=[];},
+        setByName:function(string){for(let it=0;it<string.length;it++){this.addToString(string[it]);}},
+        setStart:function(x, y){this.startX=x; this.startY=y;},
+        addToString:function(char){ this.currentString.push(char);},
+        removeFromString:function(){ this.currentString.pop();}
+    }
+    return PictoString;
 }
+var PictoString = {};
+var PictoStringName = {};
+
 let glyphs={}
 
 //var glyphs={
@@ -130,8 +136,12 @@ function init() {
     canvas = document.getElementById('drawing');
     preview =  document.getElementById('animating');
     matrixCanvas =  document.getElementById('dotDraw');
-    outputCanvas =  document.getElementById('output')
+    outputCanvas =  document.getElementById('output');
 
+    PictoString=newPictoString(63,1);
+    PictoStringName=newPictoString(1,1);
+
+    whoami();
     //offscreen = new OffscreenCanvas(320*2, 377*2);
 
     //discordsender = new OffscreenCanvas(cols*2, rows*2);
@@ -314,27 +324,27 @@ function drawScaledImage(cont, image, X, Y){
     cont.drawImage(image, X*dotsize, Y*dotsize, image.naturalWidth*dotsize, image.naturalHeight*dotsize)
 }
 
-function burnInPictoString(){
-    renderPictoString(true);
+function burnInPictoString(picto){
+    renderPictoString(picto, true);
 }
-function displayPictoString(){
-    renderPictoString(false);
+function displayPictoString(picto){
+    renderPictoString(picto, false);
 }
-function renderPictoString(mode){
+function renderPictoString(picto, mode){
     //This function displays the pictostring;
     //Only run after update.
 
     //TO DO: ADD DEFAULT.
-    var startX=PictoString.startX + drawOffX;
-    var startY=PictoString.startY + drawOffY;
+    var startX=picto.startX + drawOffX;
+    var startY=picto.startY + drawOffY;
     var ims=0;
     var im=0;
     var imX=0;
     var imY=0;
     var burn=mode;
 
-    for (index = 0; index < PictoString.currentString.length; index++) {
-        var current=(PictoString.currentString[index]);
+    for (index = 0; index < picto.currentString.length; index++) {
+        var current=(picto.currentString[index]);
         if (glyphs.glyphs.hasOwnProperty(current)){
             var glyphX=glyphs.glyphs[current].px;
             var glyphY=glyphs.glyphs[current].py;
@@ -370,6 +380,7 @@ function renderPictoString(mode){
         }
     }
 }
+
 function checkIfInKeyboardButtons(cx, cy){
 
     //Check if mouse cursor is in a keyboard button.
@@ -560,7 +571,7 @@ function setDraggedGlyph(cX, cY){
         var current=getCharFromKey(keyDown);
 
         if (glyphs.glyphs.hasOwnProperty(current)){
-            burnInPictoString();
+            burnInPictoString(PictoString);
             PictoString.resetString();
             PictoString.setStart(Math.floor(cX/dotsize)-drawOffX, Math.floor(cY/dotsize)-drawOffY);
             PictoString.addToString(current);
@@ -652,7 +663,7 @@ function updateOutput(elements){
     document.getElementById('outputzone').innerHTML = "";
 
     for (let i=0;i<elements.length;i++){
-        let img=new Image( 228,80 );
+        let img=new Image();
         img.src=elements[i];
         outputimgs.push(img);
         //document.getElementById('outputzone').appendChild(img);
@@ -699,7 +710,8 @@ function dotDraw(cont){
     drawToolsArea();
     drawSCCArea();
     //Make Text.
-    displayPictoString();
+    displayPictoString(PictoString);
+    displayPictoString(PictoStringName);
 }
 
 function dotAt(i,j,val){
@@ -859,7 +871,7 @@ function getmessages(){
 function sendmatrix() {
     //post dot matrix to back end.
     var xhr = new XMLHttpRequest();
-    burnInPictoString();
+    burnInPictoString(PictoString);
     xhr.open("POST", '/sendmatrix', true);
 
     //Send the proper header information along with the request
@@ -886,6 +898,28 @@ function sendmatrix() {
     }
     content=JSON.stringify(array2D);
     xhr.send("?username=bar&matrix="+content);
+// xhr.send(new Int8Array());
+// xhr.send(document);
+    console.log("Placeholder.");
+}
+
+function whoami() {
+    //post dot matrix to back end.
+    var xhr = new XMLHttpRequest();
+    xhr.open("POST", '/whoami', true);
+
+    //Send the proper header information along with the request
+    xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+    xhr.overrideMimeType("text/plain");
+    xhr.onreadystatechange = function() { // Call a function when the state changes.
+        if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
+            console.log("Finished.");
+            PictoStringName.resetString();
+            PictoStringName.setByName(xhr.responseText);
+            // Request finished. Do processing here.
+        }
+    }
+    xhr.send();
 // xhr.send(new Int8Array());
 // xhr.send(document);
     console.log("Placeholder.");

@@ -13,10 +13,17 @@
    image-rendering: -webkit-crisp-edges;
    image-rendering: pixelated;
    image-rendering: crisp-edges;
+
  }
+ div.scrollinit{
+     overflow:scroll;
+     height:300px;
+     width:300px;
+ }
+
  </style>
     <body onload="init()">
-        <div id="outputzone" style="overflow:scroll height:300px">
+        <div id="outputzone" class="scrollinit" >
 
         </div>
         <canvas id="output" width="720px", height="10px">
