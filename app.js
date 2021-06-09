@@ -86,7 +86,7 @@ router.post('/sendmatrix', (req, res) => {
 
     loadImage('./images/OutputWindow80.png').then((image) => {
 
-        context.drawImage(image, 0, 0, 234*2, 85*2);
+        context.drawImage(image, 0, 0, 234*dotsize, 85*dotsize);
         for (var i=0;i<parce.length;i++){
             var row =parce[i];
             for (var j=0; j<row.length;j++){
