@@ -3,6 +3,7 @@
 const express = require('express');
 const session = require('express-session');
 const {check} = require('express-validator');
+var MemoryStore = require('memorystore')(session)
 const bodyParser = require('body-parser');
 const fetch = require('node-fetch');
 const fs = require('fs');
@@ -28,7 +29,10 @@ app.use(express.static(__dirname));
 app.use(cors());
 app.use(session({
     secret: "OWAIJFOIHSKJ",
-    resave:true,
+    resave:false,
+    store: new MemoryStore({
+      checkPeriod: 86400000 // prune expired entries every 24h
+    }),
     saveUninitialized:true
 }));
 const startupHead=`<html><head><title>Enter Display Name.</title></head>`
