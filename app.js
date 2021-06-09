@@ -55,7 +55,7 @@ function postMessageToDiscord(message, buffer) {
 
 }
 router.post('/getmatrix', (req, res) => {
-    var position=req.body.position; //(req.body.position);
+    var position=req.body.position%100; //(req.body.position);
     let returnArray=[];
     for (let i=position;i<messageLog.length;i++){
         returnArray.push(messageLog[i]);
@@ -67,11 +67,24 @@ router.post('/getmatrix', (req, res) => {
 router.post('/sendmatrix', (req, res) => {
     console.log("Serverside.");
 
-    var dotsize=2;
+    var dotsize=1;
     var parce=JSON.parse(req.body.matrix);
     context.clearRect(0, 0, width, height);
     context.clearRect(0, 0, width, height);
-    loadImage('./images/PictochatWindowClear.png').then((image) => {
+    let most=0;
+    for (var i=0;i<parce.length;i++){
+        var row =parce[i];
+        for (var j=0; j<row.length;j++){
+            //    if((i>57 || j>16)||(j==16 && i>=54) ||(j==15 && i>=55)||(j==14 && i>=56)||(j==13 && i==57)) {
+                    if (parce[i][j]==2){
+                        if (j>most){
+                            most=j;
+                        }
+                    }
+            }
+        }
+
+    loadImage('./images/OutputWindow80.png').then((image) => {
 
         context.drawImage(image, 0, 0, 234*2, 85*2);
         for (var i=0;i<parce.length;i++){
@@ -99,6 +112,10 @@ router.post('/sendmatrix', (req, res) => {
         let dataUrl = canvas.toDataURL('image/png');
         console.log(dataUrl);
         messageLog.push(dataUrl);
+        if (messageLog.length>=100){
+            messageLog=[];
+            messageLog.push(dataUrl);
+        }
         console.log(messageLog.length);
     });
     res.write("Finishsed.;")
