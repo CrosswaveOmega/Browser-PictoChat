@@ -849,10 +849,9 @@ function clearmatrix() {
     dotChange=true;
 }
 
-var getdebounce=true;
+
 function getmessages(){
-    if (getdebounce){
-        getdebounce=false;
+
         let xhr = new XMLHttpRequest();
 
         xhr.open("POST", '/getmatrix', true);
@@ -870,7 +869,6 @@ function getmessages(){
                 lastTime= new Date();
                 //...toISOString();
             }
-            getdebounce=true;
         }
 
         xhr.send("position="+lastTime.toISOString());
