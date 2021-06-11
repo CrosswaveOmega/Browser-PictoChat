@@ -21,6 +21,7 @@ var dotChange=true;
 var outputimgs=[];
 
 var overlayColor="rgba(0, 0, 255, 0.5)";
+var colorMode="ModeA";
 //For modes.
 //Forthe keyboard.
 var CAPS=false;
@@ -83,22 +84,23 @@ var drawingToolArea=null;
 var drawingBox=null;
 var SCCArea=null;
 
-const backgroundImg=new Image (234, 85); backgroundImg.src = 'images/PictochatWindowLines.png';
-const backgroundImg2=new Image (234, 85); backgroundImg2.src = 'images/PictochatWindowOverlay.png';
+const backgroundImg=new Image (234, 85); backgroundImg.src = 'data/images/PictochatWindowLines.png';
+var backgroundImg2=new Image (234, 85); backgroundImg2.src = 'data/images/PictochatWindowOverlay.png';
 
 
-const backcomp1=new Image (238, 176); backcomp1.src = 'images/Back01.png';
-const keyboard1=new Image (200, 81); keyboard1.src = 'images/Keyboard1Normal.png';
-const keyboard1s=new Image (200, 81); keyboard1s.src = 'images/Keyboard1Shift.png';
-const keyboard1c=new Image (200, 81); keyboard1c.src = 'images/Keyboard1Caps.png';
-const keyboard2=new Image (200, 81); keyboard2.src = 'images/KeyboardAccent.png';
-const keyboard4=new Image (200, 81); keyboard4.src = 'images/KeyboardSymbol.png';
-const keyboard5=new Image (200, 81); keyboard5.src = 'images/KeyboardPictogram.png';
+const backcomp1=new Image (238, 176); backcomp1.src = 'data/images/Back01.png';
+var keyboard1=new Image (200, 81); keyboard1.src = 'data/images/Keyboard1Normal.png';
+var keyboard1s=new Image (200, 81); keyboard1s.src = 'data/images/Keyboard1Shift.png';
+var keyboard1c=new Image (200, 81); keyboard1c.src = 'data/images/Keyboard1Caps.png';
+var keyboard2=new Image (200, 81); keyboard2.src = 'data/images/KeyboardAccent.png';
+var keyboard4=new Image (200, 81); keyboard4.src = 'data/images/KeyboardSymbol.png';
+var keyboard5=new Image (200, 81); keyboard5.src = 'data/images/KeyboardPictogram.png';
 
-//const keyboard2=new Image (200, 81); keyboard2.src = 'images/KeyboardAccent.png';
-const glyph=new Image (320*2, 377*2); glyph.src = 'images/Glyphs.png';
-const glyphX1=new Image (320, 377); glyphX1.src = 'images/Glyphs11.png';
-var drawingImage=new Image();// drawingImage.src = '/images/PictochatWindowOverlay.png';
+var keyboardImages={}
+//const keyboard2=new Image (200, 81); keyboard2.src = 'data/images/KeyboardAccent.png';
+const glyph=new Image (320*2, 377*2); glyph.src = 'data/images/Glyphs.png';
+const glyphX1=new Image (320, 377); glyphX1.src = 'data/images/Glyphs11.png';
+var drawingImage=new Image();// drawingImage.src = '/data/images/PictochatWindowOverlay.png';
 
 //backgroundImg.onload = drawImageActualSize; // Draw when image has loaded
 function newBox(posX, posY, sizeX, sizeY){
@@ -119,20 +121,26 @@ function newBox(posX, posY, sizeX, sizeY){
     return box;
 }
 
+function CloneImage(img){
+    let thisimg=new Image(img.width, img.height);
+    thisimg.src=img.src;
+    return thisimg;
+}
+
 function init() {
-    fetch('./glyphs.json')
+    fetch('data/json/glyphs.json')
       .then(response => response.json())
       .then(glyp => glyphs=glyp);
 
-    fetch('./keyboard2.json')
+    fetch('data/json/keyboard2.json')
       .then(response => response.json())
       .then(glyp => keyboards[2]=glyp);
 
-    fetch('./keyboard4.json')
+    fetch('data/json/keyboard4.json')
       .then(response => response.json())
       .then(glyp => keyboards[4]=glyp);
 
-    fetch('./keyboard5.json')
+    fetch('data/json/keyboard5.json')
       .then(response => response.json())
       .then(glyp => keyboards[5]=glyp);
 
@@ -145,6 +153,8 @@ function init() {
     PictoStringName=newPictoString(1,1);
 
     whoami();
+
+    getimage(backgroundImg2, colorMode);
     //offscreen = new OffscreenCanvas(320*2, 377*2);
 
     //discordsender = new OffscreenCanvas(cols*2, rows*2);
@@ -183,12 +193,12 @@ function init() {
         offX:4, offY:keyboardOffY+5,
         bindBoxes:[null, null, null, null, null, null]
     };
-    keyboardSelectArea.Imm0=new Image(14,82); keyboardSelectArea.Imm0.src="images/KeyboardSelectOFF.png";
-    keyboardSelectArea.Imm1=new Image(14,82); keyboardSelectArea.Imm1.src="images/KeyboardSelectON1.png";
-    keyboardSelectArea.Imm2=new Image(14,82); keyboardSelectArea.Imm2.src="images/KeyboardSelectON2.png";
-    keyboardSelectArea.Imm3=new Image(14,82); keyboardSelectArea.Imm3.src="images/KeyboardSelectON3.png";
-    keyboardSelectArea.Imm4=new Image(14,82); keyboardSelectArea.Imm4.src="images/KeyboardSelectON4.png";
-    keyboardSelectArea.Imm5=new Image(14,82); keyboardSelectArea.Imm5.src="images/KeyboardSelectON5.png";
+    keyboardSelectArea.Imm0=new Image(14,82); keyboardSelectArea.Imm0.src="data/images/KeyboardSelectOFF.png";
+    keyboardSelectArea.Imm1=new Image(14,82); keyboardSelectArea.Imm1.src="data/images/KeyboardSelectON1.png";
+    keyboardSelectArea.Imm2=new Image(14,82); keyboardSelectArea.Imm2.src="data/images/KeyboardSelectON2.png";
+    keyboardSelectArea.Imm3=new Image(14,82); keyboardSelectArea.Imm3.src="data/images/KeyboardSelectON3.png";
+    keyboardSelectArea.Imm4=new Image(14,82); keyboardSelectArea.Imm4.src="data/images/KeyboardSelectON4.png";
+    keyboardSelectArea.Imm5=new Image(14,82); keyboardSelectArea.Imm5.src="data/images/KeyboardSelectON5.png";
     keyboardSelectArea.bindBoxes[1]=newBox(0,0,14,14);
     keyboardSelectArea.bindBoxes[2]=newBox(0,17,14,14);
     keyboardSelectArea.bindBoxes[3]=newBox(0,34,14,14);
@@ -200,12 +210,26 @@ function init() {
         offX:4, offY:25,
         bindBoxes:[null, null, null, null, null]
     }
-    drawingToolArea.Imm0= new Image(14,62); drawingToolArea.Imm0.src="images/drawingTools.png";
+    drawingToolArea.Imm0= new Image(14,62); drawingToolArea.Imm0.src="data/images/drawingTools.png";
+    drawingToolArea.ImmAct= new Image(14,62); drawingToolArea.ImmAct.src="data/images/drawingTools.png";
+    getimage(drawingToolArea.ImmAct, colorMode);
     drawingToolArea.bindBoxes[1]=newBox(0,0,14,13);
     drawingToolArea.bindBoxes[2]=newBox(0,14,14,13);
     drawingToolArea.bindBoxes[3]=newBox(0,33,14,14);
     drawingToolArea.bindBoxes[4]=newBox(0,48,14,14);
-
+    keyboardImages.offX=keyboardOffX; keyboardImages.offY=keyboardOffY;
+    keyboardImages["K1n"]={Imm0:keyboard1, ImmAct:CloneImage(keyboard1)};
+    getimage(keyboardImages["K1n"].ImmAct, colorMode);
+    keyboardImages["K1s"]={Imm0:keyboard1s, ImmAct:CloneImage(keyboard1s)};
+    getimage(keyboardImages["K1s"].ImmAct, colorMode);
+    keyboardImages["K1c"]={Imm0:keyboard1c, ImmAct:CloneImage(keyboard1c)};
+    getimage(keyboardImages["K1c"].ImmAct, colorMode);
+    keyboardImages["K2"]={Imm0:keyboard2, ImmAct:CloneImage(keyboard2)};
+    getimage(keyboardImages["K2"].ImmAct, colorMode);
+    keyboardImages["K4"]={Imm0:keyboard4, ImmAct:CloneImage(keyboard4)};
+    getimage(keyboardImages["K4"].ImmAct, colorMode);
+    keyboardImages["K5"]={Imm0:keyboard5, ImmAct:CloneImage(keyboard5)};
+    getimage(keyboardImages["K5"].ImmAct, colorMode);
     SCCArea = {
         offX:keyboardOffX+202, offY:keyboardOffY,
         bindBoxes:[null,
@@ -215,8 +239,9 @@ function init() {
         Imm0:null,
         herePress:0
     }
-    SCCArea.Imm0= new Image(32,81); SCCArea.Imm0.src="images/SendCopyClear.png";
-
+    SCCArea.Imm0= new Image(32,81); SCCArea.Imm0.src="data/images/SendCopyClear.png";
+    SCCArea.ImmAct= new Image(32,81); SCCArea.ImmAct.src="data/images/SendCopyClear.png";
+    getimage(SCCArea.ImmAct, colorMode);
     PictoString.resetString();
 
     canvas.addEventListener("mousemove", function (e) {
@@ -478,11 +503,19 @@ function checkIfInSCCArea(cx, cy, status){
 
 }
 
-function drawBox(cont, offX, offY, box){
-    cont.fillRect((offX+box.xpos)*dotsize, (offY+box.ypos)*dotsize, (box.xsize)*dotsize, (box.ysize)*dotsize);
+// function drawBox(cont, offX, offY, box){
+//     cont.fillRect((offX+box.xpos)*dotsize, (offY+box.ypos)*dotsize, (box.xsize)*dotsize, (box.ysize)*dotsize);
+//
+// }
+function drawBox(cont, areaObj, box){
+    let offX=areaObj.offX;
+    let offY=areaObj.offY;
+    console.log(areaObj.ImmAct.src)
+    cont.drawImage(areaObj.ImmAct, box.xpos, box.ypos, box.xsize, box.ysize, (offX+box.xpos)*dotsize, (offY+box.ypos)*dotsize, (box.xsize)*dotsize, (box.ysize)*dotsize);
+
+    //cont.fillRect((offX+box.xpos)*dotsize, (offY+box.ypos)*dotsize, (box.xsize)*dotsize, (box.ysize)*dotsize);
 
 }
-
 function drawBoxes(cont){
     //For debugging.
     var offX=keyboardSelectArea.offX;
@@ -509,18 +542,18 @@ function drawToolsArea(){
     ctx.fillStyle = overlayColor;
     switch (toolActive){
         case 1:
-            drawBox(ctx, offX, offY, drawingToolArea.bindBoxes[1]);
+            drawBox(ctx, drawingToolArea, drawingToolArea.bindBoxes[1]);
             break;
         case 2:
-            drawBox(ctx, offX, offY, drawingToolArea.bindBoxes[2]);
+            drawBox(ctx,drawingToolArea, drawingToolArea.bindBoxes[2]);
             break;
     }
     switch (toolSize){
         case 2:
-            drawBox(ctx, offX, offY, drawingToolArea.bindBoxes[3]);
+            drawBox(ctx,drawingToolArea, drawingToolArea.bindBoxes[3]);
             break;
         case 1:
-            drawBox(ctx, offX, offY, drawingToolArea.bindBoxes[4]);
+            drawBox(ctx, drawingToolArea, drawingToolArea.bindBoxes[4]);
             break;
     }
 }
@@ -532,13 +565,13 @@ function drawSCCArea(){
     ctx.fillStyle = overlayColor;
     switch (SCCArea.herePress){
         case 1:
-            drawBox(ctx, offX, offY, SCCArea.bindBoxes[1]);
+            drawBox(ctx, SCCArea, SCCArea.bindBoxes[1]);
             break;
         case 2:
-            drawBox(ctx, offX, offY, SCCArea.bindBoxes[2]);
+            drawBox(ctx, SCCArea, SCCArea.bindBoxes[2]);
             break;
         case 3:
-            drawBox(ctx, offX, offY, SCCArea.bindBoxes[3]);
+            drawBox(ctx, SCCArea, SCCArea.bindBoxes[3]);
             break;
     }
 }
@@ -597,31 +630,36 @@ function drawDraggedGlyph(cont, cX, cY){
 function drawKeyboard(cont){
     var offX=keyboardOffX;
     var offY=keyboardOffY;
+    let keyboardObject=keyboardImages["K1n"];
     if (keyboard_selected==1){
         if (SHIFT){
-            drawScaledImage(cont,keyboard1s,offX,offY);
+            keyboardObject=keyboardImages["K1s"];
         }
         else if(CAPS){
-            drawScaledImage(cont,keyboard1c,offX,offY);
+            keyboardObject=keyboardImages["K1c"];
         }else{
-            drawScaledImage(cont,keyboard1, offX, offY);
+            keyboardObject=keyboardImages["K1n"];
         }
     }
     else if (keyboard_selected==2){
-        drawScaledImage(cont,keyboard2, offX, offY);
+        keyboardObject=keyboardImages["K2"];
     }
     else if (keyboard_selected==4){
-        drawScaledImage(cont,keyboard4, offX, offY);
+        keyboardObject=keyboardImages["K4"];
+        //drawScaledImage(cont,keyboard4, offX, offY);
     }
     else if (keyboard_selected==5){
-        drawScaledImage(cont,keyboard5, offX, offY);
+        keyboardObject=keyboardImages["K5"];
+        //drawScaledImage(cont,keyboard5, offX, offY);
     }
+    drawScaledImage(cont,keyboardObject.Imm0, offX, offY);
     var keys=Object.keys(keyboards[keyboard_selected].keylist);
     cont.fillStyle=overlayColor;
     for (var k=0;k<keys.length;k++){
         var thisEntry=keyboards[keyboard_selected].keylist[keys[k]];
         if (thisEntry.hasOwnProperty("pressed")){
             if (thisEntry.pressed==true){
+            //    drawBox(cont, keyboardObject, thisEntry);
                 cont.fillRect((offX+thisEntry.xpos)*dotsize, (offY+thisEntry.ypos)*dotsize, (thisEntry.xsize)*dotsize, (thisEntry.ysize)*dotsize);
             }
         }
@@ -849,6 +887,13 @@ function clearmatrix() {
     dotChange=true;
 }
 
+function getimage(image, mode){
+    let src=image.src;
+    fetch("color/?image="+src+"&pallate="+mode)
+      .then(response => response.json())
+      .then(glyp => image.src=glyp.resp);
+
+}
 
 function getmessages(){
 
@@ -863,10 +908,12 @@ function getmessages(){
             if (xhr.readyState == XMLHttpRequest.DONE) {
             //    alert(xhr.responseText);
                 let elem=JSON.parse(xhr.responseText);
-                updateOutput(elem);
-                //outputimgs=elem;
-                //console.log(elem);
-                lastTime= new Date();
+                if (elem.length>0){
+                    updateOutput(elem);
+                    //outputimgs=elem;
+                    //console.log(elem);
+                    lastTime= new Date();
+                }
                 //...toISOString();
             }
         }
@@ -876,7 +923,7 @@ function getmessages(){
 // xhr.send(new Int8Array());
 // xhr.send(document);
     //console.log("Placeholder.");
-}
+
 
 function sendmatrix() {
     //post dot matrix to back end.

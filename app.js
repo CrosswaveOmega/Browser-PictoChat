@@ -14,7 +14,7 @@ const width = 228*2;
 const height = 80*2;
 
 const discordUrl='https://discord.com/api/webhooks/851232711075168266/RgkH5r8_dKtTbv68zEEf444Amkq02mwPXAnDNKfLd3b1ZC6DgzMw3AjyqJHZWD0M4CO6'
-
+const {colormod, getUriFromDictionary} = require("./serverside/colormod.js")
 
 //initialize the app as an express app
 const app = express();
@@ -54,6 +54,7 @@ const startupBody=`
 var messageLog={};
 var glyphs= {};
 var glyph= null;
+//default
 router.get('/',(req, res) => {
     res.writeHead(200, {'Content-Type':'text/html'})
     let response=[];
@@ -73,6 +74,8 @@ router.post('/theapp', [
         //displayname= new Sanitizer().sanatize(displayname);
         if (displayname.length>10){throw new Error("Your name is too big!");}
         req.session.dispname=displayname;
+
+        req.session.lastTimeSet=(new Date()).getTime();
         res.sendFile(__dirname + '/draw.html');
     }
     catch(err){
@@ -84,6 +87,7 @@ router.post('/theapp', [
 })
 
 router.post('/whoami', (req, res) => {
+    //return the username of the session.
     console.log(req.session)
     let displayname=req.session.dispname; //(req.body.position);
     res.write(displayname);
@@ -137,17 +141,20 @@ router.post('/getmatrix',  [
     try{
     var position=Date.parse(req.body.position); //(req.body.position);
     let returnArray=[];
+    var lastTime=req.session.lastTimeSet
     Object.keys(messageLog).forEach(function(key){
         console.log(key);
-        console.log(position);
-        if (key>position){
+        console.log(lastTime);
+        if (key>lastTime){
             returnArray.push(messageLog[key]);
+            req.session.lastTimeSet=key;
         }
     }
     ) ;
 //    for (let i=position;i<messageLog.length;i++){
 //        returnArray.push(messageLog[i]);
 //    }
+
     res.write(JSON.stringify(returnArray));
     res.end('');
     }catch(err){
@@ -163,6 +170,7 @@ router.post('/sendmatrix', (req, res) => {
     var parce=JSON.parse(req.body.matrix);
     let most=0;
     var time=0;
+    let mode="ModeA"
     for (var i=0;i<parce.length;i++){
         var row =parce[i];
         for (var j=0; j<row.length;j++){
@@ -177,22 +185,22 @@ router.post('/sendmatrix', (req, res) => {
     var canvas = canvas=createCanvas(234,  85);
 
 
-    let thisimagepath='./images/OutputWindow80.png';
+    let thisimagepath=getUriFromDictionary('data/images/OutputWindow80.png',mode);
     if (most<=16){
         canvas=createCanvas(234,  21);
-        thisimagepath='./images/OutputWindow16.png';
+        thisimagepath=getUriFromDictionary('data/images/OutputWindow16.png',mode);;
     }
     else if (most<=32) {
         canvas=createCanvas(234,  37);
-        thisimagepath='./images/OutputWindow32.png';
+        thisimagepath=getUriFromDictionary('data/images/OutputWindow32.png',mode);;
     }
     else if (most<=48) {
         canvas=createCanvas(234,  53);
-        thisimagepath='./images/OutputWindow48.png';
+        thisimagepath=getUriFromDictionary('data/images/OutputWindow48.png',mode);;
     }
     else if (most<=64) {
         canvas=createCanvas(234,  69);
-        thisimagepath='./images/OutputWindow64.png';
+        thisimagepath=getUriFromDictionary('data/images/OutputWindow64.png',mode);;
     }
     else{
 
@@ -227,8 +235,8 @@ router.post('/sendmatrix', (req, res) => {
         postMessageToDiscord("Test", buffer);
         let dataUrl = canvas.toDataURL('image/png');
         console.log(dataUrl);
-        time=Date.now();
-        messageLog[time]=(dataUrl);
+        time=new Date();
+        messageLog[time.getTime()]=(dataUrl);
         if (messageLog.length>=250){
             messageLog={};
             messageLog.push(dataUrl);
@@ -241,11 +249,13 @@ router.post('/sendmatrix', (req, res) => {
 
 
 app.use('/', router);
+app.use('/color', colormod)
 //Router 4: for session destruction
 
 app.listen(process.env.PORT || 3000, () => {
-    let rawdata = fs.readFileSync('glyphs.json');
+    let rawdata = fs.readFileSync('data/json/glyphs.json');
     glyphs = JSON.parse(rawdata);
-    loadImage('./images/Glyphs11.png').then((glyp) => {glyph=glyp; });
+
+    loadImage('./data/images/Glyphs11.png').then((glyp) => {glyph=glyp; });
 console.log(`App Started on PORT ${process.env.PORT || 3000}`);
 });
