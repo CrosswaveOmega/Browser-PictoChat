@@ -74,7 +74,6 @@ function createColoredImageUri(imagePath, colorMode){
 
             }
             ColoredImg[imagePath][colorMode]=uri;
-            console.log(ColoredImg);
     });
 }
 function getUriFromDictionary(hostpath, pallate){
@@ -97,11 +96,13 @@ fs.readdir("data/images", function (err, files) {
 
         }
         Object.keys(colors).forEach(function(key) {
+            console.log(key);
           createColoredImageUri(imagePath, key);
         })
 
-        console.log(ColoredImg);
+    //    console.log(ColoredImg);
     });
+    console.log("ColoredImages Created And Ready.");
 });
 }
 

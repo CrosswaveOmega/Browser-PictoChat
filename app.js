@@ -7,14 +7,17 @@ var MemoryStore = require('memorystore')(session)
 const bodyParser = require('body-parser');
 const fetch = require('node-fetch');
 const fs = require('fs');
+
 const FormData = require('form-data');
 const cors = require("cors");
 const { createCanvas, loadImage } = require('canvas');
 const width = 228*2;
 const height = 80*2;
+const util = require('util');
+const sendDraw=require('./serverside/loaddraw.js')
+const {colormod, getUriFromDictionary} = require("./serverside/colormod.js")
 
 const discordUrl='https://discord.com/api/webhooks/851232711075168266/RgkH5r8_dKtTbv68zEEf444Amkq02mwPXAnDNKfLd3b1ZC6DgzMw3AjyqJHZWD0M4CO6'
-const {colormod, getUriFromDictionary} = require("./serverside/colormod.js")
 
 //initialize the app as an express app
 const app = express();
@@ -37,12 +40,62 @@ app.use(session({
     secure: true,
     saveUninitialized:true
 }));
-const startupHead=`<html><head><title>Enter Display Name.</title></head>`
+const startupHead=`<html><head><title>Enter Display Name.</title>
+ <meta charset="UTF-8">
+<style>
+
+.grid-container{
+    display: grid;
+    grid-template-columns: auto auto auto auto;
+    padding: 10px;
+}
+input button {
+  border: 1px solid rgba(0, 0, 0, 0.8);
+  padding: 20px;
+  font-size: 30px;
+  text-align: center;
+}
+
+
+</style>
+</head>`
 const startupBody=`
 <body>
+<script>
+   function changeValue(o){
+     document.getElementById('color').value=o.value;
+     document.getElementById('colorselect').style.backgroundColor=o.style.backgroundColor;
+    }
+
+</script>
+    <h1> %s </h1>
     <form action="/theapp" method="post">
         <label for="displayname"> Display Name:</label><br>
             <input type="text" id="displayname" name="displayname"><br>
+            <input type="hidden" id="color" name="colormode" value="ModeA">
+              <fieldset>
+              <div class="grid-container" id=colorselect>
+              <input type="button" onclick="changeValue(this)" value="ModeA" style="background-color:#61829a;">
+              <input type="button" onclick="changeValue(this)" value="ModeB" style="background-color:#ba4900;">
+              <input type="button" onclick="changeValue(this)" value="ModeC" style="background-color:#fb0018;">
+              <input type="button" onclick="changeValue(this)" value="ModeD" style="background-color:#fb8afb;">
+
+              <input type="button" onclick="changeValue(this)" value="ModeE" style="background-color:#fb9200;">
+              <input type="button" onclick="changeValue(this)" value="ModeF" style="background-color:#f3e300;">
+              <input type="button" onclick="changeValue(this)" value="ModeG" style="background-color:#aafb00;">
+              <input type="button" onclick="changeValue(this)" value="ModeH" style="background-color:#00fb00;">
+
+              <input type="button" onclick="changeValue(this)" value="ModeI" style=" background-color:#00a238;">
+              <input type="button" onclick="changeValue(this)" value="ModeJ" style="background-color:#49db8a;">
+              <input type="button" onclick="changeValue(this)" value="ModeK" style="background-color:#30baf3;">
+              <input type="button" onclick="changeValue(this)" value="ModeL" style="background-color:#0059f3;">
+
+              <input type="button" onclick="changeValue(this)" value="ModeM" style="background-color:#000092;">
+              <input type="button" onclick="changeValue(this)" value="ModeN" style="background-color:#8a00d3;">
+              <input type="button" onclick="changeValue(this)" value="ModeO" style="background-color:#d300eb;">
+              <input type="button" onclick="changeValue(this)" value="ModeP" style="background-color:#fb0092;">
+              </div>
+            </fieldset>
         <input type="submit" value="Submit">
     </form>
 </body>
@@ -59,12 +112,13 @@ router.get('/',(req, res) => {
     res.writeHead(200, {'Content-Type':'text/html'})
     let response=[];
     res.write(startupHead);
-    res.write(startupBody);
+    res.write(util.format(startupBody, "Enter Name and select Color."));
     res.end();
 });
 
 router.post('/theapp', [
-   check('displayname').isLength({min:1, max: 10 }).trim().escape()//,
+   check('displayname').isLength({min:1, max: 10 }).trim().escape(),
+   check('colorselect').isLength({min:5,max:5}).trim().escape()//,
  //  check('email').isEmail().normalizeEmail(),
   // check('age').isNumeric().trim().escape()
 ], (req, res) => {
@@ -74,14 +128,18 @@ router.post('/theapp', [
         //displayname= new Sanitizer().sanatize(displayname);
         if (displayname.length>10){throw new Error("Your name is too big!");}
         req.session.dispname=displayname;
-
+        console.log(req.body.colormode)
+        req.session.pallate=req.body.colormode;
         req.session.lastTimeSet=(new Date()).getTime();
-        res.sendFile(__dirname + '/draw.html');
+        res.writeHead(200, {'Content-Type':'text/html'})
+        res.write(sendDraw(req.session.dispname, req.session.pallate));
+        res.end();
+        //res.sendFile(__dirname + '/draw.html');
     }
     catch(err){
         console.log(err)
-        res.write("<html><head><title>"+err+"</title></head>");
-        res.write(startupBody);
+        res.write(startupHead);
+        res.write(util.format(startupBody, err));
         res.end();
     }
 })
@@ -90,7 +148,8 @@ router.post('/whoami', (req, res) => {
     //return the username of the session.
     console.log(req.session)
     let displayname=req.session.dispname; //(req.body.position);
-    res.write(displayname);
+    let pallate=req.session.pallate;
+    res.write(JSON.stringify({displayname:displayname, pallate: req.session.pallate}));
     res.end();
 })
 
@@ -170,7 +229,7 @@ router.post('/sendmatrix', (req, res) => {
     var parce=JSON.parse(req.body.matrix);
     let most=0;
     var time=0;
-    let mode="ModeA"
+    let mode=req.session.pallate;
     for (var i=0;i<parce.length;i++){
         var row =parce[i];
         for (var j=0; j<row.length;j++){

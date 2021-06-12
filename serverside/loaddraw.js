@@ -1,8 +1,20 @@
+//index.js
+//including the imported packages
+const express = require('express');
+const session = require('express-session');
+const {check} = require('express-validator');
+const bodyParser = require('body-parser');
+const fetch = require('node-fetch');
+const fs = require('fs');
 
+const FormData = require('form-data');
+const util = require('util');
+
+const filetosend=`
 <html>
 <head>
  <meta charset="UTF-8">
-</head>
+</head> 
     <script type="text/javascript" src="windowfront.js">
 
     </script>
@@ -53,3 +65,10 @@
 
     </body>
     </html>
+`
+function sendDraw(name, color){
+    let toreturn=util.format(filetosend, name, color);
+    return toreturn;
+}
+
+module.exports= sendDraw;

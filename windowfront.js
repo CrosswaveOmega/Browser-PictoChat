@@ -22,6 +22,7 @@ var outputimgs=[];
 
 var overlayColor="rgba(0, 0, 255, 0.5)";
 var colorMode="ModeA";
+var displayName="Person"
 //For modes.
 //Forthe keyboard.
 var CAPS=false;
@@ -72,7 +73,7 @@ function newPictoString(defX, defY){
 var PictoString = {};
 var PictoStringName = {};
 
-let glyphs={}
+let glyphs=null;
 
 //var glyphs={
 //    "A":{px:1,py:1, width=5}, "a":{px:1, py:2}
@@ -102,6 +103,8 @@ const glyph=new Image (320*2, 377*2); glyph.src = 'data/images/Glyphs.png';
 const glyphX1=new Image (320, 377); glyphX1.src = 'data/images/Glyphs11.png';
 var drawingImage=new Image();// drawingImage.src = '/data/images/PictochatWindowOverlay.png';
 
+var currentXCount=0;
+var countdown=0;
 //backgroundImg.onload = drawImageActualSize; // Draw when image has loaded
 function newBox(posX, posY, sizeX, sizeY){
     var box={
@@ -127,7 +130,15 @@ function CloneImage(img){
     return thisimg;
 }
 
+
+
 function init() {
+    let note = document.getElementById('name');
+    console.log(note)
+    displayName=note.textContent;
+    let colora = document.getElementById('color');
+    colorMode= colora.textContent;
+    console.log(displayName, colorMode);
     fetch('data/json/glyphs.json')
       .then(response => response.json())
       .then(glyp => glyphs=glyp);
@@ -152,7 +163,8 @@ function init() {
     PictoString=newPictoString(63,1);
     PictoStringName=newPictoString(1,1);
 
-    whoami();
+    PictoStringName.resetString();
+    PictoStringName.setByName(displayName);
 
     getimage(backgroundImg2, colorMode);
     //offscreen = new OffscreenCanvas(320*2, 377*2);
@@ -265,12 +277,22 @@ function init() {
     canvas.addEventListener("mousein", function (e) {
         handleMouse(e, 'in')
     }, false);
-    dotDraw(ctx);
-    setInterval(getmessages, 3000);
+    setInterval(gradualCheck, 1000);
     setInterval(animDot, 1000);
 }
+function gradualCheck(){
+    if (countdown<=0){
+        countdown=1+Math.ceil(Math.sqrt(0.5*currentXCount));
+        currentXCount=currentXCount+1;
+        console.log(countdown);
+        getmessages();
+    }
+    countdown=countdown-1;
+}
 function animDot(){
-    dotDraw(ctx);
+    if (glyphs!=null){
+        dotDraw(ctx);
+    }
 }
 function getCharFromKey(keyCode){
     var thisCode=keyboards[keyboard_selected].keylist[keyCode]
@@ -510,7 +532,7 @@ function checkIfInSCCArea(cx, cy, status){
 function drawBox(cont, areaObj, box){
     let offX=areaObj.offX;
     let offY=areaObj.offY;
-    console.log(areaObj.ImmAct.src)
+    //console.log(areaObj.ImmAct.src)
     cont.drawImage(areaObj.ImmAct, box.xpos, box.ypos, box.xsize, box.ysize, (offX+box.xpos)*dotsize, (offY+box.ypos)*dotsize, (box.xsize)*dotsize, (box.ysize)*dotsize);
 
     //cont.fillRect((offX+box.xpos)*dotsize, (offY+box.ypos)*dotsize, (box.xsize)*dotsize, (box.ysize)*dotsize);
@@ -898,7 +920,7 @@ function getimage(image, mode){
 function getmessages(){
 
         let xhr = new XMLHttpRequest();
-
+        console.log("Getting Messages.");
         xhr.open("POST", '/getmatrix', true);
 
         //Send the proper header information along with the request
@@ -910,9 +932,6 @@ function getmessages(){
                 let elem=JSON.parse(xhr.responseText);
                 if (elem.length>0){
                     updateOutput(elem);
-                    //outputimgs=elem;
-                    //console.log(elem);
-                    lastTime= new Date();
                 }
                 //...toISOString();
             }
@@ -936,7 +955,9 @@ function sendmatrix() {
     xhr.overrideMimeType("text/plain");
     xhr.onreadystatechange = function() { // Call a function when the state changes.
         if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
-            console.log("Finished.");
+            currentXCount=0;
+            countdown=0;
+            //console.log("Finished.");
             // Request finished. Do processing here.
         }
     }
@@ -957,7 +978,15 @@ function sendmatrix() {
     xhr.send("?username=bar&matrix="+content);
 // xhr.send(new Int8Array());
 // xhr.send(document);
-    console.log("Placeholder.");
+    //console.log("Placeholder.");
+}
+
+function sleep(milliseconds) {
+  const date = Date.now();
+  let currentDate = null;
+  do {
+    currentDate = Date.now();
+  } while (currentDate - date < milliseconds);
 }
 
 function whoami() {
@@ -971,14 +1000,17 @@ function whoami() {
     xhr.onreadystatechange = function() { // Call a function when the state changes.
         if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
             console.log("Finished.");
-            PictoStringName.resetString();
-            PictoStringName.setByName(xhr.responseText);
+            jsonv=JSON.parse(xhr.responseText);
+            displayName=jsonv.displayname;
+            colorMode=jsonv.pallate;
+            console.log(displayName, colorMode)
+
             // Request finished. Do processing here.
         }
     }
     xhr.send();
 // xhr.send(new Int8Array());
-// xhr.send(document);
+    // xhr.send(document);
     console.log("Placeholder.");
 }
 
@@ -1030,7 +1062,7 @@ function handleMouse(mouseEvent, type) {
 
             keyDown=null;
         }
-        console.log(SCCArea.herePress)
+        //console.log(SCCArea.herePress)
         if (SCCArea.herePress>0){
             checkIfInSCCArea(currX, currY, 'up')
         }
