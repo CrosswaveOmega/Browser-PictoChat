@@ -15,7 +15,7 @@ const width = 228*2;
 const height = 80*2;
 const util = require('util');
 const sendDraw=require('./serverside/loaddraw.js')
-const {colormod, getUriFromDictionary} = require("./serverside/colormod.js")
+const {colormod, getUriFromDictionary, doesColorModeExist} = require("./serverside/colormod.js")
 
 const discordUrl='https://discord.com/api/webhooks/851232711075168266/RgkH5r8_dKtTbv68zEEf444Amkq02mwPXAnDNKfLd3b1ZC6DgzMw3AjyqJHZWD0M4CO6'
 
@@ -40,15 +40,44 @@ app.use(session({
     secure: true,
     saveUninitialized:true
 }));
-const startupHead=`<html><head><title>Enter Display Name.</title>
+const startupHead=`
+
+<html><head><title>Enter Display Name.</title>
  <meta charset="UTF-8">
 <style>
 
 .grid-container{
     display: grid;
-    grid-template-columns: auto auto auto auto;
+    grid-template-columns: 52px 52px 52px 52px;
+    grid-auto-rows: 52px;
+    gap:10px;
     padding: 10px;
 }
+
+.button {
+  display: inline-block;
+  border-radius: 4px;
+  border: none;
+  text-align: center;
+  transition: all 0.5s;
+  cursor: pointer;
+  margin: 5px;
+}
+
+.button:hover {
+  border: dashed;
+  margin:8px;
+  border-radius: 4px;
+}
+.disabled {
+  display: inline-block;
+  border: 1px dashed;
+  text-align: center;
+  transition: all 0.5s;
+  cursor: not-allowed;
+  margin: 10px;
+}
+
 input button {
   border: 1px solid rgba(0, 0, 0, 0.8);
   padding: 20px;
@@ -58,13 +87,21 @@ input button {
 
 
 </style>
-</head>`
-const startupBody=`
-<body>
+</head>
+`
+const startupBody=`<body>
 <script>
    function changeValue(o){
      document.getElementById('color').value=o.value;
      document.getElementById('colorselect').style.backgroundColor=o.style.backgroundColor;
+     var elements = document.getElementById('colorselect').children;
+     for (var i = 0; i < elements.length; i++){
+         elements[i].className="button";
+
+    }
+    o.className="disabled"
+    // o.style.cursor="not-allowed";
+    // o.style.opacity=0.3;
     }
 
 </script>
@@ -74,26 +111,27 @@ const startupBody=`
             <input type="text" id="displayname" name="displayname"><br>
             <input type="hidden" id="color" name="colormode" value="ModeA">
               <fieldset>
+                <label>Select a color:</label><br>
               <div class="grid-container" id=colorselect>
-              <input type="button" onclick="changeValue(this)" value="ModeA" style="background-color:#61829a;">
-              <input type="button" onclick="changeValue(this)" value="ModeB" style="background-color:#ba4900;">
-              <input type="button" onclick="changeValue(this)" value="ModeC" style="background-color:#fb0018;">
-              <input type="button" onclick="changeValue(this)" value="ModeD" style="background-color:#fb8afb;">
+              <input type="button" class="button" onclick="changeValue(this)" value="ModeA" style="background-color:#61829a;">
+              <input type="button" class="button" onclick="changeValue(this)" value="ModeB" style="background-color:#ba4900;">
+              <input type="button" class="button" onclick="changeValue(this)" value="ModeC" style="background-color:#fb0018;">
+              <input type="button" class="button" onclick="changeValue(this)" value="ModeD" style="background-color:#fb8afb;">
 
-              <input type="button" onclick="changeValue(this)" value="ModeE" style="background-color:#fb9200;">
-              <input type="button" onclick="changeValue(this)" value="ModeF" style="background-color:#f3e300;">
-              <input type="button" onclick="changeValue(this)" value="ModeG" style="background-color:#aafb00;">
-              <input type="button" onclick="changeValue(this)" value="ModeH" style="background-color:#00fb00;">
+              <input type="button" class="button" onclick="changeValue(this)" value="ModeE" style="background-color:#fb9200;">
+              <input type="button" class="button" onclick="changeValue(this)" value="ModeF" style="background-color:#f3e300;">
+              <input type="button" class="button" onclick="changeValue(this)" value="ModeG" style="background-color:#aafb00;">
+              <input type="button" class="button" onclick="changeValue(this)" value="ModeH" style="background-color:#00fb00;">
 
-              <input type="button" onclick="changeValue(this)" value="ModeI" style=" background-color:#00a238;">
-              <input type="button" onclick="changeValue(this)" value="ModeJ" style="background-color:#49db8a;">
-              <input type="button" onclick="changeValue(this)" value="ModeK" style="background-color:#30baf3;">
-              <input type="button" onclick="changeValue(this)" value="ModeL" style="background-color:#0059f3;">
+              <input type="button" class="button" onclick="changeValue(this)" value="ModeI" style="background-color:#00a238;">
+              <input type="button" class="button" onclick="changeValue(this)" value="ModeJ" style="background-color:#49db8a;">
+              <input type="button" class="button" onclick="changeValue(this)" value="ModeK" style="background-color:#30baf3;">
+              <input type="button" class="button" onclick="changeValue(this)" value="ModeL" style="background-color:#0059f3;">
 
-              <input type="button" onclick="changeValue(this)" value="ModeM" style="background-color:#000092;">
-              <input type="button" onclick="changeValue(this)" value="ModeN" style="background-color:#8a00d3;">
-              <input type="button" onclick="changeValue(this)" value="ModeO" style="background-color:#d300eb;">
-              <input type="button" onclick="changeValue(this)" value="ModeP" style="background-color:#fb0092;">
+              <input type="button" class="button" onclick="changeValue(this)" value="ModeM" style="background-color:#000092;">
+              <input type="button" class="button" onclick="changeValue(this)" value="ModeN" style="background-color:#8a00d3;">
+              <input type="button" class="button" onclick="changeValue(this)" value="ModeO" style="background-color:#d300eb;">
+              <input type="button" class="button" onclick="changeValue(this)" value="ModeP" style="background-color:#fb0092;">
               </div>
             </fieldset>
         <input type="submit" value="Submit">
@@ -118,7 +156,7 @@ router.get('/',(req, res) => {
 
 router.post('/theapp', [
    check('displayname').isLength({min:1, max: 10 }).trim().escape(),
-   check('colorselect').isLength({min:5,max:5}).trim().escape()//,
+   check('colormode').isLength({min:5,max:5}).trim().escape()//,
  //  check('email').isEmail().normalizeEmail(),
   // check('age').isNumeric().trim().escape()
 ], (req, res) => {
@@ -127,6 +165,7 @@ router.post('/theapp', [
         if (displayname == undefined ){throw new Error("You didn't enter anything!");}
         //displayname= new Sanitizer().sanatize(displayname);
         if (displayname.length>10){throw new Error("Your name is too big!");}
+        if (doesColorModeExist(req.body.colormode)!=true){throw new Error("Invalid color.")};
         req.session.dispname=displayname;
         console.log(req.body.colormode)
         req.session.pallate=req.body.colormode;
@@ -223,11 +262,12 @@ router.post('/getmatrix',  [
 })
 
 router.post('/sendmatrix', (req, res) => {
+    try{
     console.log("Serverside.");
 
     var dotsize=1;
     var parce=JSON.parse(req.body.matrix);
-    let most=0;
+    let most=-1;
     var time=0;
     let mode=req.session.pallate;
     for (var i=0;i<parce.length;i++){
@@ -241,6 +281,7 @@ router.post('/sendmatrix', (req, res) => {
                     }
             }
         }
+    if (most<=-1){throw new Error("Empty message.");}
     var canvas = canvas=createCanvas(234,  85);
 
 
@@ -304,6 +345,12 @@ router.post('/sendmatrix', (req, res) => {
     });
     res.write("Finishsed.;")
     res.end('done');
+    }
+    catch(err){
+        console.log("Empty message...");
+        res.write("Empty...");
+        res.end();
+    }
 });
 
 

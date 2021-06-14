@@ -14,7 +14,7 @@ const filetosend=`
 <html>
 <head>
  <meta charset="UTF-8">
-</head> 
+</head>
     <script type="text/javascript" src="windowfront.js">
 
     </script>
@@ -57,7 +57,7 @@ const filetosend=`
         </canvas>
 
 
-        <canvas id="dotDraw" width="228px" height="80px" span hidden style="position:absolute;z-index:0;" >
+        <canvas id="dotDraw" width="500px" height="500px" span hidden style="position:absolute;z-index:0;" >
         </canvas>
 
         </div>
@@ -69,6 +69,10 @@ const filetosend=`
 function sendDraw(name, color){
     let toreturn=util.format(filetosend, name, color);
     return toreturn;
+}
+
+function sendForm(){
+
 }
 
 module.exports= sendDraw;

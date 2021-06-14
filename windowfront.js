@@ -21,8 +21,11 @@ var dotChange=true;
 var outputimgs=[];
 
 var overlayColor="rgba(0, 0, 255, 0.5)";
+
 var colorMode="ModeA";
-var displayName="Person"
+var displayName="Person";
+
+var colorPallate={}
 //For modes.
 //Forthe keyboard.
 var CAPS=false;
@@ -139,6 +142,8 @@ function init() {
     let colora = document.getElementById('color');
     colorMode= colora.textContent;
     console.log(displayName, colorMode);
+
+    //Name and color set.
     fetch('data/json/glyphs.json')
       .then(response => response.json())
       .then(glyp => glyphs=glyp);
@@ -154,6 +159,10 @@ function init() {
     fetch('data/json/keyboard5.json')
       .then(response => response.json())
       .then(glyp => keyboards[5]=glyp);
+
+      fetch('data/json/pallates.json')
+        .then(response => response.json())
+        .then(color => colorPallate=color[colorMode]);
 
     canvas = document.getElementById('drawing');
     preview =  document.getElementById('animating');
@@ -256,7 +265,15 @@ function init() {
     getimage(SCCArea.ImmAct, colorMode);
     PictoString.resetString();
 
+    setupEvents();
+    setInterval(gradualCheck, 1000);
+    setInterval(animDot, 1000);
+}
+
+
+function setupEvents(){
     canvas.addEventListener("mousemove", function (e) {
+        e.preventDefault();
         handleMouse(e, 'move')
     }, false);
     document.addEventListener("keydown", function (e) {
@@ -266,19 +283,34 @@ function init() {
          handleKeyboardEvent(e, "up");
     }, false);
     canvas.addEventListener("mousedown", function (e) {
+        e.preventDefault();
         handleMouse(e, 'down')
     }, false);
     canvas.addEventListener("mouseup", function (e) {
+        e.preventDefault();
         handleMouse(e, 'up')
     }, false);
     canvas.addEventListener("mouseout", function (e) {
+        e.preventDefault();
         handleMouse(e, 'out')
     }, false);
     canvas.addEventListener("mousein", function (e) {
+        e.preventDefault();
         handleMouse(e, 'in')
     }, false);
-    setInterval(gradualCheck, 1000);
-    setInterval(animDot, 1000);
+
+    canvas.addEventListener("touchstart", function(e){
+        handleTouch(e, "start");
+    }, false);
+    canvas.addEventListener("touchend", function(e){
+        handleTouch(e, "end");
+    }, false);
+    canvas.addEventListener("touchcancel", function(e){
+        handleTouch(e, "cancel");
+    }, false);
+    canvas.addEventListener("touchmove", function(e){
+        handleTouch(e, "move");
+    }, false);
 }
 function gradualCheck(){
     if (countdown<=0){
@@ -308,8 +340,14 @@ function keyOps(keyCode, fireContext){
     //Either on the on screen keyboard or the
     //hardware keyboard.
     //Fire Context can be 'keyboard' or 'mouse'
-    if (keyboards[keyboard_selected].keylist.hasOwnProperty(keyCode)){
-        var thisCode=keyboards[keyboard_selected].keylist[keyCode]
+    let keyselected=keyboard_selected;
+    if (fireContext=='keyboard'){
+        console.log("KEYBOARD")
+        keyselected=1;
+    }
+
+    if (keyboards[keyselected].keylist.hasOwnProperty(keyCode)){
+        var thisCode=keyboards[keyselected].keylist[keyCode]
         switch (keyCode){
             case "Enter":
                 PictoString.addToString("+n");
@@ -323,9 +361,12 @@ function keyOps(keyCode, fireContext){
             case "ShiftLeft":
                 if (fireContext=='mouse'){SHIFT=true; mShift=true;}
                 break;
+            case "CapsLock":
+                if (fireContext=='mouse'){CAPS=(!CAPS);}
+                break;
             default:
 
-                if (keyboards[keyboard_selected].keyboardMode=="Code"){
+                if (keyboards[keyselected].keyboardMode=="Code"){
                     if (SHIFT) { PictoString.addToString(thisCode.schar);}
                     else if (CAPS && thisCode.caps){PictoString.addToString(thisCode.schar);}
                     else{PictoString.addToString(thisCode.char);}
@@ -338,17 +379,21 @@ function  handleKeyboardEvent(keyEvent, type){
     //currently matches with keyboard 1 only.
     if (type == "down"){
         if (keyEvent.key=="Shift"){
+            keyEvent.preventDefault();
             SHIFT=true;
         }
         if (keyEvent.code=="CapsLock"){
+            keyEvent.preventDefault();
             CAPS= !CAPS;
         }
         else{
             if (keyboards[1].keylist.hasOwnProperty(keyEvent.code)){
+                keyEvent.preventDefault();
                 keyboards[1].keylist[keyEvent.code].pressed=true;
                 keyOps(keyEvent.code, 'keyboard');
             }
             else if(keyboards[keyboard_selected].hasOwnProperty(keyEvent.key)){
+                keyEvent.preventDefault();
                 keyboards[keyboard_selected].keylist[keyEvent.key].pressed=true;
                 keyOps(keyEvent.code, 'keyboard');
             }
@@ -356,13 +401,16 @@ function  handleKeyboardEvent(keyEvent, type){
     }
     if (type == "up"){
         if (keyEvent.key=="Shift"){
+            keyEvent.preventDefault();
             SHIFT=false;
         }
 
         if (keyboards[1].keylist.hasOwnProperty(keyEvent.code)){
+            keyEvent.preventDefault();
             keyboards[1].keylist[keyEvent.code].pressed=false;
         }
         else if(keyboards[keyboard_selected].hasOwnProperty(keyEvent.key)){
+            keyEvent.preventDefault();
             keyboards[keyboard_selected].keylist[keyEvent.key].pressed=false;
             keyOps(keyEvent.code, 'keyboard');
         }
@@ -524,7 +572,9 @@ function checkIfInSCCArea(cx, cy, status){
     SCCArea.herePress=toset;
 
 }
-
+function toFillFormat(colorEntry, alpha){
+    return "rgba("+colorEntry["r"]+", "+colorEntry["g"]+","+colorEntry["b"]+", "+alpha+")";
+}
 // function drawBox(cont, offX, offY, box){
 //     cont.fillRect((offX+box.xpos)*dotsize, (offY+box.ypos)*dotsize, (box.xsize)*dotsize, (box.ysize)*dotsize);
 //
@@ -676,7 +726,7 @@ function drawKeyboard(cont){
     }
     drawScaledImage(cont,keyboardObject.Imm0, offX, offY);
     var keys=Object.keys(keyboards[keyboard_selected].keylist);
-    cont.fillStyle=overlayColor;
+    cont.fillStyle=toFillFormat(colorPallate["color5"], 0.5);
     for (var k=0;k<keys.length;k++){
         var thisEntry=keyboards[keyboard_selected].keylist[keys[k]];
         if (thisEntry.hasOwnProperty("pressed")){
@@ -687,10 +737,24 @@ function drawKeyboard(cont){
         }
     }
 }
-
+var changeddotsize=false
+function changeDotSize(newdotsize){
+    dotsize=newdotsize;
+    changeddotsize=true;
+    for (let i=0;i<array2D.length;i++){
+        let row =array2D[i];
+        for (let j=0; j<row.length;j++){
+                arr2DChanges[i][j]=true;
+        }
+    }
+}
 function dotUpdate(cont){
 
     if (dotChange){
+        if (changeddotsize){
+            dctx.clearRect(0,0,500,500);
+            changeddotsize=false;
+        }
     //    dctx.clearRect(0, 0, 228, 80);
     //    dctx.drawImage(backgroundImg,0-3,0-2)
 
@@ -701,11 +765,11 @@ function dotUpdate(cont){
                     if (arr2DChanges[i][j]){
                         if (array2D[i][j]==2){
                             dctx.fillStyle = "rgb(0, 0, 0)";
-                            dctx.fillRect((i), (j), 1, 1);
+                            dctx.fillRect((i)*dotsize, (j)*dotsize, 1*dotsize, 1*dotsize);
                         }
                         else{
-                            dctx.clearRect((i), (j), 1, 1);
-                            if (j%16 == 0){dctx.fillStyle = "rgb(178, 195, 219)"; dctx.fillRect((i), (j), 1, 1);}
+                            dctx.clearRect((i)*dotsize, (j)*dotsize, 1*dotsize, 1*dotsize);
+                            if (j%16 == 0){dctx.fillStyle = toFillFormat(colorPallate["color2"], 1); dctx.fillRect((i)*dotsize, (j)*dotsize, 1*dotsize, 1*dotsize);}
 
                         }
                         arr2DChanges[i][j]=false;
@@ -719,7 +783,7 @@ function dotUpdate(cont){
     //drawingImage.src=matrixCanvas.toDataURL();
     //console.log(drawingImage.src);
     //return drawingImage;
-    cont.putImageData(dctx.getImageData(0,0,cols, rows),  drawOffX, drawOffY, 0,0,cols*dotsize, rows*dotsize)
+    cont.putImageData(dctx.getImageData(0,0,cols*dotsize, rows*dotsize),  drawOffX*dotsize, drawOffY*dotsize, 0,0,cols*dotsize, rows*dotsize)
 }
 function updateOutput(elements){
     //outputimgs=[];
@@ -922,7 +986,7 @@ function getmessages(){
         let xhr = new XMLHttpRequest();
         console.log("Getting Messages.");
         xhr.open("POST", '/getmatrix', true);
-
+        xhr.timeout=5000;
         //Send the proper header information along with the request
         xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
         xhr.overrideMimeType("text/plain");
@@ -935,7 +999,13 @@ function getmessages(){
                 }
                 //...toISOString();
             }
+            else{
+
+            }
         }
+        xhr.ontimeout = function (e){
+            console.log("timeout...");
+        };
 
         xhr.send("position="+lastTime.toISOString());
     }
@@ -1013,13 +1083,7 @@ function whoami() {
     // xhr.send(document);
     console.log("Placeholder.");
 }
-
-function handleMouse(mouseEvent, type) {
-    //TO DO: GET THE BUTTON PRESS.
-    prevX = currX;
-    prevY = currY;
-    currX = mouseEvent.clientX - canvas.offsetLeft;
-    currY = mouseEvent.clientY - canvas.offsetTop;
+function handleMovementEvent(type){
     if (type == 'down') {
         //Check if in drawing box.
         if (drawingBox.inBounds(currX, currY, 0, 0)){
@@ -1070,14 +1134,46 @@ function handleMouse(mouseEvent, type) {
     }
 
     if (type == 'move') {
+
         dotDraw(ctx);
+            drawDraggedGlyph(ctx, currX, currY);
         if (draw_flag) {
             dotLineFill(prevX, prevY, currX, currY)
         }
     }
     dotDraw(ctx);
-    drawDraggedGlyph(ctx, currX, currY);
+
     ctx.beginPath();
     ctx.fillRect(currX, currY, 2*dotsize, 2*dotsize);
     ctx.closePath();
+}
+function handleMouse(mouseEvent, type) {
+    //TO DO: GET THE BUTTON PRESS.
+    prevX = currX;
+    prevY = currY;
+    currX = mouseEvent.clientX - canvas.offsetLeft;
+    currY = mouseEvent.clientY - canvas.offsetTop;
+    handleMovementEvent(type);
+}
+
+function handleTouch(touchevent, type){
+    touchevent.preventDefault()
+
+      if (touchevent.touches.length > 1 || (touchevent.type == "touchend" && touchevent.touches.length > 0))
+        return;
+    touch = touchevent.changedTouches[0];
+    prevX = currX;
+    prevY = currY;
+    console.log(touch);
+    currX = touch.pageX - canvas.offsetLeft;
+    currY = touch.pageY - canvas.offsetTop;
+    if (type=="start"){
+        handleMovementEvent('down');
+    }
+    if (type=="end"){
+        handleMovementEvent('up');
+    }
+    if (type=="move"){
+        handleMovementEvent('move');
+    }
 }

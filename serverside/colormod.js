@@ -76,6 +76,12 @@ function createColoredImageUri(imagePath, colorMode){
             ColoredImg[imagePath][colorMode]=uri;
     });
 }
+function doesColorModeExist(colorMode){
+    if (colorMode in colors){
+        return true;
+    }
+    return false;
+}
 function getUriFromDictionary(hostpath, pallate){
     let thisimagepath=path.basename(hostpath);
     return ColoredImg[thisimagepath][pallate];
@@ -126,4 +132,4 @@ colormod
   // so we're simply appending more routes to the '/tests' endpoint
 
 
-  module.exports= {colormod, getUriFromDictionary};
+  module.exports= {colormod, getUriFromDictionary, doesColorModeExist};
