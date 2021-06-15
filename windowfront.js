@@ -7,7 +7,7 @@ var lastTime= new Date();
 
 var draw_flag = false;
 var prevX, currX, prevY, currY=0;
-var tap_flag = false;
+var draw_start_flag = false;
 var offset=4;
 var drawOffX=26;
 var drawOffY=6;
@@ -16,7 +16,20 @@ var keyboardOffX=24;
 var keyboardOffY=91;
 
 var dotChange=true;
+var keyDown=null;
 
+function newSuperEvent(){
+    let SuperMovementEvent = {
+        prevX:0, prevY:0,
+        currX:0, currY:0,
+        draw_flag:false, draw_start_flag:false,
+        keyDown: null
+
+    };
+    return SuperMovementEvent;
+}
+
+var supermouse=newSuperEvent();
 
 var outputimgs=[];
 
@@ -47,7 +60,7 @@ var keyboard_selected=1;
 
 var toolActive=0;
 var toolSize=0;
-var keyDown=null;
+
 var mShift=false;
 
 var keyboards={
@@ -215,11 +228,13 @@ function init() {
         bindBoxes:[null, null, null, null, null, null]
     };
     keyboardSelectArea.Imm0=new Image(14,82); keyboardSelectArea.Imm0.src="data/images/KeyboardSelectOFF.png";
-    keyboardSelectArea.Imm1=new Image(14,82); keyboardSelectArea.Imm1.src="data/images/KeyboardSelectON1.png";
-    keyboardSelectArea.Imm2=new Image(14,82); keyboardSelectArea.Imm2.src="data/images/KeyboardSelectON2.png";
-    keyboardSelectArea.Imm3=new Image(14,82); keyboardSelectArea.Imm3.src="data/images/KeyboardSelectON3.png";
-    keyboardSelectArea.Imm4=new Image(14,82); keyboardSelectArea.Imm4.src="data/images/KeyboardSelectON4.png";
-    keyboardSelectArea.Imm5=new Image(14,82); keyboardSelectArea.Imm5.src="data/images/KeyboardSelectON5.png";
+    keyboardSelectArea.ImmAct=CloneImage(keyboardSelectArea.Imm0)
+    getimage(keyboardSelectArea.ImmAct, colorMode);
+    //keyboardSelectArea.Imm1=new Image(14,82); keyboardSelectArea.Imm1.src="data/images/KeyboardSelectON1.png";
+    //keyboardSelectArea.Imm2=new Image(14,82); keyboardSelectArea.Imm2.src="data/images/KeyboardSelectON2.png";
+    //keyboardSelectArea.Imm3=new Image(14,82); keyboardSelectArea.Imm3.src="data/images/KeyboardSelectON3.png";
+    //keyboardSelectArea.Imm4=new Image(14,82); keyboardSelectArea.Imm4.src="data/images/KeyboardSelectON4.png";
+    //keyboardSelectArea.Imm5=new Image(14,82); keyboardSelectArea.Imm5.src="data/images/KeyboardSelectON5.png";
     keyboardSelectArea.bindBoxes[1]=newBox(0,0,14,14);
     keyboardSelectArea.bindBoxes[2]=newBox(0,17,14,14);
     keyboardSelectArea.bindBoxes[3]=newBox(0,34,14,14);
@@ -306,7 +321,7 @@ function setupEvents(){
         handleTouch(e, "end");
     }, false);
     canvas.addEventListener("touchcancel", function(e){
-        handleTouch(e, "cancel");
+        handleTouch(e, "end");
     }, false);
     canvas.addEventListener("touchmove", function(e){
         handleTouch(e, "move");
@@ -323,7 +338,13 @@ function gradualCheck(){
 }
 function animDot(){
     if (glyphs!=null){
+
         dotDraw(ctx);
+        drawDraggedGlyph(ctx, supermouse);
+        for (const element of supertouches) {
+            drawDraggedGlyph(ctx, element);
+            console.log(element);
+        }
     }
 }
 function getCharFromKey(keyCode){
@@ -415,7 +436,7 @@ function  handleKeyboardEvent(keyEvent, type){
             keyOps(keyEvent.code, 'keyboard');
         }
     }
-    dotDraw(ctx);
+    animDot();
 }
 
 function drawScaledImage(cont, image, X, Y){
@@ -652,29 +673,34 @@ function drawKeyboardSelect(){
     //ctx.drawImage(keyboardSelectArea.Imm0,keyboardSelectArea.offX*dotsize,keyboardSelectArea.offY*dotsize);
     switch (keyboard_selected){
         case 1:
-            drawScaledImage(ctx, keyboardSelectArea.Imm1, keyboardSelectArea.offX, keyboardSelectArea.offY)
+            drawBox(ctx, keyboardSelectArea, keyboardSelectArea.bindBoxes[1])
+    //        drawScaledImage(ctx, keyboardSelectArea.Imm1, keyboardSelectArea.offX, keyboardSelectArea.offY)
             //ctx.drawImage(keyboardSelectArea.Imm1,keyboardSelectArea.offX,keyboardSelectArea.offY);
             break;
         case 2:
-            drawScaledImage(ctx, keyboardSelectArea.Imm2, keyboardSelectArea.offX, keyboardSelectArea.offY)
+            drawBox(ctx, keyboardSelectArea, keyboardSelectArea.bindBoxes[2])
+            //drawScaledImage(ctx, keyboardSelectArea.Imm2, keyboardSelectArea.offX, keyboardSelectArea.offY)
             //ctx.drawImage(keyboardSelectArea.Imm2,keyboardSelectArea.offX,keyboardSelectArea.offY);
             break;
         case 3:
-            drawScaledImage(ctx, keyboardSelectArea.Imm3, keyboardSelectArea.offX, keyboardSelectArea.offY)
+            drawBox(ctx, keyboardSelectArea, keyboardSelectArea.bindBoxes[3])
+            //drawScaledImage(ctx, keyboardSelectArea.Imm3, keyboardSelectArea.offX, keyboardSelectArea.offY)
             //ctx.drawImage(keyboardSelectArea.Imm3,keyboardSelectArea.offX,keyboardSelectArea.offY);
             break;
         case 4:
-            drawScaledImage(ctx, keyboardSelectArea.Imm4, keyboardSelectArea.offX, keyboardSelectArea.offY)
+            drawBox(ctx, keyboardSelectArea, keyboardSelectArea.bindBoxes[4])
+            //drawScaledImage(ctx, keyboardSelectArea.Imm4, keyboardSelectArea.offX, keyboardSelectArea.offY)
             //ctx.drawImage(keyboardSelectArea.Imm4,keyboardSelectArea.offX,keyboardSelectArea.offY);
             break;
         case 5:
-            drawScaledImage(ctx, keyboardSelectArea.Imm5, keyboardSelectArea.offX, keyboardSelectArea.offY)
+            drawBox(ctx, keyboardSelectArea, keyboardSelectArea.bindBoxes[5])
+            //drawScaledImage(ctx, keyboardSelectArea.Imm5, keyboardSelectArea.offX, keyboardSelectArea.offY)
             //ctx.drawImage(keyboardSelectArea.Imm5,keyboardSelectArea.offX,keyboardSelectArea.offY);
             break;
     }
     //drawBoxes(ctx);
 }
-function setDraggedGlyph(cX, cY){
+function setDraggedGlyph(keyDown,cX, cY){
     if (keyDown!=null){
         var current=getCharFromKey(keyDown);
 
@@ -687,9 +713,11 @@ function setDraggedGlyph(cX, cY){
 
     }
 }
-function drawDraggedGlyph(cont, cX, cY){
-    if (keyDown!=null){
-        var current=getCharFromKey(keyDown);
+function drawDraggedGlyph(cont, superevt){
+    let cX=superevt.currX;
+    let cY=superevt.currY;
+    if (superevt.keyDown!=null){
+        var current=getCharFromKey(superevt.keyDown);
         if (glyphs.glyphs.hasOwnProperty(current)){
             var glyphX=glyphs.glyphs[current].px;
             var glyphY=glyphs.glyphs[current].py;
@@ -996,6 +1024,8 @@ function getmessages(){
                 let elem=JSON.parse(xhr.responseText);
                 if (elem.length>0){
                     updateOutput(elem);
+                    currentXCount=0;
+                    countdown=0;
                 }
                 //...toISOString();
             }
@@ -1083,97 +1113,125 @@ function whoami() {
     // xhr.send(document);
     console.log("Placeholder.");
 }
-function handleMovementEvent(type){
+
+function handleMovementEvent(superevt, type){
     if (type == 'down') {
         //Check if in drawing box.
-        if (drawingBox.inBounds(currX, currY, 0, 0)){
+        if (drawingBox.inBounds(superevt.currX, superevt.currY, 0, 0)){
             console.log(drawingBox.xpos, drawingBox.ypos, drawingBox.xsize, drawingBox.ysize)
-            console.log(currX/dotsize, currY/dotsize)
-            draw_flag = true;
-            tap_flag = true;
-            if (tap_flag) {
-                dotPoint(currX, currY);
-                tap_flag = false;
+            console.log(superevt.currX/dotsize, superevt.currY/dotsize)
+            superevt.draw_flag = true;
+            superevt.draw_start_flag = true;
+            if (superevt.draw_start_flag) {
+                dotPoint(superevt.currX, superevt.currY);
+                superevt.draw_start_flag = false;
             }
         }
 
         //KeyboardCheck.
-        var isIn=checkIfInKeyboardButtons(currX, currY);
+        var isIn=checkIfInKeyboardButtons(superevt.currX, superevt.currY);
         if (isIn!=null){
-            keyDown=isIn;
-            keyboards[keyboard_selected].keylist[keyDown].pressed=true;
+            superevt.keyDown=isIn;
+            keyboards[keyboard_selected].keylist[superevt.keyDown].pressed=true;
         }
         //ToggleButtonChecks
-        checkIfInKeyboardSelect(currX,currY);
+        checkIfInKeyboardSelect(superevt.currX,superevt.currY);
         //CheckIfInTools
-        checkIfInToolArea(currX, currY);
+        checkIfInToolArea(superevt.currX, superevt.currY);
         //checkIfInSCCArea
-        checkIfInSCCArea(currX, currY, 'down');
+        checkIfInSCCArea(superevt.currX, superevt.currY, 'down');
     }
     if (type== 'up'){
-        var isIn=checkIfInKeyboardButtons(currX, currY);
+        var isIn=checkIfInKeyboardButtons(superevt.currX, superevt.currY);
         if (isIn!=null){
-            if (keyDown==isIn)
+            if (superevt.keyDown==isIn)
             {
-                keyOps(keyDown, 'mouse');
+                keyOps(superevt.keyDown, 'mouse');
             }
         }
-        if (keyDown!=null){
-            if (drawingBox.inBounds(currX, currY, 0, 0)){
-                setDraggedGlyph(currX, currY)
+        if (superevt.keyDown!=null){
+            if (drawingBox.inBounds(superevt.currX, superevt.currY, 0, 0)){
+                setDraggedGlyph(superevt.keyDown, superevt.currX, superevt.currY)
             }
-            keyboards[keyboard_selected].keylist[keyDown].pressed=false;
+            keyboards[keyboard_selected].keylist[superevt.keyDown].pressed=false;
 
-            keyDown=null;
+            superevt.keyDown=null;
         }
         //console.log(SCCArea.herePress)
         if (SCCArea.herePress>0){
-            checkIfInSCCArea(currX, currY, 'up')
+            checkIfInSCCArea(superevt.currX, superevt.currY, 'up')
         }
-        draw_flag = false;
+        superevt.draw_flag = false;
     }
 
     if (type == 'move') {
 
-        dotDraw(ctx);
-            drawDraggedGlyph(ctx, currX, currY);
-        if (draw_flag) {
-            dotLineFill(prevX, prevY, currX, currY)
+
+        if (superevt.draw_flag) {
+            dotLineFill(superevt.prevX, superevt.prevY, superevt.currX, superevt.currY)
         }
     }
+    //dotDraw(ctx);
     dotDraw(ctx);
-
+    drawDraggedGlyph(ctx, superevt);
     ctx.beginPath();
-    ctx.fillRect(currX, currY, 2*dotsize, 2*dotsize);
+    ctx.fillRect(superevt.currX, superevt.currY, 2*dotsize, 2*dotsize);
     ctx.closePath();
 }
+
+
 function handleMouse(mouseEvent, type) {
     //TO DO: GET THE BUTTON PRESS.
-    prevX = currX;
-    prevY = currY;
-    currX = mouseEvent.clientX - canvas.offsetLeft;
-    currY = mouseEvent.clientY - canvas.offsetTop;
-    handleMovementEvent(type);
+    supermouse.prevX = supermouse.currX;
+    supermouse.prevY = supermouse.currY;
+    supermouse.currX = mouseEvent.clientX - canvas.offsetLeft;
+    supermouse.currY = mouseEvent.clientY - canvas.offsetTop;
+    handleMovementEvent(supermouse, type);
 }
 
+var supertouches=[];
 function handleTouch(touchevent, type){
     touchevent.preventDefault()
 
-      if (touchevent.touches.length > 1 || (touchevent.type == "touchend" && touchevent.touches.length > 0))
-        return;
-    touch = touchevent.changedTouches[0];
-    prevX = currX;
-    prevY = currY;
-    console.log(touch);
-    currX = touch.pageX - canvas.offsetLeft;
-    currY = touch.pageY - canvas.offsetTop;
-    if (type=="start"){
-        handleMovementEvent('down');
+//      if (touchevent.touches.length > 1 || (touchevent.type == "touchend" && touchevent.touches.length > 0))/
+//        return;
+    for (let i=0;i<touchevent.changedTouches.length;i++){
+        let touch = touchevent.changedTouches[i];
+        console.log(touch);
+        console.log(supertouches);
+        if (type=="start"){
+
+            let supertouch=new newSuperEvent();
+            if  (supertouches[touch.identifier]!=undefined){
+                supertouch=supertouches[touch.identifier];
+            }
+
+            supertouch.currX = touch.pageX - canvas.offsetLeft;
+            supertouch.currY = touch.pageY - canvas.offsetTop;
+
+            handleMovementEvent(supertouch,'down');
+            supertouches[touch.identifier]=supertouch;
+        }
+        if (type=="move"){
+            let supertouch=supertouches[touch.identifier];
+            supertouch.prevX=supertouch.currX;
+            supertouch.prevY=supertouch.currY;
+            supertouch.currX = touch.pageX - canvas.offsetLeft;
+            supertouch.currY = touch.pageY - canvas.offsetTop;
+
+            handleMovementEvent(supertouch,'move');
+            supertouches[touch.identifier]=supertouch;
+        }
+        if (type=="end"){
+            let supertouch=supertouches[touch.identifier];
+            supertouch.prevX=supertouch.currX;
+            supertouch.prevY=supertouch.currY;
+            supertouch.currX = touch.pageX - canvas.offsetLeft;
+            supertouch.currY = touch.pageY - canvas.offsetTop;
+            handleMovementEvent(supertouch,'up');
+            delete supertouches[touch.identifier];
+        }
+
     }
-    if (type=="end"){
-        handleMovementEvent('up');
-    }
-    if (type=="move"){
-        handleMovementEvent('move');
-    }
+            console.log(supertouches);
 }
