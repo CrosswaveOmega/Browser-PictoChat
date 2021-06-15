@@ -1190,6 +1190,8 @@ function handleMouse(mouseEvent, type) {
 }
 
 var supertouches=[];
+var activetouches=0;
+
 function handleTouch(touchevent, type){
     touchevent.preventDefault()
 
@@ -1205,12 +1207,14 @@ function handleTouch(touchevent, type){
             if  (supertouches[touch.identifier]!=undefined){
                 supertouch=supertouches[touch.identifier];
             }
-
+            supertouch.id=touch.identifier
             supertouch.currX = touch.pageX - canvas.offsetLeft;
             supertouch.currY = touch.pageY - canvas.offsetTop;
 
             handleMovementEvent(supertouch,'down');
             supertouches[touch.identifier]=supertouch;
+        //    supertouches.push(supertouch)
+            activetouches=activetouches+1;
         }
         if (type=="move"){
             let supertouch=supertouches[touch.identifier];
@@ -1229,7 +1233,11 @@ function handleTouch(touchevent, type){
             supertouch.currX = touch.pageX - canvas.offsetLeft;
             supertouch.currY = touch.pageY - canvas.offsetTop;
             handleMovementEvent(supertouch,'up');
-            delete supertouches[touch.identifier];
+            supertouches.splice(supertouch, 1);
+            activetouches=activetouches-1;
+            if (activetouches<=0){
+                supertouches=[];
+            }
         }
 
     }
