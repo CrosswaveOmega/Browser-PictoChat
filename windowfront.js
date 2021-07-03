@@ -12,18 +12,24 @@ var offset=4;
 var drawOffX=26;
 var drawOffY=6;
 
+const drawUpdateInterval=0.25;
+
 var keyboardOffX=24;
 var keyboardOffY=91;
 
 var dotChange=true;
 var keyDown=null;
 
+var dragTimer=2;
+var draggedGlyph=null;
+var isBeingDragged=false;
+
 function newSuperEvent(){
     let SuperMovementEvent = {
         prevX:0, prevY:0,
         currX:0, currY:0,
         draw_flag:false, draw_start_flag:false,
-        keyDown: null
+        keyDown: null, dragTimer:1
 
     };
     return SuperMovementEvent;
@@ -282,20 +288,23 @@ function init() {
 
     setupEvents();
     setInterval(gradualCheck, 1000);
-    setInterval(animDot, 1000);
+    setInterval(animDot, 1000*drawUpdateInterval);
 }
 
 
 function setupEvents(){
-    canvas.addEventListener("mousemove", function (e) {
-        e.preventDefault();
-        handleMouse(e, 'move')
-    }, false);
+
     document.addEventListener("keydown", function (e) {
          handleKeyboardEvent(e, "down");
     }, false);
     document.addEventListener("keyup", function (e) {
          handleKeyboardEvent(e, "up");
+    }, false);
+    /*
+    canvas.addEventListener("mousemove", function (e) {
+        e.preventDefault();
+        console.log("MOUSE")
+        handleMouse(e, 'move')
     }, false);
     canvas.addEventListener("mousedown", function (e) {
         e.preventDefault();
@@ -313,7 +322,76 @@ function setupEvents(){
         e.preventDefault();
         handleMouse(e, 'in')
     }, false);
+*/canvas.addEventListener('contextmenu', function(e){
+    e.preventDefault()
+    dragTimer=0;
+}
+);
+    canvas.addEventListener("pointermove", function (e) {
+        if (e.pointerType=="pen"){
+            console.log("PEN");
+            e.preventDefault();
+            handleMouse(e, 'move')
+        }
+        else if (e.pointerType=="mouse"){
+            console.log("MOUSE")
+            e.preventDefault();
+            handleMouse(e, 'move')
+        }
+    }, false);
+    canvas.addEventListener("pointerdown", function (e) {
+        if (e.pointerType=="pen"){
+            console.log("PEN");
+            e.preventDefault();
+            handleMouse(e, 'down')
+        }
+        else if (e.pointerType=="mouse"){
+            console.log("MOUSE")
+            e.preventDefault();
+            handleMouse(e, 'down')
+        }
+    }, false);
+    canvas.addEventListener("pointerup", function (e) {
+        if (e.pointerType=="pen"){
+            console.log("PEN");
+            e.preventDefault();
+            handleMouse(e, 'up')
+        }
+        else if (e.pointerType=="mouse"){
+            console.log("MOUSE")
+            e.preventDefault();
+            handleMouse(e, 'up')
+        }
+    }, false);
+    canvas.addEventListener("pointerout", function (e) {
+        if (e.pointerType=="pen"){
+            console.log("PEN");
+            e.preventDefault();
+            handleMouse(e, 'out')
+        }
+        else if (e.pointerType=="mouse"){
+            console.log("MOUSE")
+            e.preventDefault();
+            handleMouse(e, 'out')
+        }
+    }, false);
+    canvas.addEventListener("pointerin", function (e) {
 
+        if (e.pointerType=="pen"){
+            console.log("PEN");
+            e.preventDefault();
+            handleMouse(e, 'in')
+        }
+        else if (e.pointerType=="mouse"){
+            console.log("MOUSE")
+            e.preventDefault();
+            handleMouse(e, 'up')
+        }
+
+    }, false);
+
+
+/*
     canvas.addEventListener("touchstart", function(e){
         handleTouch(e, "start");
     }, false);
@@ -326,6 +404,7 @@ function setupEvents(){
     canvas.addEventListener("touchmove", function(e){
         handleTouch(e, "move");
     }, false);
+    */
 }
 function gradualCheck(){
     if (countdown<=0){
@@ -340,11 +419,15 @@ function animDot(){
     if (glyphs!=null){
 
         dotDraw(ctx);
-        drawDraggedGlyph(ctx, supermouse);
-        for (const element of supertouches) {
-            drawDraggedGlyph(ctx, element);
-            console.log(element);
+        if (draggedGlyph!=null){
+            if (dragTimer>0){
+                dragTimer=dragTimer-(1*drawUpdateInterval);
+            }else{isBeingDragged=true;}
+            if (isBeingDragged){
+                drawDraggedGlyph(ctx, supermouse);
+            }
         }
+
     }
 }
 function getCharFromKey(keyCode){
@@ -716,8 +799,8 @@ function setDraggedGlyph(keyDown,cX, cY){
 function drawDraggedGlyph(cont, superevt){
     let cX=superevt.currX;
     let cY=superevt.currY;
-    if (superevt.keyDown!=null){
-        var current=getCharFromKey(superevt.keyDown);
+    if (draggedGlyph!=null){
+        var current=getCharFromKey(draggedGlyph);
         if (glyphs.glyphs.hasOwnProperty(current)){
             var glyphX=glyphs.glyphs[current].px;
             var glyphY=glyphs.glyphs[current].py;
@@ -797,7 +880,7 @@ function dotUpdate(cont){
                         }
                         else{
                             dctx.clearRect((i)*dotsize, (j)*dotsize, 1*dotsize, 1*dotsize);
-                            if (j%16 == 0){dctx.fillStyle = toFillFormat(colorPallate["color2"], 1); dctx.fillRect((i)*dotsize, (j)*dotsize, 1*dotsize, 1*dotsize);}
+                            if ((j+1)%16 == 0){dctx.fillStyle = toFillFormat(colorPallate["color2"], 1); dctx.fillRect((i)*dotsize, (j)*dotsize, 1*dotsize, 1*dotsize);}
 
                         }
                         arr2DChanges[i][j]=false;
@@ -1132,6 +1215,8 @@ function handleMovementEvent(superevt, type){
         var isIn=checkIfInKeyboardButtons(superevt.currX, superevt.currY);
         if (isIn!=null){
             superevt.keyDown=isIn;
+            dragTimer=1;
+            draggedGlyph=isIn;
             keyboards[keyboard_selected].keylist[superevt.keyDown].pressed=true;
         }
         //ToggleButtonChecks
@@ -1150,8 +1235,10 @@ function handleMovementEvent(superevt, type){
             }
         }
         if (superevt.keyDown!=null){
-            if (drawingBox.inBounds(superevt.currX, superevt.currY, 0, 0)){
-                setDraggedGlyph(superevt.keyDown, superevt.currX, superevt.currY)
+            if (drawingBox.inBounds(superevt.currX, superevt.currY, 0, 0)&&isBeingDragged){
+
+                setDraggedGlyph(draggedGlyph, superevt.currX, superevt.currY)
+
             }
             keyboards[keyboard_selected].keylist[superevt.keyDown].pressed=false;
 
@@ -1162,18 +1249,40 @@ function handleMovementEvent(superevt, type){
             checkIfInSCCArea(superevt.currX, superevt.currY, 'up')
         }
         superevt.draw_flag = false;
+        draggedGlyph=null;
+        isBeingDragged=false;
     }
 
     if (type == 'move') {
 
+        if (isBeingDragged==false){
+        if (superevt.keyDown!=null){
+                    var isIn=checkIfInKeyboardButtons(superevt.currX, superevt.currY);
+            if (isIn!=null && dragTimer>0){
 
+                keyboards[keyboard_selected].keylist[superevt.keyDown].pressed=false;
+
+                superevt.keyDown=isIn;
+                draggedGlyph=isIn;
+                dragTimer=1;
+                keyboards[keyboard_selected].keylist[superevt.keyDown].pressed=true;
+            }
+            else if (isIn==null){
+                draggedGlyph=null;
+                keyboards[keyboard_selected].keylist[superevt.keyDown].pressed=false;
+            }
+        }
+    }
         if (superevt.draw_flag) {
             dotLineFill(superevt.prevX, superevt.prevY, superevt.currX, superevt.currY)
         }
     }
     //dotDraw(ctx);
     dotDraw(ctx);
-    drawDraggedGlyph(ctx, superevt);
+    if (isBeingDragged){
+        drawDraggedGlyph(ctx, superevt);
+    }
+    //drawDraggedGlyph(ctx, superevt);
     ctx.beginPath();
     ctx.fillRect(superevt.currX, superevt.currY, 2*dotsize, 2*dotsize);
     ctx.closePath();
@@ -1184,14 +1293,24 @@ function handleMouse(mouseEvent, type) {
     //TO DO: GET THE BUTTON PRESS.
     supermouse.prevX = supermouse.currX;
     supermouse.prevY = supermouse.currY;
-    supermouse.currX = mouseEvent.clientX - canvas.offsetLeft;
-    supermouse.currY = mouseEvent.clientY - canvas.offsetTop;
+    supermouse.currX = mouseEvent.pageX - canvas.offsetLeft;
+    supermouse.currY = mouseEvent.pageY - canvas.offsetTop;
+    if (type=='out' ||type=='in'){
+        handleMovementEvent(supermouse, 'up');
+    }
     handleMovementEvent(supermouse, type);
 }
 
 var supertouches=[];
 var activetouches=0;
-
+function getIndexOfSupertouch(id){ //O(n)
+    for (let i=0;i<supertouches.length;i++){
+        if (supertouches[i].id==id){
+            return i;
+        }
+    }
+    return -1;
+}
 function handleTouch(touchevent, type){
     touchevent.preventDefault()
 
@@ -1199,41 +1318,54 @@ function handleTouch(touchevent, type){
 //        return;
     for (let i=0;i<touchevent.changedTouches.length;i++){
         let touch = touchevent.changedTouches[i];
-        console.log(touch);
-        console.log(supertouches);
+    //    console.log(touch);
+    //    console.log(supertouches);
+        console.log(type)
         if (type=="start"){
 
             let supertouch=new newSuperEvent();
-            if  (supertouches[touch.identifier]!=undefined){
-                supertouch=supertouches[touch.identifier];
+            if  (getIndexOfSupertouch(touch.identifier)!=-1){
+                supertouch=supertouches[getIndexOfSupertouch(touch.identifier)];
             }
             supertouch.id=touch.identifier
             supertouch.currX = touch.pageX - canvas.offsetLeft;
             supertouch.currY = touch.pageY - canvas.offsetTop;
 
             handleMovementEvent(supertouch,'down');
-            supertouches[touch.identifier]=supertouch;
+            supertouches.push(supertouch);
         //    supertouches.push(supertouch)
             activetouches=activetouches+1;
         }
-        if (type=="move"){
-            let supertouch=supertouches[touch.identifier];
+        else if (type=="move"){
+            let index=getIndexOfSupertouch(touch.identifier);
+            console.log(index)
+            if  (index==-1){
+                continue;
+            }
+            let supertouch=supertouches[index];
+            //console.log(supertouch)
             supertouch.prevX=supertouch.currX;
             supertouch.prevY=supertouch.currY;
             supertouch.currX = touch.pageX - canvas.offsetLeft;
             supertouch.currY = touch.pageY - canvas.offsetTop;
-
+            console.log(supertouch.prevX, supertouch.prevY, supertouch.currX, supertouch.currY)
             handleMovementEvent(supertouch,'move');
-            supertouches[touch.identifier]=supertouch;
+            supertouches.splice(index, 1, supertouch);
+        //    supertouches[index]=supertouch;
         }
-        if (type=="end"){
-            let supertouch=supertouches[touch.identifier];
+        else if (type=="end"){
+            let index=getIndexOfSupertouch(touch.identifier);
+            if  (index==-1){
+                continue;
+            }
+            let supertouch=supertouches[index];
+            console.log(supertouch)
             supertouch.prevX=supertouch.currX;
             supertouch.prevY=supertouch.currY;
             supertouch.currX = touch.pageX - canvas.offsetLeft;
             supertouch.currY = touch.pageY - canvas.offsetTop;
             handleMovementEvent(supertouch,'up');
-            supertouches.splice(supertouch, 1);
+            supertouches.splice(index, 1);
             activetouches=activetouches-1;
             if (activetouches<=0){
                 supertouches=[];
@@ -1241,5 +1373,5 @@ function handleTouch(touchevent, type){
         }
 
     }
-            console.log(supertouches);
+    //        console.log(supertouches);
 }
