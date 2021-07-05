@@ -338,6 +338,10 @@ function setupEvents(){
             e.preventDefault();
             handleMouse(e, 'move')
         }
+        else if (e.pointerType=="touch"){
+            e.preventDefault()
+            handleTouchPointer(e, e.pointerId, "move");
+        }
     }, false);
     canvas.addEventListener("pointerdown", function (e) {
         if (e.pointerType=="pen"){
@@ -350,6 +354,10 @@ function setupEvents(){
             e.preventDefault();
             handleMouse(e, 'down')
         }
+        else if (e.pointerType=="touch"){
+            e.preventDefault()
+            handleTouchPointer(e, e.pointerId, "start");
+        }
     }, false);
     canvas.addEventListener("pointerup", function (e) {
         if (e.pointerType=="pen"){
@@ -361,6 +369,10 @@ function setupEvents(){
             console.log("MOUSE")
             e.preventDefault();
             handleMouse(e, 'up')
+        }
+        else if (e.pointerType=="touch"){
+            e.preventDefault()
+            handleTouchPointer(e, e.pointerId, "end");
         }
     }, false);
     canvas.addEventListener("pointerout", function (e) {
@@ -1290,7 +1302,7 @@ function handleMovementEvent(superevt, type){
 
 
 function handleMouse(mouseEvent, type) {
-    //TO DO: GET THE BUTTON PRESS.
+    //This function is for the mouse and pen only.
     supermouse.prevX = supermouse.currX;
     supermouse.prevY = supermouse.currY;
     supermouse.currX = mouseEvent.pageX - canvas.offsetLeft;
@@ -1311,66 +1323,72 @@ function getIndexOfSupertouch(id){ //O(n)
     }
     return -1;
 }
-function handleTouch(touchevent, type){
+
+function handleTouchPointer(touch, identifier, type){
+    if (type=="start"){
+
+        let supertouch=new newSuperEvent();
+        if  (getIndexOfSupertouch(identifier)!=-1){
+            supertouch=supertouches[getIndexOfSupertouch(identifier)];
+        }
+        supertouch.id=identifier;
+        supertouch.currX = touch.pageX - canvas.offsetLeft;
+        supertouch.currY = touch.pageY - canvas.offsetTop;
+
+        handleMovementEvent(supertouch,'down');
+        supertouches.push(supertouch);
+    //    supertouches.push(supertouch)
+        activetouches=activetouches+1;
+    }
+    else if (type=="move"){
+        let index=getIndexOfSupertouch(identifier);
+        console.log(index)
+        if  (index==-1){
+            return false;
+        }
+        let supertouch=supertouches[index];
+        //console.log(supertouch)
+        supertouch.prevX=supertouch.currX;
+        supertouch.prevY=supertouch.currY;
+        supertouch.currX = touch.pageX - canvas.offsetLeft;
+        supertouch.currY = touch.pageY - canvas.offsetTop;
+        console.log(supertouch.prevX, supertouch.prevY, supertouch.currX, supertouch.currY)
+        handleMovementEvent(supertouch,'move');
+        supertouches.splice(index, 1, supertouch);
+    //    supertouches[index]=supertouch;
+    }
+    else if (type=="end"){
+        let index=getIndexOfSupertouch(identifier);
+        if  (index==-1){
+            return false;
+        }
+        let supertouch=supertouches[index];
+        console.log(supertouch)
+        supertouch.prevX=supertouch.currX;
+        supertouch.prevY=supertouch.currY;
+        supertouch.currX = touch.pageX - canvas.offsetLeft;
+        supertouch.currY = touch.pageY - canvas.offsetTop;
+        handleMovementEvent(supertouch,'up');
+        supertouches.splice(index, 1);
+        activetouches=activetouches-1;
+        if (activetouches<=0){
+            supertouches=[];
+        }
+    }
+}
+function handleTouchEvent(touchevent, type){
     touchevent.preventDefault()
 
 //      if (touchevent.touches.length > 1 || (touchevent.type == "touchend" && touchevent.touches.length > 0))/
 //        return;
     for (let i=0;i<touchevent.changedTouches.length;i++){
         let touch = touchevent.changedTouches[i];
+        identifier=touch.identifier
+        prosessTouch(touch, identifier, type);
     //    console.log(touch);
     //    console.log(supertouches);
         console.log(type)
-        if (type=="start"){
 
-            let supertouch=new newSuperEvent();
-            if  (getIndexOfSupertouch(touch.identifier)!=-1){
-                supertouch=supertouches[getIndexOfSupertouch(touch.identifier)];
-            }
-            supertouch.id=touch.identifier
-            supertouch.currX = touch.pageX - canvas.offsetLeft;
-            supertouch.currY = touch.pageY - canvas.offsetTop;
-
-            handleMovementEvent(supertouch,'down');
-            supertouches.push(supertouch);
-        //    supertouches.push(supertouch)
-            activetouches=activetouches+1;
-        }
-        else if (type=="move"){
-            let index=getIndexOfSupertouch(touch.identifier);
-            console.log(index)
-            if  (index==-1){
-                continue;
-            }
-            let supertouch=supertouches[index];
-            //console.log(supertouch)
-            supertouch.prevX=supertouch.currX;
-            supertouch.prevY=supertouch.currY;
-            supertouch.currX = touch.pageX - canvas.offsetLeft;
-            supertouch.currY = touch.pageY - canvas.offsetTop;
-            console.log(supertouch.prevX, supertouch.prevY, supertouch.currX, supertouch.currY)
-            handleMovementEvent(supertouch,'move');
-            supertouches.splice(index, 1, supertouch);
-        //    supertouches[index]=supertouch;
-        }
-        else if (type=="end"){
-            let index=getIndexOfSupertouch(touch.identifier);
-            if  (index==-1){
-                continue;
-            }
-            let supertouch=supertouches[index];
-            console.log(supertouch)
-            supertouch.prevX=supertouch.currX;
-            supertouch.prevY=supertouch.currY;
-            supertouch.currX = touch.pageX - canvas.offsetLeft;
-            supertouch.currY = touch.pageY - canvas.offsetTop;
-            handleMovementEvent(supertouch,'up');
-            supertouches.splice(index, 1);
-            activetouches=activetouches-1;
-            if (activetouches<=0){
-                supertouches=[];
-            }
-        }
 
     }
     //        console.log(supertouches);
