@@ -41,6 +41,9 @@ const filetosend=`
      height:192px;
      width:256px;
  }
+ img{
+     float:right;
+ }
 
  /* Hide scrollbar for Chrome, Safari and Opera */
  .scrollinit::-webkit-scrollbar {
