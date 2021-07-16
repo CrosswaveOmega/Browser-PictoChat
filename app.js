@@ -178,7 +178,7 @@ router.post('/theapp', [
         //res.sendFile(__dirname + '/draw.html');
     }
     catch(err){
-        console.log(err)
+        //console.log(err)
         res.write(startupHead);
         res.write(util.format(startupBody, err));
         res.end();
@@ -187,7 +187,7 @@ router.post('/theapp', [
 
 router.post('/whoami', (req, res) => {
     //return the username of the session.
-    console.log(req.session)
+    //console.log(req.session)
     let displayname=req.session.dispname; //(req.body.position);
     let pallate=req.session.pallate;
     res.write(JSON.stringify({displayname:displayname, pallate: req.session.pallate}));
@@ -196,7 +196,7 @@ router.post('/whoami', (req, res) => {
 
 
 function postMessageToDiscord(message, buffer) {
-    console.log("GO.")
+    //console.log("GO.")
     const form = new FormData();
     form.append('file', buffer, "tes3.png")
 
@@ -208,7 +208,7 @@ function postMessageToDiscord(message, buffer) {
 
     fetch(discordUrl, options)
         .then(res => res.json())
-        .then(json => console.log(json));
+        .then(json => //console.log(json));
     }
 
 function makeName(context, name){
@@ -218,7 +218,7 @@ function makeName(context, name){
     var glyphY=0;
     var dotsize=1;
     var charwidth=0;
-    console.log(name);
+    //console.log(name);
 
     //const glyphX1=new Image (320, 377); glyphX1.src = ;
         for (let index = 0; index < name.length; index++) {
@@ -227,7 +227,7 @@ function makeName(context, name){
                 glyphX=glyphs.glyphs[current].px;
                 glyphY=glyphs.glyphs[current].py;
                 charwidth=glyphs.glyphs[current].width;
-                console.log(glyphX, glyphY, charwidth);
+                //console.log(glyphX, glyphY, charwidth);
                 context.drawImage(glyph, glyphX*10, glyphY*13, charwidth, 12, startX*dotsize, startY*dotsize, charwidth*dotsize, 12*dotsize);
                 startX=startX+charwidth+1;
             }
@@ -258,18 +258,19 @@ router.post('/getmatrix',  [
     res.write(JSON.stringify(returnArray));
     res.end('');
     }catch(err){
-        console.log(err);
+        //console.log(err);
         res.end();
     }
 })
 
 router.post('/sendmatrix', (req, res) => {
     try{
-    console.log("Serverside.");
+    //console.log("Serverside.");
 
     var dotsize=1;
     var parce=JSON.parse(req.body.matrix);
     let most=-1;
+    let least=500;
     var time=0;
     let mode=req.session.pallate;
     for (var i=0;i<parce.length;i++){
@@ -280,9 +281,14 @@ router.post('/sendmatrix', (req, res) => {
                         if (j>most){
                             most=j;
                         }
+                        if (j<least && i>=58){
+                            least=j;
+                        }
+
                     }
             }
         }
+        //most=most-least;
     if (most<=-1){throw new Error("Empty message.");}
     var canvas = canvas=createCanvas(234,  85);
 
@@ -316,7 +322,7 @@ router.post('/sendmatrix', (req, res) => {
             var row =parce[i];
 
             for (var j=0; j<row.length;j++){
-                    //console.log(parce[i][j])
+                    ////console.log(parce[i][j])
                      if((i>57 || j>16)||(j==16 && i>=54) ||(j==15 && i>=55)||(j==14 && i>=56)||(j==13 && i==57)) {
                         if (parce[i][j]==2){
                             context.fillStyle = '#000000';
@@ -332,11 +338,11 @@ router.post('/sendmatrix', (req, res) => {
         makeName(context, req.session.dispname);
 
         let buffer = canvas.toBuffer('image/png');
-        console.log(buffer);
+        //console.log(buffer);
         fs.writeFileSync('./test.png', buffer);
         postMessageToDiscord("Test", buffer);
         let dataUrl = canvas.toDataURL('image/png');
-        console.log(dataUrl);
+        //console.log(dataUrl);
         time=new Date();
         addMessageToLog(req.session.roomID, time, dataUrl)
         /*
@@ -346,13 +352,13 @@ router.post('/sendmatrix', (req, res) => {
             messageLog[time.getTime()]=(dataUrl);
         }
         */
-        console.log(messageLog.length);
+        //console.log(messageLog.length);
     });
     res.write("Finishsed.")
     res.end('done');
     }
     catch(err){
-        console.log("Empty message...");
+        //console.log("Empty message...");
         res.write("Empty...");
         res.end();
     }
@@ -368,5 +374,5 @@ app.listen(process.env.PORT || 3000, () => {
     glyphs = JSON.parse(rawdata);
 
     loadImage('./data/images/Glyphs11.png').then((glyp) => {glyph=glyp; });
-console.log(`App Started on PORT ${process.env.PORT || 3000}`);
+//console.log(`App Started on PORT ${process.env.PORT || 3000}`);
 });

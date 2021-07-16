@@ -62,16 +62,16 @@ const filetosend=`
         <div id="outputzone" class="scrollinit" >
 
         </div>
-        <canvas id="output" width="720px", height="10px">
+        <canvas id="output" width="500px", height="10px">
                 Sorry, your browser doesn't support canvas technology.
       </canvas>
         <div>
-        <canvas id="drawing" width="720px", height="500px">
+        <canvas id="drawing" width="500px", height="500px">
                 Sorry, your browser doesn't support canvas technology.
             </canvas>
 
 
-        <canvas id="animating" width="720px" height="500px" span hidden style="position:absolute;z-index:0;" >
+        <canvas id="animating" width="500px" height="500px" span hidden style="position:absolute;z-index:0;" >
         </canvas>
 
 

@@ -386,6 +386,26 @@ function setupEvents(){
             e.preventDefault();
             handleMouse(e, 'out')
         }
+        else if (e.pointerType=="touch"){
+            e.preventDefault()
+            handleTouchPointer(e, e.pointerId, "end");
+        }
+    }, false);
+    canvas.addEventListener("pointercancel", function (e) {
+        if (e.pointerType=="pen"){
+            console.log("PEN");
+            e.preventDefault();
+            handleMouse(e, 'out')
+        }
+        else if (e.pointerType=="mouse"){
+            console.log("MOUSE")
+            e.preventDefault();
+            handleMouse(e, 'out')
+        }
+        else if (e.pointerType=="touch"){
+            e.preventDefault()
+            handleTouchPointer(e, e.pointerId, "end");
+        }
     }, false);
     canvas.addEventListener("pointerin", function (e) {
 
@@ -398,6 +418,10 @@ function setupEvents(){
             console.log("MOUSE")
             e.preventDefault();
             handleMouse(e, 'up')
+        }
+        else if (e.pointerType=="touch"){
+            e.preventDefault()
+            handleTouchPointer(e, e.pointerId, "end");
         }
 
     }, false);
@@ -423,6 +447,10 @@ function gradualCheck(){
         countdown=1+Math.ceil(Math.sqrt(0.5*currentXCount));
         currentXCount=currentXCount+1;
         console.log(countdown);
+        if (currentXCount>5){
+            currentXCount=5
+        }
+        countdown=1
         getmessages();
     }
     countdown=countdown-1;
@@ -839,6 +867,10 @@ function drawKeyboard(cont){
     else if (keyboard_selected==2){
         keyboardObject=keyboardImages["K2"];
     }
+    else if (keyboard_selected==3){
+        keyboard_selected=5
+        keyboardObject=keyboardImages["K5"];
+    }
     else if (keyboard_selected==4){
         keyboardObject=keyboardImages["K4"];
         //drawScaledImage(cont,keyboard4, offX, offY);
@@ -908,7 +940,6 @@ function dotUpdate(cont){
     //return drawingImage;
     cont.putImageData(dctx.getImageData(0,0,cols*dotsize, rows*dotsize),  drawOffX*dotsize, drawOffY*dotsize, 0,0,cols*dotsize, rows*dotsize)
 }
-var updateScroll=false;
 function scrollCheck(){
     var out=document.getElementById('outputzone');
     console.log(out.scrollHeight, out.scrollTop)
