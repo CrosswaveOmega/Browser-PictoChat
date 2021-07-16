@@ -908,6 +908,19 @@ function dotUpdate(cont){
     //return drawingImage;
     cont.putImageData(dctx.getImageData(0,0,cols*dotsize, rows*dotsize),  drawOffX*dotsize, drawOffY*dotsize, 0,0,cols*dotsize, rows*dotsize)
 }
+var updateScroll=false;
+function scrollCheck(){
+    var out=document.getElementById('outputzone');
+    console.log(out.scrollHeight, out.scrollTop)
+    var isScrolledToBottom = out.scrollHeight -out.scrollTop  <= 300
+
+
+    // scroll to bottom if isScrolledToBottom is true
+    if (isScrolledToBottom) {
+      return true;
+    }
+    return false;
+}
 function updateOutput(elements){
     //outputimgs=[];
     document.getElementById('outputzone').innerHTML = "";
@@ -918,11 +931,15 @@ function updateOutput(elements){
         outputimgs.push(img);
         //document.getElementById('outputzone').appendChild(img);
     }
+    var scrollTo=true;
     for (let i=0; i<outputimgs.length;i++){
         //img
         document.getElementById('outputzone').appendChild(outputimgs[i]);
+        //addScroll=addScroll+outputimgs[i].naturalHeight;
+        outputimgs[i].onload=function(){ if(scrollTo){ outputimgs[i].scrollIntoView({behavior: "smooth", block:"end", inline:"nearest"})}}
     }
-    document.getElementById('outputzone').scrollTop = document.getElementById('outputzone').scrollHeight;
+    scrollTo=scrollCheck();
+//
 
 }
 function drawOutput(){
@@ -942,6 +959,8 @@ function dotDraw(cont){
     // dotUpdate(cont);
     drawScaledImage(cont,backgroundImg,drawOffX-3,drawOffY-3);
     dotUpdate(cont);
+    scrollCheck()
+
 //    drawScaledImage(cont, drawingImage, drawOffX, drawOffY);
 
     drawScaledImage(cont,backgroundImg2,drawOffX-3,drawOffY-3);

@@ -33,11 +33,26 @@ const filetosend=`
    image-rendering: crisp-edges;
 
  }
- div.scrollinit{
+
+
+
+ .scrollinit{
      overflow:scroll;
-     height:300px;
-     width:300px;
+     height:192px;
+     width:256px;
  }
+
+ /* Hide scrollbar for Chrome, Safari and Opera */
+ .scrollinit::-webkit-scrollbar {
+     display: none;
+ }
+
+ /* Hide scrollbar for IE, Edge and Firefox */
+ .scrollinit {
+   -ms-overflow-style: none;  /* IE and Edge */
+   scrollbar-width: none;  /* Firefox */
+ }
+
 
  </style>
     <body onload="init()">

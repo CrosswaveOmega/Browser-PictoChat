@@ -16,7 +16,7 @@ const height = 80*2;
 const util = require('util');
 const sendDraw=require('./serverside/loaddraw.js')
 const {colormod, getUriFromDictionary, doesColorModeExist} = require("./serverside/colormod.js")
-
+const {addRoom, addMessageToLog, getMessagesFromLog} = require("./serverside/rooms.js")
 const discordUrl='https://discord.com/api/webhooks/851232711075168266/RgkH5r8_dKtTbv68zEEf444Amkq02mwPXAnDNKfLd3b1ZC6DgzMw3AjyqJHZWD0M4CO6'
 
 //initialize the app as an express app
@@ -154,6 +154,8 @@ router.get('/',(req, res) => {
     res.end();
 });
 
+
+//Where you login
 router.post('/theapp', [
    check('displayname').isLength({min:1, max: 10 }).trim().escape(),
    check('colormode').isLength({min:5,max:5}).trim().escape()//,
@@ -167,8 +169,8 @@ router.post('/theapp', [
         if (displayname.length>10){throw new Error("Your name is too big!");}
         if (doesColorModeExist(req.body.colormode)!=true){throw new Error("Invalid color.")};
         req.session.dispname=displayname;
-        console.log(req.body.colormode)
         req.session.pallate=req.body.colormode;
+        req.session.roomID="A";
         req.session.lastTimeSet=(new Date()).getTime();
         res.writeHead(200, {'Content-Type':'text/html'})
         res.write(sendDraw(req.session.dispname, req.session.pallate));
@@ -240,15 +242,15 @@ router.post('/getmatrix',  [
     var position=Date.parse(req.body.position); //(req.body.position);
     let returnArray=[];
     var lastTime=req.session.lastTimeSet
-    Object.keys(messageLog).forEach(function(key){
-        console.log(key);
-        console.log(lastTime);
-        if (key>lastTime){
-            returnArray.push(messageLog[key]);
-            req.session.lastTimeSet=key;
-        }
+    let setLastTime=null;
+    let resArr=getMessagesFromLog(req.session.roomID, lastTime);
+
+    returnArray=resArr[0];
+    setLastTime=resArr[1];
+
+    if (setLastTime!=null){
+        req.session.lastTimeSet=setLastTime;
     }
-    ) ;
 //    for (let i=position;i<messageLog.length;i++){
 //        returnArray.push(messageLog[i]);
 //    }
@@ -336,14 +338,17 @@ router.post('/sendmatrix', (req, res) => {
         let dataUrl = canvas.toDataURL('image/png');
         console.log(dataUrl);
         time=new Date();
+        addMessageToLog(req.session.roomID, time, dataUrl)
+        /*
         messageLog[time.getTime()]=(dataUrl);
         if (messageLog.length>=250){
             messageLog={};
-            messageLog.push(dataUrl);
+            messageLog[time.getTime()]=(dataUrl);
         }
+        */
         console.log(messageLog.length);
     });
-    res.write("Finishsed.;")
+    res.write("Finishsed.")
     res.end('done');
     }
     catch(err){
