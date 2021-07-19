@@ -156,11 +156,11 @@ function CloneImage(img){
 
 function init() {
     let note = document.getElementById('name');
-    console.log(note)
+    //console.log(note)
     displayName=note.textContent;
     let colora = document.getElementById('color');
     colorMode= colora.textContent;
-    console.log(displayName, colorMode);
+    //console.log(displayName, colorMode);
 
     //Name and color set.
     fetch('data/json/glyphs.json')
@@ -303,7 +303,7 @@ function setupEvents(){
     /*
     canvas.addEventListener("mousemove", function (e) {
         e.preventDefault();
-        console.log("MOUSE")
+        //console.log("MOUSE")
         handleMouse(e, 'move')
     }, false);
     canvas.addEventListener("mousedown", function (e) {
@@ -329,12 +329,12 @@ function setupEvents(){
 );
     canvas.addEventListener("pointermove", function (e) {
         if (e.pointerType=="pen"){
-            console.log("PEN");
+            //console.log("PEN");
             e.preventDefault();
             handleMouse(e, 'move')
         }
         else if (e.pointerType=="mouse"){
-            console.log("MOUSE")
+            //console.log("MOUSE")
             e.preventDefault();
             handleMouse(e, 'move')
         }
@@ -345,12 +345,12 @@ function setupEvents(){
     }, false);
     canvas.addEventListener("pointerdown", function (e) {
         if (e.pointerType=="pen"){
-            console.log("PEN");
+            //console.log("PEN");
             e.preventDefault();
             handleMouse(e, 'down')
         }
         else if (e.pointerType=="mouse"){
-            console.log("MOUSE")
+            //console.log("MOUSE")
             e.preventDefault();
             handleMouse(e, 'down')
         }
@@ -361,12 +361,12 @@ function setupEvents(){
     }, false);
     canvas.addEventListener("pointerup", function (e) {
         if (e.pointerType=="pen"){
-            console.log("PEN");
+            //console.log("PEN");
             e.preventDefault();
             handleMouse(e, 'up')
         }
         else if (e.pointerType=="mouse"){
-            console.log("MOUSE")
+            //console.log("MOUSE")
             e.preventDefault();
             handleMouse(e, 'up')
         }
@@ -377,12 +377,12 @@ function setupEvents(){
     }, false);
     canvas.addEventListener("pointerout", function (e) {
         if (e.pointerType=="pen"){
-            console.log("PEN");
+            //console.log("PEN");
             e.preventDefault();
             handleMouse(e, 'out')
         }
         else if (e.pointerType=="mouse"){
-            console.log("MOUSE")
+            //console.log("MOUSE")
             e.preventDefault();
             handleMouse(e, 'out')
         }
@@ -393,12 +393,12 @@ function setupEvents(){
     }, false);
     canvas.addEventListener("pointercancel", function (e) {
         if (e.pointerType=="pen"){
-            console.log("PEN");
+            //console.log("PEN");
             e.preventDefault();
             handleMouse(e, 'out')
         }
         else if (e.pointerType=="mouse"){
-            console.log("MOUSE")
+            //console.log("MOUSE")
             e.preventDefault();
             handleMouse(e, 'out')
         }
@@ -410,12 +410,12 @@ function setupEvents(){
     canvas.addEventListener("pointerin", function (e) {
 
         if (e.pointerType=="pen"){
-            console.log("PEN");
+            //console.log("PEN");
             e.preventDefault();
             handleMouse(e, 'in')
         }
         else if (e.pointerType=="mouse"){
-            console.log("MOUSE")
+            //console.log("MOUSE")
             e.preventDefault();
             handleMouse(e, 'up')
         }
@@ -446,7 +446,7 @@ function gradualCheck(){
     if (countdown<=0){
         countdown=1+Math.ceil(Math.sqrt(0.5*currentXCount));
         currentXCount=currentXCount+1;
-        console.log(countdown);
+        //console.log(countdown);
         if (currentXCount>5){
             currentXCount=5
         }
@@ -486,7 +486,7 @@ function keyOps(keyCode, fireContext){
     //Fire Context can be 'keyboard' or 'mouse'
     let keyselected=keyboard_selected;
     if (fireContext=='keyboard'){
-        console.log("KEYBOARD")
+        //console.log("KEYBOARD")
         keyselected=1;
     }
 
@@ -685,7 +685,7 @@ function checkIfInSCCArea(cx, cy, status){
     for (var k=1;k<SCCArea.bindBoxes.length;k++){
         if (SCCArea.bindBoxes[k].inBounds(cx, cy,offX, offY)){
             if(status=='down'){
-                console.log(k);
+                //console.log(k);
                 toset=k;
             }
             else if(status=='up'){
@@ -697,12 +697,12 @@ function checkIfInSCCArea(cx, cy, status){
                             SCCArea.herePress=0;
                             break;
                         case 2:
-                            console.log("There's nothing to copy.")
+                            //console.log("There's nothing to copy.")
                             getmessages();
                             SCCArea.herePress=0;
                             break;
                         case 3:
-                            console.log("Clearing.");
+                            //console.log("Clearing.");
                             clearmatrix();
                         //    dotChange=true;
                             SCCArea.herePress=0;
@@ -726,7 +726,7 @@ function toFillFormat(colorEntry, alpha){
 function drawBox(cont, areaObj, box){
     let offX=areaObj.offX;
     let offY=areaObj.offY;
-    //console.log(areaObj.ImmAct.src)
+    ////console.log(areaObj.ImmAct.src)
     cont.drawImage(areaObj.ImmAct, box.xpos, box.ypos, box.xsize, box.ysize, (offX+box.xpos)*dotsize, (offY+box.ypos)*dotsize, (box.xsize)*dotsize, (box.ysize)*dotsize);
 
     //cont.fillRect((offX+box.xpos)*dotsize, (offY+box.ypos)*dotsize, (box.xsize)*dotsize, (box.ysize)*dotsize);
@@ -936,13 +936,13 @@ function dotUpdate(cont){
 
     }
     //drawingImage.src=matrixCanvas.toDataURL();
-    //console.log(drawingImage.src);
+    ////console.log(drawingImage.src);
     //return drawingImage;
     cont.putImageData(dctx.getImageData(0,0,cols*dotsize, rows*dotsize),  drawOffX*dotsize, drawOffY*dotsize, 0,0,cols*dotsize, rows*dotsize)
 }
 function scrollCheck(){
     var out=document.getElementById('outputzone');
-    console.log(out.scrollHeight, out.scrollTop)
+    //console.log(out.scrollHeight, out.scrollTop)
     var isScrolledToBottom = out.scrollHeight -out.scrollTop  <= 300
 
 
@@ -1134,7 +1134,7 @@ function dotLineFill(lx, ly, x, y){
 }
 
 function clearmatrix() {
-    console.log("Placeholder.");
+    //console.log("Placeholder.");
     PictoString.resetString();
     for (var i=0;i<array2D.length;i++){
         var row =array2D[i];
@@ -1157,7 +1157,7 @@ function getimage(image, mode){
 function getmessages(){
 
         let xhr = new XMLHttpRequest();
-        console.log("Getting Messages.");
+        //console.log("Getting Messages.");
         xhr.open("POST", '/getmatrix', true);
         xhr.timeout=5000;
         //Send the proper header information along with the request
@@ -1179,14 +1179,14 @@ function getmessages(){
             }
         }
         xhr.ontimeout = function (e){
-            console.log("timeout...");
+            //console.log("timeout...");
         };
 
         xhr.send("position="+lastTime.toISOString());
     }
 // xhr.send(new Int8Array());
 // xhr.send(document);
-    //console.log("Placeholder.");
+    ////console.log("Placeholder.");
 
 
 function sendmatrix() {
@@ -1202,7 +1202,7 @@ function sendmatrix() {
         if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
             currentXCount=0;
             countdown=0;
-            //console.log("Finished.");
+            ////console.log("Finished.");
             // Request finished. Do processing here.
         }
     }
@@ -1223,7 +1223,7 @@ function sendmatrix() {
     xhr.send("?username=bar&matrix="+content);
 // xhr.send(new Int8Array());
 // xhr.send(document);
-    //console.log("Placeholder.");
+    ////console.log("Placeholder.");
 }
 
 function sleep(milliseconds) {
@@ -1244,11 +1244,11 @@ function whoami() {
     xhr.overrideMimeType("text/plain");
     xhr.onreadystatechange = function() { // Call a function when the state changes.
         if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
-            console.log("Finished.");
+            //console.log("Finished.");
             jsonv=JSON.parse(xhr.responseText);
             displayName=jsonv.displayname;
             colorMode=jsonv.pallate;
-            console.log(displayName, colorMode)
+            //console.log(displayName, colorMode)
 
             // Request finished. Do processing here.
         }
@@ -1256,15 +1256,15 @@ function whoami() {
     xhr.send();
 // xhr.send(new Int8Array());
     // xhr.send(document);
-    console.log("Placeholder.");
+    //console.log("Placeholder.");
 }
 
 function handleMovementEvent(superevt, type){
     if (type == 'down') {
         //Check if in drawing box.
         if (drawingBox.inBounds(superevt.currX, superevt.currY, 0, 0)){
-            console.log(drawingBox.xpos, drawingBox.ypos, drawingBox.xsize, drawingBox.ysize)
-            console.log(superevt.currX/dotsize, superevt.currY/dotsize)
+            //console.log(drawingBox.xpos, drawingBox.ypos, drawingBox.xsize, drawingBox.ysize)
+            //console.log(superevt.currX/dotsize, superevt.currY/dotsize)
             superevt.draw_flag = true;
             superevt.draw_start_flag = true;
             if (superevt.draw_start_flag) {
@@ -1306,7 +1306,7 @@ function handleMovementEvent(superevt, type){
 
             superevt.keyDown=null;
         }
-        //console.log(SCCArea.herePress)
+        ////console.log(SCCArea.herePress)
         if (SCCArea.herePress>0){
             checkIfInSCCArea(superevt.currX, superevt.currY, 'up')
         }
@@ -1392,17 +1392,17 @@ function handleTouchPointer(touch, identifier, type){
     }
     else if (type=="move"){
         let index=getIndexOfSupertouch(identifier);
-        console.log(index)
+        //console.log(index)
         if  (index==-1){
             return false;
         }
         let supertouch=supertouches[index];
-        //console.log(supertouch)
+        ////console.log(supertouch)
         supertouch.prevX=supertouch.currX;
         supertouch.prevY=supertouch.currY;
         supertouch.currX = touch.pageX - canvas.offsetLeft;
         supertouch.currY = touch.pageY - canvas.offsetTop;
-        console.log(supertouch.prevX, supertouch.prevY, supertouch.currX, supertouch.currY)
+        //console.log(supertouch.prevX, supertouch.prevY, supertouch.currX, supertouch.currY)
         handleMovementEvent(supertouch,'move');
         supertouches.splice(index, 1, supertouch);
     //    supertouches[index]=supertouch;
@@ -1413,7 +1413,7 @@ function handleTouchPointer(touch, identifier, type){
             return false;
         }
         let supertouch=supertouches[index];
-        console.log(supertouch)
+        //console.log(supertouch)
         supertouch.prevX=supertouch.currX;
         supertouch.prevY=supertouch.currY;
         supertouch.currX = touch.pageX - canvas.offsetLeft;
@@ -1435,11 +1435,11 @@ function handleTouchEvent(touchevent, type){
         let touch = touchevent.changedTouches[i];
         identifier=touch.identifier
         prosessTouch(touch, identifier, type);
-    //    console.log(touch);
-    //    console.log(supertouches);
-        console.log(type)
+    //    //console.log(touch);
+    //    //console.log(supertouches);
+        //console.log(type)
 
 
     }
-    //        console.log(supertouches);
+    //        //console.log(supertouches);
 }

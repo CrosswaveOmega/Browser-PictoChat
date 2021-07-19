@@ -15,9 +15,10 @@ const width = 228*2;
 const height = 80*2;
 const util = require('util');
 const sendDraw=require('./serverside/loaddraw.js')
+const sendForm=require('./serverside/entryform.js')
 const {colormod, getUriFromDictionary, doesColorModeExist} = require("./serverside/colormod.js")
-const {addRoom, addMessageToLog, getMessagesFromLog} = require("./serverside/rooms.js")
-const discordUrl='https://discord.com/api/webhooks/851232711075168266/RgkH5r8_dKtTbv68zEEf444Amkq02mwPXAnDNKfLd3b1ZC6DgzMw3AjyqJHZWD0M4CO6'
+const {addRoom, addMessageToLog, getMessagesFromLog, getRoomWebhook, addPrivateRoom, getPrivateRoomByCipher} = require("./serverside/rooms.js")
+
 
 //initialize the app as an express app
 const app = express();
@@ -40,104 +41,6 @@ app.use(session({
     secure: true,
     saveUninitialized:true
 }));
-const startupHead=`
-
-<html><head><title>Enter Display Name.</title>
- <meta charset="UTF-8">
-<style>
-
-.grid-container{
-    display: grid;
-    grid-template-columns: 52px 52px 52px 52px;
-    grid-auto-rows: 52px;
-    gap:10px;
-    padding: 10px;
-}
-
-.button {
-  display: inline-block;
-  border-radius: 4px;
-  border: none;
-  text-align: center;
-  transition: all 0.5s;
-  cursor: pointer;
-  margin: 5px;
-}
-
-.button:hover {
-  border: dashed;
-  margin:8px;
-  border-radius: 4px;
-}
-.disabled {
-  display: inline-block;
-  border: 1px dashed;
-  text-align: center;
-  transition: all 0.5s;
-  cursor: not-allowed;
-  margin: 10px;
-}
-
-input button {
-  border: 1px solid rgba(0, 0, 0, 0.8);
-  padding: 20px;
-  font-size: 30px;
-  text-align: center;
-}
-
-
-</style>
-</head>
-`
-const startupBody=`<body>
-<script>
-   function changeValue(o){
-     document.getElementById('color').value=o.value;
-     document.getElementById('colorselect').style.backgroundColor=o.style.backgroundColor;
-     var elements = document.getElementById('colorselect').children;
-     for (var i = 0; i < elements.length; i++){
-         elements[i].className="button";
-
-    }
-    o.className="disabled"
-    // o.style.cursor="not-allowed";
-    // o.style.opacity=0.3;
-    }
-
-</script>
-    <h1> %s </h1>
-    <form action="/theapp" method="post">
-        <label for="displayname"> Display Name:</label><br>
-            <input type="text" id="displayname" name="displayname"><br>
-            <input type="hidden" id="color" name="colormode" value="ModeA">
-              <fieldset>
-                <label>Select a color:</label><br>
-              <div class="grid-container" id=colorselect>
-              <input type="button" class="button" onclick="changeValue(this)" value="ModeA" style="background-color:#61829a;">
-              <input type="button" class="button" onclick="changeValue(this)" value="ModeB" style="background-color:#ba4900;">
-              <input type="button" class="button" onclick="changeValue(this)" value="ModeC" style="background-color:#fb0018;">
-              <input type="button" class="button" onclick="changeValue(this)" value="ModeD" style="background-color:#fb8afb;">
-
-              <input type="button" class="button" onclick="changeValue(this)" value="ModeE" style="background-color:#fb9200;">
-              <input type="button" class="button" onclick="changeValue(this)" value="ModeF" style="background-color:#f3e300;">
-              <input type="button" class="button" onclick="changeValue(this)" value="ModeG" style="background-color:#aafb00;">
-              <input type="button" class="button" onclick="changeValue(this)" value="ModeH" style="background-color:#00fb00;">
-
-              <input type="button" class="button" onclick="changeValue(this)" value="ModeI" style="background-color:#00a238;">
-              <input type="button" class="button" onclick="changeValue(this)" value="ModeJ" style="background-color:#49db8a;">
-              <input type="button" class="button" onclick="changeValue(this)" value="ModeK" style="background-color:#30baf3;">
-              <input type="button" class="button" onclick="changeValue(this)" value="ModeL" style="background-color:#0059f3;">
-
-              <input type="button" class="button" onclick="changeValue(this)" value="ModeM" style="background-color:#000092;">
-              <input type="button" class="button" onclick="changeValue(this)" value="ModeN" style="background-color:#8a00d3;">
-              <input type="button" class="button" onclick="changeValue(this)" value="ModeO" style="background-color:#d300eb;">
-              <input type="button" class="button" onclick="changeValue(this)" value="ModeP" style="background-color:#fb0092;">
-              </div>
-            </fieldset>
-        <input type="submit" value="Submit">
-    </form>
-</body>
-</html>`;
 //app.use('/images');
 
 
@@ -149,8 +52,23 @@ var glyph= null;
 router.get('/',(req, res) => {
     res.writeHead(200, {'Content-Type':'text/html'})
     let response=[];
-    res.write(startupHead);
-    res.write(util.format(startupBody, "Enter Name and select Color."));
+    res.write(sendForm("Enter Name and select Color."))
+    res.end();
+});
+
+
+router.get('/privjoin',(req, res) => {
+    res.writeHead(200, {'Content-Type':'text/html'})
+    let cipher=req.query.join;
+    req.session.preroom=getPrivateRoomByCipher(cipher);
+    let response=[];
+    if (req.session.preroom==null){
+    res.write(sendForm("Invalid Cipher."))
+    }
+    else{
+
+        res.write(sendForm("Private Room accepted"))
+    }
     res.end();
 });
 
@@ -171,6 +89,9 @@ router.post('/theapp', [
         req.session.dispname=displayname;
         req.session.pallate=req.body.colormode;
         req.session.roomID="A";
+        if (req.session.preroom != null){
+            req.session.roomID=req.session.preroom;
+        }
         req.session.lastTimeSet=(new Date()).getTime();
         res.writeHead(200, {'Content-Type':'text/html'})
         res.write(sendDraw(req.session.dispname, req.session.pallate));
@@ -179,8 +100,9 @@ router.post('/theapp', [
     }
     catch(err){
         //console.log(err)
-        res.write(startupHead);
-        res.write(util.format(startupBody, err));
+        //res.write(startupHead);
+        res.write(sendForm(err))
+        //res.write(util.format(startupBody, err));
         res.end();
     }
 })
@@ -194,9 +116,11 @@ router.post('/whoami', (req, res) => {
     res.end();
 })
 
-
-function postMessageToDiscord(message, buffer) {
+const discordUrlMain='https://discord.com/api/webhooks/851232711075168266/RgkH5r8_dKtTbv68zEEf444Amkq02mwPXAnDNKfLd3b1ZC6DgzMw3AjyqJHZWD0M4CO6'
+function postMessageToDiscord(message, buffer, webhook="None") {
     //console.log("GO.")
+    var discordUrl=webhook;
+    if (webhook=="None"){ discordUrl=discordUrlMain;}
     const form = new FormData();
     form.append('file', buffer, "tes3.png")
 
@@ -208,7 +132,7 @@ function postMessageToDiscord(message, buffer) {
 
     fetch(discordUrl, options)
         .then(res => res.json())
-        .then(json => //console.log(json));
+        .then(json => console.log(json));
     }
 
 function makeName(context, name){
@@ -261,6 +185,15 @@ router.post('/getmatrix',  [
         //console.log(err);
         res.end();
     }
+})
+
+router.post('/addprivateroom', (req, res) => {
+    var url=req.body.weburl;
+
+    let cipher=addPrivateRoom(url);
+    res.writeHead(200, {'Content-Type':'text/plain'})
+    res.write(cipher);
+    res.end();
 })
 
 router.post('/sendmatrix', (req, res) => {
@@ -340,7 +273,7 @@ router.post('/sendmatrix', (req, res) => {
         let buffer = canvas.toBuffer('image/png');
         //console.log(buffer);
         fs.writeFileSync('./test.png', buffer);
-        postMessageToDiscord("Test", buffer);
+        postMessageToDiscord("Test", buffer, getRoomWebhook(req.session.roomID));
         let dataUrl = canvas.toDataURL('image/png');
         //console.log(dataUrl);
         time=new Date();

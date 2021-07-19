@@ -89,8 +89,6 @@ function sendDraw(name, color){
     return toreturn;
 }
 
-function sendForm(){
 
-}
 
 module.exports= sendDraw;

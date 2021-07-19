@@ -117,8 +117,8 @@ colormod
   // Add a binding to handle '/tests'
   .get('/',  (req, res) => {
 
-    let thisimagepath= req.query.image;  // true
-    let pallate=req.query.pallate;// === 'blue' // true
+    let thisimagepath= req.query.image;
+    let pallate=req.query.pallate;
 
     res.writeHead(200, {'Content-Type':'application/json'})
 
@@ -126,10 +126,6 @@ colormod
         res.write(JSON.stringify({'resp':getUriFromDictionary(thisimagepath, pallate)}));
         res.end()
     })
-
-  // Import my automated routes into the path '/tests/automated'
-  // This works because we're already within the '/tests' route
-  // so we're simply appending more routes to the '/tests' endpoint
 
 
   module.exports= {colormod, getUriFromDictionary, doesColorModeExist};
