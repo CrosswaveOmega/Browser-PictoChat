@@ -112,6 +112,11 @@ var backgroundImg2=new Image (234, 85); backgroundImg2.src = 'data/images/Pictoc
 
 
 const backcomp1=new Image (238, 176); backcomp1.src = 'data/images/Back01.png';
+
+
+const topScreen=new Image (256, 193); topScreen.src = 'data/images/TopScreen.png';
+
+
 var keyboard1=new Image (200, 81); keyboard1.src = 'data/images/Keyboard1Normal.png';
 var keyboard1s=new Image (200, 81); keyboard1s.src = 'data/images/Keyboard1Shift.png';
 var keyboard1c=new Image (200, 81); keyboard1c.src = 'data/images/Keyboard1Caps.png';
@@ -447,8 +452,8 @@ function gradualCheck(){
         countdown=1+Math.ceil(Math.sqrt(0.5*currentXCount));
         currentXCount=currentXCount+1;
         //console.log(countdown);
-        if (currentXCount>5){
-            currentXCount=5
+        if (currentXCount>8){
+            currentXCount=8
         }
         countdown=1
         getmessages();
@@ -975,11 +980,7 @@ function updateOutput(elements){
 }
 function drawOutput(){
     octx.clearRect(0,0,w,h);
-    for (var i=0;i<outputimgs.length;i++){
-
-        octx.drawImage(outputimgs[i], i*228, 0, 228,80);
-        //drawScaledImage(octx, img,i*228,4);
-    }
+    octx.drawImage(topScreen,0,0);
 }
 function dotDraw(cont){
     //This draws the entire window.
@@ -991,6 +992,8 @@ function dotDraw(cont){
     drawScaledImage(cont,backgroundImg,drawOffX-3,drawOffY-3);
     dotUpdate(cont);
     scrollCheck()
+
+    drawOutput()
 
 //    drawScaledImage(cont, drawingImage, drawOffX, drawOffY);
 

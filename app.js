@@ -35,7 +35,7 @@ app.use(session({
     secret: "OWAIJFOIHSKJ",
     resave:false,
     store: new MemoryStore({
-      checkPeriod: 86400000 // prune expired entries every 24h
+      checkPeriod: 3600000 // prune expired entries every 24h
     }),
     maxAge: Date.now() + (400000) ,
     secure: true,
@@ -48,6 +48,7 @@ app.use(session({
 var messageLog={};
 var glyphs= {};
 var glyph= null;
+var glyphw= null;
 //default
 router.get('/',(req, res) => {
     res.writeHead(200, {'Content-Type':'text/html'})
@@ -92,7 +93,11 @@ router.post('/theapp', [
         if (req.session.preroom != null){
             req.session.roomID=req.session.preroom;
         }
-        req.session.lastTimeSet=(new Date()).getTime();
+        let date=new Date()
+        date.setMinutes(date.getMinutes()-3)
+        req.session.lastTimeSet=(date).getTime();
+        postMessage(util.format("Now entering %s: %s", req.session.roomID, req.session.dispname), req.session.roomID);
+
         res.writeHead(200, {'Content-Type':'text/html'})
         res.write(sendDraw(req.session.dispname, req.session.pallate));
         res.end();
@@ -135,7 +140,7 @@ function postMessageToDiscord(message, buffer, webhook="None") {
         .then(json => console.log(json));
     }
 
-function makeName(context, name){
+function makeName(context, name, color="Norm"){
     var startX=5;
     var startY=3;
     var glyphX=0;
@@ -152,7 +157,12 @@ function makeName(context, name){
                 glyphY=glyphs.glyphs[current].py;
                 charwidth=glyphs.glyphs[current].width;
                 //console.log(glyphX, glyphY, charwidth);
+                if (color=="Norm"){
                 context.drawImage(glyph, glyphX*10, glyphY*13, charwidth, 12, startX*dotsize, startY*dotsize, charwidth*dotsize, 12*dotsize);
+            }
+            else{
+                context.drawImage(glyphw, glyphX*10, glyphY*13, charwidth, 12, startX*dotsize, startY*dotsize, charwidth*dotsize, 12*dotsize);
+            }
                 startX=startX+charwidth+1;
             }
         }
@@ -195,6 +205,25 @@ router.post('/addprivateroom', (req, res) => {
     res.write(cipher);
     res.end();
 })
+
+function postMessage(message, roomid){
+    let canvas=createCanvas(234,  21);
+    let thisimagepath=getUriFromDictionary('data/images/SystemMessage.png',"ModeA");
+    var context = canvas.getContext('2d')
+    loadImage(thisimagepath).then((image) => {
+        context.drawImage(image, 0, 0);
+        makeName(context, message, "white");
+
+        let buffer = canvas.toBuffer('image/png');
+        //console.log(buffer);
+        fs.writeFileSync('./test.png', buffer);
+        postMessageToDiscord("Test", buffer, getRoomWebhook(roomid));
+        let dataUrl = canvas.toDataURL('image/png');
+        //console.log(dataUrl);
+        time=new Date();
+        addMessageToLog(roomid, time, dataUrl)
+    });
+}
 
 router.post('/sendmatrix', (req, res) => {
     try{
@@ -307,5 +336,6 @@ app.listen(process.env.PORT || 3000, () => {
     glyphs = JSON.parse(rawdata);
 
     loadImage('./data/images/Glyphs11.png').then((glyp) => {glyph=glyp; });
-//console.log(`App Started on PORT ${process.env.PORT || 3000}`);
+        loadImage('./data/images/Glyphs11y.png').then((glyp) => {glyphw=glyp; });
+    //console.log(`App Started on PORT ${process.env.PORT || 3000}`);
 });

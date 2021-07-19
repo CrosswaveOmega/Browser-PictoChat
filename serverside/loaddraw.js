@@ -40,9 +40,11 @@ const filetosend=`
      overflow:scroll;
      height:192px;
      width:256px;
+     background-image: url(data/images/ScrollBack.png);
  }
  img{
      float:right;
+     margin:1px;
  }
 
  /* Hide scrollbar for Chrome, Safari and Opera */
@@ -59,12 +61,13 @@ const filetosend=`
 
  </style>
     <body onload="init()">
+    <canvas id="output" style="position:absolute" width="256" height="192px">
+            Sorry, your browser doesn't support canvas technology.
+  </canvas>
         <div id="outputzone" class="scrollinit" >
 
         </div>
-        <canvas id="output" width="500px", height="10px">
-                Sorry, your browser doesn't support canvas technology.
-      </canvas>
+
         <div>
         <canvas id="drawing" width="500px", height="500px">
                 Sorry, your browser doesn't support canvas technology.
