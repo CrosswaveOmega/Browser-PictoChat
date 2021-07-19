@@ -82,7 +82,7 @@ function getMessagesFromLog(roomId, time){
     else {throw "This room id does not exist.";}
 }
 
-function getRoomWebhook(webhook){
+function getRoomWebhook(roomId){
     if( checkIfRoomIDExists(roomId)){
         return roomStorage.rooms[roomId].webhookurl;
     }
