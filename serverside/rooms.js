@@ -89,15 +89,17 @@ function getRoomWebhook(webhook){
     return "None";
 }
 function checkIfWebhookExists(webhook){
+    var returnVal=null;
     Object.keys(privateRoomCiphers).forEach(function(key){
         //console.log(key);
         //console.log(lastTime);
+        console.log(privateRoomCiphers[key])
         if(roomStorage.rooms[privateRoomCiphers[key]].webhookurl==webhook){
-            return key;
+            returnVal= key;
         }
     }
     ) ;
-    return null;
+    return returnVal;
 }
 
 function addPrivateRoom(webhook){
@@ -131,6 +133,9 @@ function setup(){
     let ciph=addPrivateRoom("https://discord.com/api/webhooks/866767130778533949/KNC7eRjgQCezXYkM1yuY9eQwTZ-bvExmOR_tjtfOMJO0_Da90VaKLXzPLQY7M0b2t7ZO")
     console.log("CIPHER", ciph);
     console.log(ciph)
+    let ciph2=addPrivateRoom("https://discord.com/api/webhooks/866767130778533949/KNC7eRjgQCezXYkM1yuY9eQwTZ-bvExmOR_tjtfOMJO0_Da90VaKLXzPLQY7M0b2t7ZO")
+    console.log("CIPHER", ciph2);
+    console.log(ciph2)
 
 }
 
