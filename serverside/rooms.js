@@ -82,14 +82,29 @@ function getMessagesFromLog(roomId, time){
     else {throw "This room id does not exist.";}
 }
 
-function getRoomWebhook(roomId){
+function getRoomWebhook(webhook){
     if( checkIfRoomIDExists(roomId)){
         return roomStorage.rooms[roomId].webhookurl;
     }
     return "None";
 }
+function checkIfWebhookExists(webhook){
+    Object.keys(privateRoomCiphers).forEach(function(key){
+        //console.log(key);
+        //console.log(lastTime);
+        if(roomStorage.rooms[privateRoomCiphers[key]].webhookurl==webhook){
+            return key;
+        }
+    }
+    ) ;
+    return null;
+}
 
 function addPrivateRoom(webhook){
+    let ciphcheck=checkIfWebhookExists(webhook);
+    if (ciphcheck!=null){
+        return ciphcheck;
+    }
     let newID=util.format("PR_%d",roomStorage.privateRooms)
     roomStorage.privateRooms=roomStorage.privateRooms+1;
     addRoom(newID, "Private", webhook);
