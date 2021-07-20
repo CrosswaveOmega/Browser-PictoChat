@@ -21,7 +21,7 @@ const filetosend=`
     <div id="name"><span style="display:none">%s</span></div>
     <div id="color"><span style="display:none">%s</span></div>
     <header>
-          <h1>Frontend WIP</h1>
+          <h1>Main App.<h1>
 
     </header>
  <style>
