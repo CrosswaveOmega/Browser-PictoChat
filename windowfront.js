@@ -242,7 +242,7 @@ function init() {
     //     }
     // }
     keyboardSelectArea={
-        offX:4, offY:keyboardOffY+5,
+        offX:4-2, offY:keyboardOffY+5,
         bindBoxes:[null, null, null, null, null, null]
     };
 
@@ -263,7 +263,7 @@ function init() {
     toolSize=1;
 
     drawingToolArea={
-        offX:4, offY:25+12,
+        offX:4-2, offY:25+12,
         bindBoxes:[null, null, null, null, null]
     }
 
@@ -276,7 +276,7 @@ function init() {
     drawingToolArea.bindBoxes[4]=newBox(0,48,14,14);
 
     ScrollButtonArea={
-        offX:4, offY:2,
+        offX:4-2, offY:2,
         bindBoxes:[null, null, null],
         herePress:0
     }
@@ -1080,7 +1080,7 @@ function updateOutput(elements){
 function drawOutput(){
     octx.clearRect(0,0,w,h);
     octx.drawImage(topScreen,0,0);
-    
+
 }
 function dotDraw(cont){
     //This draws the entire window.
