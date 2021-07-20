@@ -130,7 +130,7 @@ router.post('/leave', (req, res) => {
     let roomid=req.session.roomID;
     postMessage("Now leaving %s",req.session.dispname, req.session.roomID, "blue");
 
-    res.write(JSON.stringify({displayname:displayname, pallate: req.session.pallate}));
+    //res.write(JSON.stringify({displayname:displayname, pallate: req.session.pallate}));
     res.end();
 })
 

@@ -466,12 +466,7 @@ function setupEvents(){
     }, false);
 
     window.addEventListener("beforeunload", function (e){
-        let xhr = new XMLHttpRequest();
-        //console.log("Getting Messages.");
-        xhr.open("POST", '/leave', true);
-        xhr.timeout=5000;
-
-        xhr.send();
+        leaveMe()
     })
 /*
     canvas.addEventListener("touchstart", function(e){
@@ -487,6 +482,13 @@ function setupEvents(){
         handleTouch(e, "move");
     }, false);
     */
+}
+function leaveMe(){
+    let xhr = new XMLHttpRequest();
+    //console.log("Getting Messages.");
+    xhr.open("POST", '/leave', false);
+
+    xhr.send();
 }
 function gradualCheck(){
     if (countdown<=0){
