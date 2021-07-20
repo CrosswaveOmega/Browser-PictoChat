@@ -72,8 +72,8 @@ const filetosend=`
 
         </div>
 
-        <div>
-        <canvas id="drawing" width="300px", height="220px">
+        <div style="width:300px">
+        <canvas id="drawing" width="270px", height="220px">
                 Sorry, your browser doesn't support canvas technology.
             </canvas>
 
