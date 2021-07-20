@@ -141,7 +141,7 @@ function postMessageToDiscord(message, buffer, webhook="None") {
     if (webhook=="None"){ discordUrl=discordUrlMain;}
     const form = new FormData();
     form.append('file', buffer, "tes3.png")
-    form.append('payload_json', JSON.stringify({"username":"PictoChat"}))
+    form.append('payload_json', JSON.stringify({"username":"PictoChat","avatar_url":profile.env.ProfileImage}))
     const options = {
     method: 'POST',
     body: form,
