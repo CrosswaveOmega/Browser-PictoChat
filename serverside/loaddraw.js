@@ -64,7 +64,7 @@ const filetosend=`
 
 
  </style>
-    <body onload="init()">
+    <body onload="init()" id="MainArea">
     <canvas id="output" style="position:absolute; pointer-events:none;" width="256" height="192px">
             Sorry, your browser doesn't support canvas technology.
   </canvas>

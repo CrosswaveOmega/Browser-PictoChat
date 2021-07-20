@@ -114,6 +114,8 @@ var SCCArea=null;
 
 var ScrollBar=null;
 
+var XButton=null;
+
 
 
 const backgroundImg=new Image (234, 85); backgroundImg.src = 'data/images/PictochatWindowLines.png';
@@ -315,6 +317,18 @@ function init() {
     getimage(SCCArea.ImmAct, colorMode);
 
 
+    XButton = {
+        offX:245, offY:1,
+        bindBoxes:[null,
+            newBox(0,0,10,10)],
+        Imm0:null,
+        herePress:0
+    }
+    XButton.Imm0= new Image(32,81); XButton.Imm0.src="data/images/XButton.png";
+    XButton.ImmAct= new Image(32,81); XButton.ImmAct.src="data/images/XButton.png";
+    getimage(XButton.ImmAct, colorMode);
+
+
 
 
     SCCArea.Imm0= new Image(32,81); SCCArea.Imm0.src="data/images/SendCopyClear.png";
@@ -468,6 +482,7 @@ function setupEvents(){
     window.addEventListener("beforeunload", function (e){
         leaveMe()
     })
+    //window.onbeforeunload=leaveMe;
 /*
     canvas.addEventListener("touchstart", function(e){
         handleTouch(e, "start");
@@ -489,6 +504,8 @@ function leaveMe(){
     xhr.open("POST", '/leave', false);
 
     xhr.send();
+    document.getElementById("drawing").style.display= 'none';
+//    window.close();
 }
 function gradualCheck(){
     if (countdown<=0){
@@ -764,6 +781,34 @@ function checkIfInSCCArea(cx, cy, status){
     SCCArea.herePress=toset;
 }
 
+function checkIfInXButton(cx, cy, status){
+    //Status can be up or down.
+    var offX=XButton.offX;
+    var offY=XButton.offY;
+    var toset=0;
+    for (var k=1;k<XButton.bindBoxes.length;k++){
+        if (XButton.bindBoxes[k].inBounds(cx, cy,offX, offY)){
+            if(status=='down'){
+                //console.log(k);
+                toset=k;
+            }
+            else if(status=='up'){
+                if (XButton.herePress==k){
+                    switch(k){
+                        case 1:
+                            leaveMe()
+                            XButton.herePress=0;
+                            break;
+                    }
+
+                }
+            }
+        }
+    }
+    XButton.herePress=toset;
+}
+
+
 function checkIfInScrollButtonArea(cx, cy, status){
     //Status can be up or down.
     var offX=ScrollButtonArea.offX;
@@ -873,6 +918,19 @@ function drawSCCArea(){
             break;
         case 3:
             drawBox(ctx, SCCArea, SCCArea.bindBoxes[3]);
+            break;
+    }
+}
+
+function drawXButton(){
+    var offX=XButton.offX;
+    var offY=XButton.offY;
+    drawScaledImage(ctx, XButton.Imm0, XButton.offX, XButton.offY);
+    //ctx.drawImage(drawingToolArea.Imm0, drawingToolArea.offX*dotsize, drawingToolArea.offY*dotsize)
+    ctx.fillStyle = overlayColor;
+    switch (XButton.herePress){
+        case 1:
+            drawBox(ctx, XButton, XButton.bindBoxes[1]);
             break;
     }
 }
@@ -1116,6 +1174,7 @@ function dotDraw(cont){
     drawKeyboardSelect();
     drawToolsArea();
     drawSCCArea();
+    drawXButton();
     //Make Text.
     displayPictoString(PictoString);
     displayPictoString(PictoStringName);
@@ -1394,6 +1453,7 @@ function handleMovementEvent(superevt, type){
         //checkIfInSCCArea
         checkIfInSCCArea(superevt.currX, superevt.currY, 'down');
         checkIfInScrollButtonArea(superevt.currX, superevt.currY, 'down');
+        checkIfInXButton(superevt.currX, superevt.currY, 'down');
     }
     if (type== 'up'){
         var isIn=checkIfInKeyboardButtons(superevt.currX, superevt.currY);
@@ -1419,6 +1479,9 @@ function handleMovementEvent(superevt, type){
         }
         if (ScrollButtonArea.herePress>0){
             checkIfInScrollButtonArea(superevt.currX, superevt.currY, 'up');
+        }
+        if (XButton.herePress>0){
+            checkIfInXButton(superevt.currX, superevt.currY, 'up');
         }
         superevt.draw_flag = false;
         draggedGlyph=null;
