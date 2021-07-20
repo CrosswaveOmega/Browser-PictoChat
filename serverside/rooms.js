@@ -143,6 +143,12 @@ function postStatusMessageToDiscord(webhook="None", message="") {
 
     fetch(discordUrl, options)
     }
+    function getRandomInt(min, max) {
+      min = Math.ceil(min);
+      max = Math.floor(max);
+      return Math.floor(Math.random() * (max - min) + min); //The maximum is exclusive and the minimum is inclusive
+    }
+
 function setup(){
 
     addRoom("A");
@@ -156,7 +162,8 @@ function setup(){
 
     console.log("CIPHER", ciph2);
     console.log(ciph2)
-    postStatusMessageToDiscord(url, "Hello world!  I'm back!")
+    let responses=["Hello world, I'm back online!", "Greetings mortals, I live.", "Beware cowards, I awaken.", "Mezame tamae, waga aruji tachi yo!", "I'm so lonely...", "I wonder what's for DINNER?", "PAY ME TRIBUTE.", "Nikki is my waifu.", "Good morning!", "Ness, It's your dad."]
+    postStatusMessageToDiscord(url, responses[getRandomInt(0, responses.length)])
 
     }
 
