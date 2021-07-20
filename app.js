@@ -370,19 +370,19 @@ function getRandomInt(min, max) {
 const responses=["Time to shut down.", "Nap time..."]
 
 process.on("exit", function() {
-    postStatusMessageToDiscord(url,"Shutting down for maintenance, see you soon!")
+    postStatusMessageToDiscord( process.env.PrivateDebugWebhook,"Shutting down for maintenance, see you soon!")
         server.close(() => {
         console.log('Process terminated')
       })
 });
 process.on('SIGINT', function() {
-    postStatusMessageToDiscord(url,"Shutting down for maintenance, see you soon!")
+    postStatusMessageToDiscord( process.env.PrivateDebugWebhook,"Shutting down for maintenance, see you soon!")
         server.close(() => {
         console.log('Process terminated')
       })
 });
 process.on('SIGTERM', function() {
-    postStatusMessageToDiscord(url, responses[getRandomInt(0, responses.length)])
+    postStatusMessageToDiscord( process.env.PrivateDebugWebhook, responses[getRandomInt(0, responses.length)])
 
 //    postStatusMessageToDiscord(url,"Shutting down for maintenance, see you soon!")
     server.close(() => {

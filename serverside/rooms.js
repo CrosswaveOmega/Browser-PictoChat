@@ -129,10 +129,10 @@ function getPrivateRoomByCipher(cipher){
     return null;
 }
 
-function postStatusMessageToDiscord(webhook="None", message="") {
+function postStatusMessageToDiscord(webhook=null, message="") {
     //console.log("GO.")
     var discordUrl=webhook;
-    if (webhook=="None"){ return null;}
+    if (webhook==null){ return null;}
     const form = new FormData();
     form.append('payload_json', JSON.stringify({"username":"PictoChat", "content":message, "avatar_url":process.env.ProfileImage}))
     const options = {
