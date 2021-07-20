@@ -128,6 +128,23 @@ function getPrivateRoomByCipher(cipher){
     }
     return null;
 }
+
+function postMessageToDiscord(webhook="None") {
+    //console.log("GO.")
+    var discordUrl=webhook;
+    if (webhook=="None"){ return null;}
+    const form = new FormData();
+    form.append('payload_json', JSON.stringify({"username":"PictoChat", "content":"And we are online."}))
+    const options = {
+    method: 'POST',
+    body: form,
+    headers: form.getHeaders()
+    }
+
+    fetch(discordUrl, options)
+        .then(res => res.json())
+        .then(json => console.log(json));
+    }
 function setup(){
 
     addRoom("A");
@@ -141,6 +158,7 @@ function setup(){
 
     console.log("CIPHER", ciph2);
     console.log(ciph2)
+    postMessageToDiscord(url)
     }
 
 }
