@@ -160,6 +160,9 @@ function setup(){
     process.on("exit", function() {
         postMessageToDiscord(url,"Shutting down for maintenance, see you soon!")
     });
+    process.on('SIGINT', function() {
+        postMessageToDiscord(url,"Shutting down for maintenance, see you soon!")
+    });
     }
 
 }
