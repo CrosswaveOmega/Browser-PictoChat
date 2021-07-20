@@ -142,8 +142,6 @@ function postMessageToDiscord(webhook="None", message="") {
     }
 
     fetch(discordUrl, options)
-        .then(res => res.json())
-        .then(json => console.log(json));
     }
 function setup(){
 
