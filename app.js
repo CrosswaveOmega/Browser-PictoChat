@@ -367,7 +367,7 @@ function getRandomInt(min, max) {
   max = Math.floor(max);
   return Math.floor(Math.random() * (max - min) + min); //The maximum is exclusive and the minimum is inclusive
 }
-const responses=["Time to shut down.", "Nap time..."]
+const responses=["Time to shut down.", "Nap time...", "Maintence time, see ya!", "I'm afraid of the dark... please...", "I'll be back.", "If you see this message, Heroku shut me down."]
 
 process.on("exit", function() {
     postStatusMessageToDiscord( process.env.PrivateDebugWebhook,"Shutting down for maintenance, see you soon!")

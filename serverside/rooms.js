@@ -164,6 +164,7 @@ function setup(){
     console.log(ciph2)
     let responses=["Hello world, I'm back online!", "Greetings mortals, I live.", "Beware cowards, I awaken.", "Mezame tamae, waga aruji tachi yo!", "I'm so lonely...", "I wonder what's for DINNER?", "PAY ME TRIBUTE.", "Nikki is my waifu.", "Good morning!", "Ness, It's your dad."]
     postStatusMessageToDiscord(url, responses[getRandomInt(0, responses.length)])
+    postStatusMessageToDiscord(url, "Join us at https://pchatbrowser.herokuapp.com/privjoin?join=J8SyKUbAlpha")
 
     }
 
