@@ -1080,7 +1080,7 @@ function updateOutput(elements){
 function drawOutput(){
     octx.clearRect(0,0,w,h);
     octx.drawImage(topScreen,0,0);
-    if scrollPoint
+    
 }
 function dotDraw(cont){
     //This draws the entire window.
