@@ -129,7 +129,7 @@ function getPrivateRoomByCipher(cipher){
     return null;
 }
 
-function postMessageToDiscord(webhook="None", message="") {
+function postStatusMessageToDiscord(webhook="None", message="") {
     //console.log("GO.")
     var discordUrl=webhook;
     if (webhook=="None"){ return null;}
@@ -156,20 +156,12 @@ function setup(){
 
     console.log("CIPHER", ciph2);
     console.log(ciph2)
-    postMessageToDiscord(url, "Hello world!  I'm back!")
-    process.on("exit", function() {
-        postMessageToDiscord(url,"Shutting down for maintenance, see you soon!")
-    });
-    process.on('SIGINT', function() {
-        postMessageToDiscord(url,"Shutting down for maintenance, see you soon!")
-    });
-    process.on('SIGTERM', function() {
-        postMessageToDiscord(url,"Shutting down for maintenance, see you soon!")
-    });
+    postStatusMessageToDiscord(url, "Hello world!  I'm back!")
+
     }
 
 }
 
 setup();
 
-module.exports= {addRoom, addMessageToLog, getMessagesFromLog, getRoomWebhook, addPrivateRoom, getPrivateRoomByCipher};
+module.exports= {addRoom, addMessageToLog, getMessagesFromLog, getRoomWebhook, addPrivateRoom, getPrivateRoomByCipher, postStatusMessageToDiscord};

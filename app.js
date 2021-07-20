@@ -17,7 +17,7 @@ const util = require('util');
 const sendDraw=require('./serverside/loaddraw.js')
 const sendForm=require('./serverside/entryform.js')
 const {colormod, getUriFromDictionary, doesColorModeExist} = require("./serverside/colormod.js")
-const {addRoom, addMessageToLog, getMessagesFromLog, getRoomWebhook, addPrivateRoom, getPrivateRoomByCipher} = require("./serverside/rooms.js")
+const {addRoom, addMessageToLog, getMessagesFromLog, getRoomWebhook, addPrivateRoom, getPrivateRoomByCipher, postStatusMessageToDiscord} = require("./serverside/rooms.js")
 
 
 //initialize the app as an express app
@@ -352,7 +352,7 @@ app.use('/', router);
 app.use('/color', colormod)
 //Router 4: for session destruction
 
-app.listen(process.env.PORT || 3000, () => {
+const server=app.listen(process.env.PORT || 3000, () => {
     let rawdata = fs.readFileSync('data/json/glyphs.json');
     glyphs = JSON.parse(rawdata);
 
@@ -361,4 +361,31 @@ app.listen(process.env.PORT || 3000, () => {
                 loadImage('./data/images/Glyphs11w.png').then((glyp) => {glyphw=glyp; });
     loadImage('./data/images/Glyphs11b.png').then((glyp) => {glyphb=glyp; });
     //console.log(`App Started on PORT ${process.env.PORT || 3000}`);
+});
+function getRandomInt(min, max) {
+  min = Math.ceil(min);
+  max = Math.floor(max);
+  return Math.floor(Math.random() * (max - min) + min); //The maximum is exclusive and the minimum is inclusive
+}
+const responses=["Time to shut down.", "Nap time..."]
+
+process.on("exit", function() {
+    postStatusMessageToDiscord(url,"Shutting down for maintenance, see you soon!")
+        server.close(() => {
+        console.log('Process terminated')
+      })
+});
+process.on('SIGINT', function() {
+    postStatusMessageToDiscord(url,"Shutting down for maintenance, see you soon!")
+        server.close(() => {
+        console.log('Process terminated')
+      })
+});
+process.on('SIGTERM', function() {
+    postStatusMessageToDiscord(url, responses[getRandomInt(0, responses.length)])
+
+//    postStatusMessageToDiscord(url,"Shutting down for maintenance, see you soon!")
+    server.close(() => {
+        console.log('Process terminated')
+      })
 });
