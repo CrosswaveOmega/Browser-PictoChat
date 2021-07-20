@@ -102,7 +102,8 @@ function checkIfWebhookExists(webhook){
     return returnVal;
 }
 
-function addPrivateRoom(webhook){
+function addPrivateRoom(webhook, exCyph=null){
+    console.log(webhook)
     let ciphcheck=checkIfWebhookExists(webhook);
     if (ciphcheck!=null){
         return ciphcheck;
@@ -111,6 +112,9 @@ function addPrivateRoom(webhook){
     roomStorage.privateRooms=roomStorage.privateRooms+1;
     addRoom(newID, "Private", webhook);
     var cipher=makeCipher();
+    if (exCyph!=null){
+        cipher=exCyph;
+    }
     while (privateRoomCiphers.hasOwnProperty(cipher)){
         cipher=makeCipher();
     }
@@ -130,12 +134,14 @@ function setup(){
     addRoom("B");
     addRoom("C");
     addRoom("D");
-    let ciph=addPrivateRoom("https://discord.com/api/webhooks/866767130778533949/KNC7eRjgQCezXYkM1yuY9eQwTZ-bvExmOR_tjtfOMJO0_Da90VaKLXzPLQY7M0b2t7ZO")
-    console.log("CIPHER", ciph);
-    console.log(ciph)
-    let ciph2=addPrivateRoom("https://discord.com/api/webhooks/866767130778533949/KNC7eRjgQCezXYkM1yuY9eQwTZ-bvExmOR_tjtfOMJO0_Da90VaKLXzPLQY7M0b2t7ZO")
+    let url= process.env.PrivateDebugWebhook;
+    let ciph= process.env.PrivateDebugCipher;
+    if (url!=null && ciph!=null){
+    let ciph2=addPrivateRoom(url, ciph)
+
     console.log("CIPHER", ciph2);
     console.log(ciph2)
+    }
 
 }
 

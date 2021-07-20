@@ -31,7 +31,7 @@ const filetosend=`
    image-rendering: -webkit-crisp-edges;
    image-rendering: pixelated;
    image-rendering: crisp-edges;
-
+   touch-action: manipulation;
  }
 
 
@@ -43,6 +43,10 @@ const filetosend=`
      background-image: url(data/images/ScrollBack.png);
  }
  img{
+     image-rendering: -moz-crisp-edges;
+     image-rendering: -webkit-crisp-edges;
+     image-rendering: pixelated;
+     image-rendering: crisp-edges;
      float:right;
      margin:1px;
  }
@@ -61,7 +65,7 @@ const filetosend=`
 
  </style>
     <body onload="init()">
-    <canvas id="output" style="position:absolute" width="256" height="192px">
+    <canvas id="output" style="position:absolute; pointer-events:none;" width="256" height="192px">
             Sorry, your browser doesn't support canvas technology.
   </canvas>
         <div id="outputzone" class="scrollinit" >
@@ -69,16 +73,16 @@ const filetosend=`
         </div>
 
         <div>
-        <canvas id="drawing" width="500px", height="500px">
+        <canvas id="drawing" width="300px", height="220px">
                 Sorry, your browser doesn't support canvas technology.
             </canvas>
 
 
-        <canvas id="animating" width="500px" height="500px" span hidden style="position:absolute;z-index:0;" >
+        <canvas id="animating" width="300px" height="300px" span hidden style="position:absolute;z-index:0;" >
         </canvas>
 
 
-        <canvas id="dotDraw" width="500px" height="500px" span hidden style="position:absolute;z-index:0;" >
+        <canvas id="dotDraw" width="300px" height="300px" span hidden style="position:absolute;z-index:0;" >
         </canvas>
 
         </div>

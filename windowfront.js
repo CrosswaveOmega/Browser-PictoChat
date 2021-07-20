@@ -10,12 +10,12 @@ var prevX, currX, prevY, currY=0;
 var draw_start_flag = false;
 var offset=4;
 var drawOffX=26;
-var drawOffY=6;
+var drawOffY=6+12;
 
 const drawUpdateInterval=0.25;
 
 var keyboardOffX=24;
-var keyboardOffY=91;
+var keyboardOffY=91+12;
 
 var dotChange=true;
 var keyDown=null;
@@ -37,7 +37,11 @@ function newSuperEvent(){
 
 var supermouse=newSuperEvent();
 
-var outputimgs=[];
+var inital=new Image (234, 192); inital.src ="data/images/PictoChatDefaultTop.png";
+
+
+var scrollPlace=0;
+var outputimgs=[inital];
 
 var overlayColor="rgba(0, 0, 255, 0.5)";
 
@@ -104,8 +108,13 @@ let glyphs=null;
 
 var keyboardSelectArea=null;
 var drawingToolArea=null;
+var ScrollButtonArea=null;
 var drawingBox=null;
 var SCCArea=null;
+
+var ScrollBar=null;
+
+
 
 const backgroundImg=new Image (234, 85); backgroundImg.src = 'data/images/PictochatWindowLines.png';
 var backgroundImg2=new Image (234, 85); backgroundImg2.src = 'data/images/PictochatWindowOverlay.png';
@@ -115,8 +124,6 @@ const backcomp1=new Image (238, 176); backcomp1.src = 'data/images/Back01.png';
 
 
 const topScreen=new Image (256, 193); topScreen.src = 'data/images/TopScreen.png';
-
-
 var keyboard1=new Image (200, 81); keyboard1.src = 'data/images/Keyboard1Normal.png';
 var keyboard1s=new Image (200, 81); keyboard1s.src = 'data/images/Keyboard1Shift.png';
 var keyboard1c=new Image (200, 81); keyboard1c.src = 'data/images/Keyboard1Caps.png';
@@ -238,6 +245,7 @@ function init() {
         offX:4, offY:keyboardOffY+5,
         bindBoxes:[null, null, null, null, null, null]
     };
+
     keyboardSelectArea.Imm0=new Image(14,82); keyboardSelectArea.Imm0.src="data/images/KeyboardSelectOFF.png";
     keyboardSelectArea.ImmAct=CloneImage(keyboardSelectArea.Imm0)
     getimage(keyboardSelectArea.ImmAct, colorMode);
@@ -253,10 +261,12 @@ function init() {
     keyboardSelectArea.bindBoxes[5]=newBox(0,68,14,14);
     toolActive=1;
     toolSize=1;
+
     drawingToolArea={
-        offX:4, offY:25,
+        offX:4, offY:25+12,
         bindBoxes:[null, null, null, null, null]
     }
+
     drawingToolArea.Imm0= new Image(14,62); drawingToolArea.Imm0.src="data/images/drawingTools.png";
     drawingToolArea.ImmAct= new Image(14,62); drawingToolArea.ImmAct.src="data/images/drawingTools.png";
     getimage(drawingToolArea.ImmAct, colorMode);
@@ -264,6 +274,20 @@ function init() {
     drawingToolArea.bindBoxes[2]=newBox(0,14,14,13);
     drawingToolArea.bindBoxes[3]=newBox(0,33,14,14);
     drawingToolArea.bindBoxes[4]=newBox(0,48,14,14);
+
+    ScrollButtonArea={
+        offX:4, offY:2,
+        bindBoxes:[null, null, null],
+        herePress:0
+    }
+
+    ScrollButtonArea.Imm0= new Image(14,29); ScrollButtonArea.Imm0.src="data/images/scrollButtons.png";
+    ScrollButtonArea.ImmAct= new Image(14,29); ScrollButtonArea.ImmAct.src="data/images/scrollButtons.png";
+    getimage(ScrollButtonArea.ImmAct, colorMode);
+    ScrollButtonArea.bindBoxes[1]=newBox(0,0,14,14);
+    ScrollButtonArea.bindBoxes[2]=newBox(0,15,14,14);
+
+
     keyboardImages.offX=keyboardOffX; keyboardImages.offY=keyboardOffY;
     keyboardImages["K1n"]={Imm0:keyboard1, ImmAct:CloneImage(keyboard1)};
     getimage(keyboardImages["K1n"].ImmAct, colorMode);
@@ -289,7 +313,17 @@ function init() {
     SCCArea.Imm0= new Image(32,81); SCCArea.Imm0.src="data/images/SendCopyClear.png";
     SCCArea.ImmAct= new Image(32,81); SCCArea.ImmAct.src="data/images/SendCopyClear.png";
     getimage(SCCArea.ImmAct, colorMode);
+
+
+
+
+    SCCArea.Imm0= new Image(32,81); SCCArea.Imm0.src="data/images/SendCopyClear.png";
+    SCCArea.ImmAct= new Image(32,81); SCCArea.ImmAct.src="data/images/SendCopyClear.png";
+    getimage(SCCArea.ImmAct, colorMode);
+
+
     PictoString.resetString();
+    updateOutput([]);
 
     setupEvents();
     setInterval(gradualCheck, 1000);
@@ -431,7 +465,14 @@ function setupEvents(){
 
     }, false);
 
+    window.addEventListener("beforeunload", function (e){
+        let xhr = new XMLHttpRequest();
+        //console.log("Getting Messages.");
+        xhr.open("POST", '/leave', true);
+        xhr.timeout=5000;
 
+        xhr.send();
+    })
 /*
     canvas.addEventListener("touchstart", function(e){
         handleTouch(e, "start");
@@ -719,8 +760,45 @@ function checkIfInSCCArea(cx, cy, status){
         }
     }
     SCCArea.herePress=toset;
+}
+
+function checkIfInScrollButtonArea(cx, cy, status){
+    //Status can be up or down.
+    var offX=ScrollButtonArea.offX;
+    var offY=ScrollButtonArea.offY;
+    var toset=0;
+    for (var k=1;k<ScrollButtonArea.bindBoxes.length;k++){
+        if (ScrollButtonArea.bindBoxes[k].inBounds(cx, cy,offX, offY)){
+            if(status=='down'){
+                //console.log(k);
+                toset=k;
+            }
+            else if(status=='up'){
+                if (ScrollButtonArea.herePress==k){
+                    switch(k){
+                        case 1:
+                            console.log("Going up.")
+                            scrollPlace=scrollPlace-1;
+                            scrollToElement()
+                            ScrollButtonArea.herePress=0;
+                            break;
+                        case 2:
+                            scrollPlace=scrollPlace+1;
+                            scrollToElement()
+                            console.log("Going down.")
+                            ScrollButtonArea.herePress=0;
+                            break;
+                    }
+
+                }
+            }
+        }
+    }
+    ScrollButtonArea.herePress=toset;
 
 }
+
+
 function toFillFormat(colorEntry, alpha){
     return "rgba("+colorEntry["r"]+", "+colorEntry["g"]+","+colorEntry["b"]+", "+alpha+")";
 }
@@ -793,6 +871,22 @@ function drawSCCArea(){
             break;
         case 3:
             drawBox(ctx, SCCArea, SCCArea.bindBoxes[3]);
+            break;
+    }
+}
+
+function drawScrollButtons(){
+    var offX=ScrollButtonArea.offX;
+    var offY=ScrollButtonArea.offY;
+    drawScaledImage(ctx, ScrollButtonArea.Imm0, ScrollButtonArea.offX, ScrollButtonArea.offY);
+    //ctx.drawImage(drawingToolArea.Imm0, drawingToolArea.offX*dotsize, drawingToolArea.offY*dotsize)
+    ctx.fillStyle = overlayColor;
+    switch (ScrollButtonArea.herePress){
+        case 1:
+            drawBox(ctx, ScrollButtonArea, ScrollButtonArea.bindBoxes[1]);
+            break;
+        case 2:
+            drawBox(ctx, ScrollButtonArea, ScrollButtonArea.bindBoxes[2]);
             break;
     }
 }
@@ -957,6 +1051,11 @@ function scrollCheck(){
     }
     return false;
 }
+function scrollToElement(){
+    if (scrollPlace<0){scrollPlace=0;}
+    if (scrollPlace>=outputimgs.length){scrollPlace=outputimgs.length-1;}
+    outputimgs[Math.floor(scrollPlace)].scrollIntoView({behavior: "smooth", block:"end", inline:"nearest"});
+}
 function updateOutput(elements){
     //outputimgs=[];
     document.getElementById('outputzone').innerHTML = "";
@@ -972,7 +1071,7 @@ function updateOutput(elements){
         //img
         document.getElementById('outputzone').appendChild(outputimgs[i]);
         //addScroll=addScroll+outputimgs[i].naturalHeight;
-        outputimgs[i].onload=function(){ if(scrollTo){ outputimgs[i].scrollIntoView({behavior: "smooth", block:"end", inline:"nearest"})}}
+        outputimgs[i].onload=function(){ if(scrollTo){ outputimgs[i].scrollIntoView({behavior: "smooth", block:"end", inline:"nearest"}); scrollPlace=i;}}
     }
     scrollTo=scrollCheck();
 //
@@ -981,6 +1080,7 @@ function updateOutput(elements){
 function drawOutput(){
     octx.clearRect(0,0,w,h);
     octx.drawImage(topScreen,0,0);
+    if scrollPoint
 }
 function dotDraw(cont){
     //This draws the entire window.
@@ -1010,6 +1110,7 @@ function dotDraw(cont){
     // }
     //Keyboard Drawing.
     drawKeyboard(cont);
+    drawScrollButtons();
     drawKeyboardSelect();
     drawToolsArea();
     drawSCCArea();
@@ -1290,6 +1391,7 @@ function handleMovementEvent(superevt, type){
         checkIfInToolArea(superevt.currX, superevt.currY);
         //checkIfInSCCArea
         checkIfInSCCArea(superevt.currX, superevt.currY, 'down');
+        checkIfInScrollButtonArea(superevt.currX, superevt.currY, 'down');
     }
     if (type== 'up'){
         var isIn=checkIfInKeyboardButtons(superevt.currX, superevt.currY);
@@ -1312,6 +1414,9 @@ function handleMovementEvent(superevt, type){
         ////console.log(SCCArea.herePress)
         if (SCCArea.herePress>0){
             checkIfInSCCArea(superevt.currX, superevt.currY, 'up')
+        }
+        if (ScrollButtonArea.herePress>0){
+            checkIfInScrollButtonArea(superevt.currX, superevt.currY, 'up');
         }
         superevt.draw_flag = false;
         draggedGlyph=null;

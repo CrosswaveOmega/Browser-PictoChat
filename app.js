@@ -48,7 +48,9 @@ app.use(session({
 var messageLog={};
 var glyphs= {};
 var glyph= null;
-var glyphw= null;
+var glyphy= null;
+var glyphw=null;
+var glyphb=null;
 //default
 router.get('/',(req, res) => {
     res.writeHead(200, {'Content-Type':'text/html'})
@@ -96,7 +98,7 @@ router.post('/theapp', [
         let date=new Date()
         date.setMinutes(date.getMinutes()-3)
         req.session.lastTimeSet=(date).getTime();
-        postMessage(util.format("Now entering %s: %s", req.session.roomID, req.session.dispname), req.session.roomID);
+        postMessage("Now entering %s", req.session.dispname, req.session.roomID, "yellow");
 
         res.writeHead(200, {'Content-Type':'text/html'})
         res.write(sendDraw(req.session.dispname, req.session.pallate));
@@ -121,6 +123,17 @@ router.post('/whoami', (req, res) => {
     res.end();
 })
 
+router.post('/leave', (req, res) => {
+    //return the username of the session.
+    //console.log(req.session)
+    let displayname=req.session.dispname; //(req.body.position);
+    let roomid=req.session.roomID;
+    postMessage("Now leaving %s",req.session.dispname, req.session.roomID, "blue");
+
+    res.write(JSON.stringify({displayname:displayname, pallate: req.session.pallate}));
+    res.end();
+})
+
 const discordUrlMain='https://discord.com/api/webhooks/851232711075168266/RgkH5r8_dKtTbv68zEEf444Amkq02mwPXAnDNKfLd3b1ZC6DgzMw3AjyqJHZWD0M4CO6'
 function postMessageToDiscord(message, buffer, webhook="None") {
     //console.log("GO.")
@@ -128,7 +141,7 @@ function postMessageToDiscord(message, buffer, webhook="None") {
     if (webhook=="None"){ discordUrl=discordUrlMain;}
     const form = new FormData();
     form.append('file', buffer, "tes3.png")
-
+    form.append('payload_json', JSON.stringify({"username":"PictoChat"}))
     const options = {
     method: 'POST',
     body: form,
@@ -140,9 +153,9 @@ function postMessageToDiscord(message, buffer, webhook="None") {
         .then(json => console.log(json));
     }
 
-function makeName(context, name, color="Norm"){
-    var startX=5;
-    var startY=3;
+function makeName(context, name, color="Norm", startXmain=5, startYmain=3){
+    var startX=startXmain;
+    var startY=startYmain;
     var glyphX=0;
     var glyphY=0;
     var dotsize=1;
@@ -157,8 +170,14 @@ function makeName(context, name, color="Norm"){
                 glyphY=glyphs.glyphs[current].py;
                 charwidth=glyphs.glyphs[current].width;
                 //console.log(glyphX, glyphY, charwidth);
-                if (color=="Norm"){
+            if (color=="Norm"){
                 context.drawImage(glyph, glyphX*10, glyphY*13, charwidth, 12, startX*dotsize, startY*dotsize, charwidth*dotsize, 12*dotsize);
+            }
+            else if (color=="yellow"){
+                context.drawImage(glyphy, glyphX*10, glyphY*13, charwidth, 12, startX*dotsize, startY*dotsize, charwidth*dotsize, 12*dotsize);
+            }
+            else if (color=="blue"){
+                context.drawImage(glyphb, glyphX*10, glyphY*13, charwidth, 12, startX*dotsize, startY*dotsize, charwidth*dotsize, 12*dotsize);
             }
             else{
                 context.drawImage(glyphw, glyphX*10, glyphY*13, charwidth, 12, startX*dotsize, startY*dotsize, charwidth*dotsize, 12*dotsize);
@@ -166,6 +185,7 @@ function makeName(context, name, color="Norm"){
                 startX=startX+charwidth+1;
             }
         }
+    return startX;
 }
 router.post('/getmatrix',  [
    check('position').isISO8601()
@@ -206,14 +226,15 @@ router.post('/addprivateroom', (req, res) => {
     res.end();
 })
 
-function postMessage(message, roomid){
+function postMessage(message, dispname, roomid, begin="yellow"){
     let canvas=createCanvas(234,  21);
     let thisimagepath=getUriFromDictionary('data/images/SystemMessage.png',"ModeA");
     var context = canvas.getContext('2d')
     loadImage(thisimagepath).then((image) => {
         context.drawImage(image, 0, 0);
-        makeName(context, message, "white");
-
+        let mess1=util.format(message, roomid)
+        let namePos=makeName(context, mess1, begin);
+        makeName(context, util.format(": %s", dispname), "white", namePos);
         let buffer = canvas.toBuffer('image/png');
         //console.log(buffer);
         fs.writeFileSync('./test.png', buffer);
@@ -336,6 +357,8 @@ app.listen(process.env.PORT || 3000, () => {
     glyphs = JSON.parse(rawdata);
 
     loadImage('./data/images/Glyphs11.png').then((glyp) => {glyph=glyp; });
-        loadImage('./data/images/Glyphs11y.png').then((glyp) => {glyphw=glyp; });
+        loadImage('./data/images/Glyphs11y.png').then((glyp) => {glyphy=glyp; });
+                loadImage('./data/images/Glyphs11w.png').then((glyp) => {glyphw=glyp; });
+    loadImage('./data/images/Glyphs11b.png').then((glyp) => {glyphb=glyp; });
     //console.log(`App Started on PORT ${process.env.PORT || 3000}`);
 });
