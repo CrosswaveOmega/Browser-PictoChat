@@ -37,7 +37,7 @@ app.use(session({
     store: new MemoryStore({
       checkPeriod: 3600000 // prune expired entries every 24h
     }),
-    maxAge: Date.now() + (400000) ,
+    maxAge: Date.now() + (40000000) ,
     secure: true,
     saveUninitialized:true
 }));
