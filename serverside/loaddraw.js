@@ -14,6 +14,7 @@ const filetosend=`
 <html>
 <head>
  <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 </head>
     <script type="text/javascript" src="windowfront.js">
 
@@ -33,8 +34,13 @@ const filetosend=`
    image-rendering: crisp-edges;
    touch-action: manipulation;
  }
+ html, body {
+     overflow-x: hidden;
+ }
+body{
+    max-width: 300px;
 
-
+}
 
  .scrollinit{
      overflow:scroll;
