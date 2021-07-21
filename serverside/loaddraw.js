@@ -13,7 +13,7 @@ const util = require('util');
 const filetosend=`
 <html>
 <head>
- <meta name="viewport"charset="UTF-8" content="width=device-width, user-scalable=no" />
+ <meta name="viewport"charset="UTF-8" content="width=device-width" />
 </head>
     <script type="text/javascript" src="windowfront.js">
 
@@ -21,7 +21,7 @@ const filetosend=`
     <div id="name"><span style="display:none">%s</span></div>
     <div id="color"><span style="display:none">%s</span></div>
     <header>
-          <h1><h1>
+          <h1>Main app.<h1>
 
     </header>
  <style>
