@@ -360,32 +360,6 @@ const server=app.listen(process.env.PORT || 3000, () => {
         loadImage('./data/images/Glyphs11y.png').then((glyp) => {glyphy=glyp; });
                 loadImage('./data/images/Glyphs11w.png').then((glyp) => {glyphw=glyp; });
     loadImage('./data/images/Glyphs11b.png').then((glyp) => {glyphb=glyp; });
+    postStatusMessageToDiscord( discordUrlMain, "Turning back on.")
     //console.log(`App Started on PORT ${process.env.PORT || 3000}`);
-});
-function getRandomInt(min, max) {
-  min = Math.ceil(min);
-  max = Math.floor(max);
-  return Math.floor(Math.random() * (max - min) + min); //The maximum is exclusive and the minimum is inclusive
-}
-const responses=["Time to shut down.", "Nap time...", "Maintence time, see ya!", "I'm afraid of the dark... please...", "I'll be back.", "If you see this message, Heroku shut me down."]
-
-process.on("exit", function() {
-    postStatusMessageToDiscord( process.env.PrivateDebugWebhook,"Shutting down for maintenance, see you soon!")
-        server.close(() => {
-        console.log('Process terminated')
-      })
-});
-process.on('SIGINT', function() {
-    postStatusMessageToDiscord( process.env.PrivateDebugWebhook,"Shutting down for maintenance, see you soon!")
-        server.close(() => {
-        console.log('Process terminated')
-      })
-});
-process.on('SIGTERM', function() {
-    postStatusMessageToDiscord( process.env.PrivateDebugWebhook, responses[getRandomInt(0, responses.length)])
-
-//    postStatusMessageToDiscord(url,"Shutting down for maintenance, see you soon!")
-    server.close(() => {
-        console.log('Process terminated')
-      })
 });

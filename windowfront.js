@@ -41,6 +41,8 @@ var inital=new Image (234, 192); inital.src ="data/images/PictoChatDefaultTop.pn
 
 
 var scrollPlace=0;
+var minPos=0;
+var maxPos=0;
 var outputimgs=[inital];
 
 var overlayColor="rgba(0, 0, 255, 0.5)";
@@ -324,16 +326,25 @@ function init() {
         Imm0:null,
         herePress:0
     }
-    XButton.Imm0= new Image(32,81); XButton.Imm0.src="data/images/XButton.png";
-    XButton.ImmAct= new Image(32,81); XButton.ImmAct.src="data/images/XButton.png";
+    XButton.Imm0= new Image(10,10); XButton.Imm0.src="data/images/XButton.png";
+    XButton.ImmAct= new Image(10,10); XButton.ImmAct.src="data/images/XButton.png";
     getimage(XButton.ImmAct, colorMode);
 
 
+        ScrollBar = {
+            offX:0, offY:22,
+            bindBoxes:[null,
+                newBox(0,0,10,10)],
+            Imm0:null,
+            ImmFilled:null,
+            ImmTop:null,
+            ImmBottom:null,
+            herePress:0
+        }
+        XButton.Imm0= new Image(10,10); XButton.Imm0.src="data/images/XButton.png";
+        XButton.ImmAct= new Image(10,10); XButton.ImmAct.src="data/images/XButton.png";
+        getimage(XButton.ImmAct, colorMode);
 
-
-    SCCArea.Imm0= new Image(32,81); SCCArea.Imm0.src="data/images/SendCopyClear.png";
-    SCCArea.ImmAct= new Image(32,81); SCCArea.ImmAct.src="data/images/SendCopyClear.png";
-    getimage(SCCArea.ImmAct, colorMode);
 
 
     PictoString.resetString();
@@ -482,6 +493,9 @@ function setupEvents(){
     window.addEventListener("beforeunload", function (e){
         leaveMe()
     })
+    document.getElementById('outputzone').addEventListener("scroll", function(e){
+        console.log(document.getElementById('outputzone').scrollY);
+    });
     //window.onbeforeunload=leaveMe;
 /*
     canvas.addEventListener("touchstart", function(e){
@@ -1115,6 +1129,19 @@ function scrollToElement(){
     if (scrollPlace<0){scrollPlace=0;}
     if (scrollPlace>=outputimgs.length){scrollPlace=outputimgs.length-1;}
     outputimgs[Math.floor(scrollPlace)].scrollIntoView({behavior: "smooth", block:"end", inline:"nearest"});
+    if (scrollPlace<minPos){
+        minPos=scrollPlace;
+        if ((maxPos-minPos)>34){
+            maxPos=minPos+34
+        }
+    }
+    if (scrollPlace>maxPos){
+        console.log("updated")
+        maxPos=scrollPlace;
+        if ((maxPos-minPos)>34){
+            minPos=maxPos-34
+        }
+    }
 }
 function updateOutput(elements){
     //outputimgs=[];
@@ -1131,15 +1158,39 @@ function updateOutput(elements){
         //img
         document.getElementById('outputzone').appendChild(outputimgs[i]);
         //addScroll=addScroll+outputimgs[i].naturalHeight;
-        outputimgs[i].onload=function(){ if(scrollTo){ outputimgs[i].scrollIntoView({behavior: "smooth", block:"end", inline:"nearest"}); scrollPlace=i;}}
+        outputimgs[i].onload=function(){ if(scrollTo){ scrollPlace=i; scrollToElement()}}
     }
     scrollTo=scrollCheck();
 //
 
 }
+
+function drawScrollBar(cont){
+        var offX=ScrollBar.offX;
+        var offY=ScrollBar.offY;
+
+
+        for (let k=0;k<maxPos-minPos;k++){
+            cont.fillStyle = overlayColor;
+            if (k==(maxPos-scrollPlace)){
+                cont.fillStyle=("rgba(0,0,0,1)")
+            }
+            cont.beginPath();
+            let startX=(offX+3)*dotsize;
+            let startY=(offY+(4*(34-k)))*dotsize;
+            cont.fillRect( startX, startY, (12)*dotsize, (2)*dotsize);
+            //console.log(startY)
+            //console.log(minPos);
+            //console.log(maxPos);
+            cont.stroke();
+            cont.closePath();
+
+        }
+}
 function drawOutput(){
     octx.clearRect(0,0,w,h);
     octx.drawImage(topScreen,0,0);
+    drawScrollBar(octx);
 
 }
 function dotDraw(cont){
