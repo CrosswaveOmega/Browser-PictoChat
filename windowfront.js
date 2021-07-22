@@ -1131,14 +1131,14 @@ function scrollToElement(){
     outputimgs[Math.floor(scrollPlace)].scrollIntoView({behavior: "smooth", block:"end", inline:"nearest"});
     if (scrollPlace<minPos){
         minPos=scrollPlace;
-        if ((maxPos-minPos)>34){
+        if ((maxPos-minPos)>=34){
             maxPos=minPos+34
         }
     }
     if (scrollPlace>maxPos){
         console.log("updated")
         maxPos=scrollPlace;
-        if ((maxPos-minPos)>34){
+        if ((maxPos-minPos)>=34){
             minPos=maxPos-34
         }
     }
@@ -1167,15 +1167,25 @@ function updateOutput(elements){
 
 function drawScrollBar(cont){
         var offX=ScrollBar.offX;
-        var offY=ScrollBar.offY;
-
-
-        for (let k=0;k<maxPos-minPos;k++){
-            cont.fillStyle = overlayColor;
+        var offY=ScrollBar.offY+4;
+        cont.beginPath();
+                cont.fillStyle = overlayColor;
+        if ((maxPos+1)<outputimgs.length){
+            let startX=(offX+3+2)*dotsize;
+            let startY=(offY+(4*(34+1)))*dotsize;
+            cont.fillRect( startX, startY, (8)*dotsize, (2)*dotsize);
+        }
+        if ((maxPos+2)<outputimgs.length){
+            let startX=(offX+3+4)*dotsize;
+            let startY=(offY+(4*(34+2)))*dotsize;
+            cont.fillRect( startX, startY, (4)*dotsize, (2)*dotsize);
+        }
+        for (let k=0;k<maxPos-minPos+1;k++){
+                    cont.fillStyle = overlayColor;
             if (k==(maxPos-scrollPlace)){
                 cont.fillStyle=("rgba(0,0,0,1)")
             }
-            cont.beginPath();
+
             let startX=(offX+3)*dotsize;
             let startY=(offY+(4*(34-k)))*dotsize;
             cont.fillRect( startX, startY, (12)*dotsize, (2)*dotsize);
@@ -1183,9 +1193,21 @@ function drawScrollBar(cont){
             //console.log(minPos);
             //console.log(maxPos);
             cont.stroke();
-            cont.closePath();
+
 
         }
+                cont.fillStyle = overlayColor;
+        if ((minPos-1)>-1){
+            let startX=(offX+3+2)*dotsize;
+            let startY=(offY+(4*(-1)))*dotsize;
+            cont.fillRect( startX, startY, (8)*dotsize, (2)*dotsize);
+        }
+        if ((minPos-2)>-1){
+            let startX=(offX+3+4)*dotsize;
+            let startY=(offY+(4*(-2)))*dotsize;
+            cont.fillRect( startX, startY, (4)*dotsize, (2)*dotsize);
+        }
+        cont.closePath();
 }
 function drawOutput(){
     octx.clearRect(0,0,w,h);
