@@ -1147,7 +1147,7 @@ function scrollToElement(){
         }
     }
     if (scrollPlace>maxPos){
-        console.log("updated")
+        //console.log("updated")
         maxPos=scrollPlace;
         if ((maxPos-minPos)>=33){
             minPos=maxPos-33
@@ -1195,19 +1195,17 @@ function drawScrollBar(cont){
         }
         for (let k=0;k<=maxPos-minPos;k++){
                     cont.fillStyle = overlayColor;
+            if (toFillIn.includes(maxPos-k)){
+                cont.fillStyle=("rgba(24,24,24,1)")
+            }
             if (k==(maxPos-scrollPlace)){
                 cont.fillStyle=("rgba(0,0,0,1)")
             }
-            if (toFillIn.includes(maxPos-k)){
-                cont.fillStyle=("rgba(0,0,0,1)")
-            }
+
 
             let startX=(offX+3)*dotsize;
             let startY=(offY+(4*(34-k)))*dotsize;
             cont.fillRect( startX, startY, (12)*dotsize, (2)*dotsize);
-            //console.log(startY)
-            //console.log(minPos);
-            //console.log(maxPos);
             cont.stroke();
 
 
