@@ -86,7 +86,8 @@ body{
 
         <canvas id="dotDraw" width="300px" height="300px" span hidden style="position:absolute;z-index:0;" >
         </canvas>
-
+        <canvas id="copy" width="300px" height="300px" span hidden  style="position:absolute;z-index:0;" >
+        </canvas>
         </div>
 
 

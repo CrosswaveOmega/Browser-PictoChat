@@ -119,6 +119,11 @@ var ScrollBar=null;
 var XButton=null;
 
 
+var scrolling=false;
+var scrollingCountdown=0;
+var scrollingCountdownMax=3;
+
+
 
 const backgroundImg=new Image (234, 85); backgroundImg.src = 'data/images/PictochatWindowLines.png';
 var backgroundImg2=new Image (234, 85); backgroundImg2.src = 'data/images/PictochatWindowOverlay.png';
@@ -494,7 +499,9 @@ function setupEvents(){
         leaveMe()
     })
     document.getElementById('outputzone').addEventListener("scroll", function(e){
-        console.log(document.getElementById('outputzone').scrollY);
+        scrolling=true;
+        scrollingCountdown=scrollingCountdownMax;
+        //console.log(document.getElementById('outputzone').scrollTop);
     });
     //window.onbeforeunload=leaveMe;
 /*
@@ -777,7 +784,7 @@ function checkIfInSCCArea(cx, cy, status){
                             break;
                         case 2:
                             //console.log("There's nothing to copy.")
-                            getmessages();
+                            cloneCurrentOutput(outputimgs[scrollPlace]);
                             SCCArea.herePress=0;
                             break;
                         case 3:
@@ -861,6 +868,7 @@ function checkIfInScrollButtonArea(cx, cy, status){
 
 
 function toFillFormat(colorEntry, alpha){
+    //Return a string with the color values and an alpha
     return "rgba("+colorEntry["r"]+", "+colorEntry["g"]+","+colorEntry["b"]+", "+alpha+")";
 }
 // function drawBox(cont, offX, offY, box){
@@ -1125,21 +1133,24 @@ function scrollCheck(){
     }
     return false;
 }
+
 function scrollToElement(){
     if (scrollPlace<0){scrollPlace=0;}
     if (scrollPlace>=outputimgs.length){scrollPlace=outputimgs.length-1;}
-    outputimgs[Math.floor(scrollPlace)].scrollIntoView({behavior: "smooth", block:"end", inline:"nearest"});
+    if (scrolling==false){
+        outputimgs[Math.floor(scrollPlace)].scrollIntoView({behavior: "smooth", block:"end", inline:"nearest"});
+    }
     if (scrollPlace<minPos){
         minPos=scrollPlace;
-        if ((maxPos-minPos)>=34){
-            maxPos=minPos+34
+        if ((maxPos-minPos)>=33){
+            maxPos=minPos+33
         }
     }
     if (scrollPlace>maxPos){
         console.log("updated")
         maxPos=scrollPlace;
-        if ((maxPos-minPos)>=34){
-            minPos=maxPos-34
+        if ((maxPos-minPos)>=33){
+            minPos=maxPos-33
         }
     }
 }
@@ -1158,13 +1169,15 @@ function updateOutput(elements){
         //img
         document.getElementById('outputzone').appendChild(outputimgs[i]);
         //addScroll=addScroll+outputimgs[i].naturalHeight;
-        outputimgs[i].onload=function(){ if(scrollTo){ scrollPlace=i; scrollToElement()}}
+        outputimgs[i].onload=function(){ if(scrollTo){
+             scrollPlace=i;  scrollingCountdown=0; scrolling=false; scrollToElement()}}
     }
     scrollTo=scrollCheck();
 //
 
 }
 
+var toFillIn=[]
 function drawScrollBar(cont){
         var offX=ScrollBar.offX;
         var offY=ScrollBar.offY+4;
@@ -1180,9 +1193,12 @@ function drawScrollBar(cont){
             let startY=(offY+(4*(34+2)))*dotsize;
             cont.fillRect( startX, startY, (4)*dotsize, (2)*dotsize);
         }
-        for (let k=0;k<maxPos-minPos+1;k++){
+        for (let k=0;k<=maxPos-minPos;k++){
                     cont.fillStyle = overlayColor;
             if (k==(maxPos-scrollPlace)){
+                cont.fillStyle=("rgba(0,0,0,1)")
+            }
+            if (toFillIn.includes(maxPos-k)){
                 cont.fillStyle=("rgba(0,0,0,1)")
             }
 
@@ -1196,24 +1212,54 @@ function drawScrollBar(cont){
 
 
         }
-                cont.fillStyle = overlayColor;
+        cont.fillStyle = overlayColor;
         if ((minPos-1)>-1){
             let startX=(offX+3+2)*dotsize;
-            let startY=(offY+(4*(-1)))*dotsize;
+            let startY=(offY+(4*(0)))*dotsize;
             cont.fillRect( startX, startY, (8)*dotsize, (2)*dotsize);
         }
         if ((minPos-2)>-1){
             let startX=(offX+3+4)*dotsize;
-            let startY=(offY+(4*(-2)))*dotsize;
+            let startY=(offY+(4*(-1)))*dotsize;
             cont.fillRect( startX, startY, (4)*dotsize, (2)*dotsize);
         }
         cont.closePath();
 }
+function scrollTranslate(){
+    var div=document.getElementById('outputzone')
+    var el, top, min = 0, els = outputimgs;
+    var scrollTop=document.getElementById('outputzone').scrollTop;
+    toFillIn=[];
+    for (var i=0; i<els.length; i++) {
+        top = (els[i].offsetTop-div.offsetTop);
+        //console.log(top, scrollTop, scrollTop+div.clientHeight);
+        if (top > scrollTop && top < scrollTop+div.clientHeight && top>min) {
+            min = top;
+        //    console.log("OKOK");
+            el = els[i];
+            scrollPlace=i;
+            toFillIn.push(i);
+            //console.log(i);
+            //
+        }
+    }
+}
+
 function drawOutput(){
+    document.getElementById('outputzone').scrollTop;
+    scrollTranslate();
     octx.clearRect(0,0,w,h);
     octx.drawImage(topScreen,0,0);
     drawScrollBar(octx);
+    if (scrollingCountdown>0){
+        scrollingCountdown=scrollingCountdown-1;
+        console.log(scrollingCountdown)
+    }
+    else{
+        scrolling=false;
 
+    }
+    scrollToElement();
 }
 function dotDraw(cont){
     //This draws the entire window.
@@ -1390,6 +1436,32 @@ function getimage(image, mode){
       .then(response => response.json())
       .then(glyp => image.src=glyp.resp);
 
+}
+
+function cloneCurrentOutput(source){
+
+    let cloneCanvas = document.getElementById('copy');
+    cloneCanvas.width = source.width;
+    cloneCanvas.height = source.height;
+    let cloneCTX=cloneCanvas.getContext('2d')
+    cloneCTX.drawImage(source, 0, 0);
+    let drawSizeX=source.width-3;
+    let drawSizeY=source.height-3;
+    let data = cloneCTX.getImageData(3, 3, drawSizeX, drawSizeY).data;
+    let im=0;
+    let r, g, b, a= -7;
+    for (im=0;im<drawSizeX*drawSizeY;im++){
+        //im=im*2;
+        let imX=im%drawSizeX;
+        let imY=Math.floor(im/drawSizeX);
+        //console.log(imX, imY)
+        r=data[im*4]; g=data[im*4+1]; b=data[im*4+2]; a=data[im*4+3];
+        //console.log(r,g,b);
+        if(r==0 && g==0 && b==0&& a>200){
+            dotAt(imX,imY,2);
+            dotChange=true;
+        }
+    }
 }
 
 function getmessages(){
