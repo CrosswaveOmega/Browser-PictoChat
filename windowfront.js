@@ -1171,15 +1171,14 @@ function updateOutput(elements){
         //img
         document.getElementById('outputzone').appendChild(outputimgs[i]);
         //addScroll=addScroll+outputimgs[i].naturalHeight;
-        lastImage=outputimgs[i];
+        outputimgs[i].onload = function (e){
+            if(scrollTo){
+             scrollPlace=i;  scrollingCountdown=0; scrolling=false; scrollToElement(true);}
+         }
     }
     scrollTo=scrollCheck();
-    if (lastImage!=null){
-    lastImage.onload = function (e){
-        if(scrollTo){
-         scrollPlace=i;  scrollingCountdown=0; scrolling=false; scrollToElement(true);}
-     }
-     
+
+
  }
 //
 
