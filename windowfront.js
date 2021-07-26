@@ -1182,7 +1182,7 @@ function updateOutput(elements){
  }
 //
 
-}
+
 
 var toFillIn=[]
 function drawScrollBar(cont){
