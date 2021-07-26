@@ -847,12 +847,12 @@ function checkIfInScrollButtonArea(cx, cy, status){
                         case 1:
                             console.log("Going up.")
                             scrollPlace=scrollPlace-1;
-                            scrollToElement()
+                            scrollToElement(true)
                             ScrollButtonArea.herePress=0;
                             break;
                         case 2:
                             scrollPlace=scrollPlace+1;
-                            scrollToElement()
+                            scrollToElement(true)
                             console.log("Going down.")
                             ScrollButtonArea.herePress=0;
                             break;
@@ -1124,20 +1124,20 @@ function dotUpdate(cont){
 function scrollCheck(){
     var out=document.getElementById('outputzone');
     //console.log(out.scrollHeight, out.scrollTop)
-    var isScrolledToBottom = out.scrollHeight -out.scrollTop  <= 300
+    var scrolledToBottom = (out.scrollHeight -out.scrollTop  );
 
 
     // scroll to bottom if isScrolledToBottom is true
-    if (isScrolledToBottom) {
+    if (scrolledToBottom <= 300) {
       return true;
     }
     return false;
 }
 
-function scrollToElement(){
+function scrollToElement(override = false){
     if (scrollPlace<0){scrollPlace=0;}
     if (scrollPlace>=outputimgs.length){scrollPlace=outputimgs.length-1;}
-    if (scrolling==false){
+    if (scrolling==false || override==true){
         outputimgs[Math.floor(scrollPlace)].scrollIntoView({behavior: "smooth", block:"end", inline:"nearest"});
     }
     if (scrollPlace<minPos){
@@ -1154,6 +1154,7 @@ function scrollToElement(){
         }
     }
 }
+
 function updateOutput(elements){
     //outputimgs=[];
     document.getElementById('outputzone').innerHTML = "";
@@ -1165,14 +1166,21 @@ function updateOutput(elements){
         //document.getElementById('outputzone').appendChild(img);
     }
     var scrollTo=true;
+    var lastImage=null;
     for (let i=0; i<outputimgs.length;i++){
         //img
         document.getElementById('outputzone').appendChild(outputimgs[i]);
         //addScroll=addScroll+outputimgs[i].naturalHeight;
-        outputimgs[i].onload=function(){ if(scrollTo){
-             scrollPlace=i;  scrollingCountdown=0; scrolling=false; scrollToElement()}}
+        lastImage=outputimgs[i];
     }
     scrollTo=scrollCheck();
+    if (lastImage!=null){
+    lastImage.onload = function (e){
+        if(scrollTo){
+         scrollPlace=i;  scrollingCountdown=0; scrolling=false; scrollToElement(true);}
+     }
+     
+ }
 //
 
 }
@@ -1226,6 +1234,7 @@ function drawScrollBar(cont){
 function scrollTranslate(){
     var div=document.getElementById('outputzone')
     var el, top, min = 0, els = outputimgs;
+    let newscrollplace=null;
     var scrollTop=document.getElementById('outputzone').scrollTop;
     toFillIn=[];
     for (var i=0; i<els.length; i++) {
@@ -1235,28 +1244,35 @@ function scrollTranslate(){
             min = top;
         //    console.log("OKOK");
             el = els[i];
-            scrollPlace=i;
+            newscrollplace=i;
             toFillIn.push(i);
             //console.log(i);
             //
         }
     }
+    return newscrollplace;
 }
 
 function drawOutput(){
     document.getElementById('outputzone').scrollTop;
-    scrollTranslate();
+
     octx.clearRect(0,0,w,h);
     octx.drawImage(topScreen,0,0);
     drawScrollBar(octx);
+    scrollPlace=scrollTranslate();
     if (scrollingCountdown>0){
         scrollingCountdown=scrollingCountdown-1;
-        console.log(scrollingCountdown)
+        //console.log(scrollingCountdown)
+
+        console.log(scrollPlace);
+
+
     }
     else{
         scrolling=false;
 
     }
+
     scrollToElement();
 }
 function dotDraw(cont){

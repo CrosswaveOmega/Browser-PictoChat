@@ -30,12 +30,15 @@ const filetosend=`
    image-rendering: -webkit-crisp-edges;
    image-rendering: pixelated;
    image-rendering: crisp-edges;
-   touch-action: manipulation;
+
  }
 
 body{
     max-width: 300px;
-
+    touch-action: manipulation;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
 }
 
  .scrollinit{
@@ -67,13 +70,14 @@ body{
 
  </style>
     <body onload="init()" id="MainArea">
-    <canvas id="output" style="position:absolute; pointer-events:none;" width="256" height="192px">
-            Sorry, your browser doesn't support canvas technology.
-  </canvas>
-        <div id="outputzone" class="scrollinit" >
+        <div id="topScreen" style="width:256;height:192px">
+            <canvas id="output" style="position:absolute; pointer-events:none;" width="256" height="192px">
+                Sorry, your browser doesn't support canvas technology.
+            </canvas>
+            <div id="outputzone" class="scrollinit" >
 
+            </div>
         </div>
-
         <div style="width:300px;height:220px">
         <canvas id="drawing" width="270px", height="220px">
                 Sorry, your browser doesn't support canvas technology.
