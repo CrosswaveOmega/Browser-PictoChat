@@ -287,7 +287,8 @@ function init() {
     ScrollButtonArea={
         offX:4-2, offY:2,
         bindBoxes:[null, null, null],
-        herePress:0
+        herePress:0,
+        animLoopScroll:0
     }
 
     ScrollButtonArea.Imm0= new Image(14,29); ScrollButtonArea.Imm0.src="data/images/scrollButtons.png";
@@ -840,20 +841,28 @@ function checkIfInScrollButtonArea(cx, cy, status){
             if(status=='down'){
                 //console.log(k);
                 toset=k;
+                ScrollButtonArea.animLoopScroll=0
             }
             else if(status=='up'){
                 if (ScrollButtonArea.herePress==k){
                     switch(k){
                         case 1:
-                            console.log("Going up.")
-                            scrollPlace=scrollPlace-1;
-                            scrollToElement(true)
+                            if (ScrollButtonArea.animLoopScroll==0){
+                                console.log("Going up.")
+                                scrollPlace=scrollPlace-1;
+                                scrollToElement(true)
+                            }
+                            ScrollButtonArea.animLoopScroll=0;
                             ScrollButtonArea.herePress=0;
+
                             break;
                         case 2:
-                            scrollPlace=scrollPlace+1;
-                            scrollToElement(true)
-                            console.log("Going down.")
+                            if (ScrollButtonArea.animLoopScroll==0){
+                                scrollPlace=scrollPlace+1;
+                                scrollToElement(true)
+                                console.log("Going down.")
+                            }
+                            ScrollButtonArea.animLoopScroll=0;
                             ScrollButtonArea.herePress=0;
                             break;
                     }
@@ -1137,7 +1146,7 @@ function scrollCheck(){
 function scrollToElement(override = false){
     if (scrollPlace<0){scrollPlace=0;}
     if (scrollPlace>=outputimgs.length){scrollPlace=outputimgs.length-1;}
-    if (scrolling==false || override==true){
+    if ((scrolling==false) || override==true){
         outputimgs[Math.floor(scrollPlace)].scrollIntoView({behavior: "smooth", block:"end", inline:"nearest"});
     }
     if (scrollPlace<minPos){
@@ -1259,20 +1268,41 @@ function drawOutput(){
     octx.drawImage(topScreen,0,0);
     drawScrollBar(octx);
     scrollPlace=scrollTranslate();
-    if (scrollingCountdown>0){
-        scrollingCountdown=scrollingCountdown-1;
-        //console.log(scrollingCountdown)
+    if (ScrollButtonArea.herePress>0){
+        switch(ScrollButtonArea.herePress){
+            case 1:
+                console.log("Going up.");
+                scrollPlace=scrollPlace-1;
+                scrollToElement(true);
 
-        console.log(scrollPlace);
+                ScrollButtonArea.animLoopScroll=2;
+                break;
+            case 2:
+                scrollPlace=scrollPlace+1;
+                scrollToElement(true);
+                console.log("Going down.");
 
+                ScrollButtonArea.animLoopScroll=2;
+                break;
+        }
 
     }
     else{
-        scrolling=false;
+        if (scrollingCountdown>0){
+            scrollingCountdown=scrollingCountdown-1;
+            //console.log(scrollingCountdown)
 
+            console.log(scrollPlace);
+
+
+        }
+        else{
+            scrolling=false;
+
+        }
+
+        scrollToElement();
     }
-
-    scrollToElement();
 }
 function dotDraw(cont){
     //This draws the entire window.
