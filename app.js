@@ -260,7 +260,7 @@ router.post('/sendmatrix', (req, res) => {
         var row =parce[i];
         for (var j=0; j<row.length;j++){
             //    if((i>57 || j>16)||(j==16 && i>=54) ||(j==15 && i>=55)||(j==14 && i>=56)||(j==13 && i==57)) {
-                    if (parce[i][j]==2){
+                    if (parce[i][j]>=2){
                         if (j>most){
                             most=j;
                         }
@@ -308,7 +308,23 @@ router.post('/sendmatrix', (req, res) => {
                     ////console.log(parce[i][j])
                      if((i>57 || j>16)||(j==16 && i>=54) ||(j==15 && i>=55)||(j==14 && i>=56)||(j==13 && i==57)) {
                         if (parce[i][j]==2){
-                            context.fillStyle = '#000000';
+                            context.fillStyle = '#141414';
+                            context.fillRect((i+3)*dotsize, (j+3)*dotsize, dotsize, dotsize);
+                        }
+                        else if (parce[i][j]==3){
+                            context.fillStyle = '#ff1717';
+                            context.fillRect((i+3)*dotsize, (j+3)*dotsize, dotsize, dotsize);
+                        }
+                        else if (parce[i][j]==4){
+                            context.fillStyle = '#003cc8';
+                            context.fillRect((i+3)*dotsize, (j+3)*dotsize, dotsize, dotsize);
+                        }
+                        else if (parce[i][j]==5){
+                            context.fillStyle = '#008232';
+                            context.fillRect((i+3)*dotsize, (j+3)*dotsize, dotsize, dotsize);
+                        }
+                        else if (parce[i][j]==6){
+                            context.fillStyle = '#ffe600';
                             context.fillRect((i+3)*dotsize, (j+3)*dotsize, dotsize, dotsize);
                         }
                         else{

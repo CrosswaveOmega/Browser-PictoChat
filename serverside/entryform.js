@@ -12,9 +12,8 @@ const util = require('util');
 
 
 const startupHead=`
-
 <html><head><title>Enter Display Name.</title>
- <meta charset="UTF-8">
+ <meta name="viewport" charset="UTF-8" content="width=device-width" />
 <style>
 
 .grid-container{
@@ -23,6 +22,7 @@ const startupHead=`
     grid-auto-rows: 52px;
     gap:10px;
     padding: 10px;
+
 }
 
 .button {
@@ -33,6 +33,7 @@ const startupHead=`
   transition: all 0.5s;
   cursor: pointer;
   margin: 5px;
+  font: 1rem 'Fira Sans', sans-serif;
 }
 
 .button:hover {
@@ -55,12 +56,33 @@ input button {
   font-size: 30px;
   text-align: center;
 }
-
-
+.textinput{
+    display:table-cell;
+    width:100%;
+    margin: .4rem 0;
+}
+label {
+    display: block;
+}
+h1{
+    font: 2rem 'Fira Sans', sans-serif;
+}
+.submit {
+    will-change: auto;
+    width: 45%;
+    height: 32px;
+    font-size: 16;
+}
+.FormContainer{
+    width:max-content;
+    font: 1rem 'Fira Sans', sans-serif;
+}
 </style>
 </head>
+
 `
-const startupBody=`<body>
+const startupBody=`
+<body>
 <script>
    function changeValue(o){
      document.getElementById('color').value=o.value;
@@ -71,15 +93,14 @@ const startupBody=`<body>
 
     }
     o.className="disabled"
-    // o.style.cursor="not-allowed";
-    // o.style.opacity=0.3;
     }
 
 </script>
     <h1> %s </h1>
     <form action="/theapp" method="post">
+        <div class="FormContainer">
         <label for="displayname"> Display Name:</label><br>
-            <input type="text" id="displayname" name="displayname"><br>
+            <input type="text" class="textinput" id="displayname" name="displayname"  minlength="1" maxlength="10"><br>
             <input type="hidden" id="color" name="colormode" value="ModeA">
               <fieldset>
                 <label>Select a color:</label><br>
@@ -105,10 +126,12 @@ const startupBody=`<body>
               <input type="button" class="button" onclick="changeValue(this)" value="ModeP" style="background-color:#fb0092;">
               </div>
             </fieldset>
-        <input type="submit" value="Submit">
+        <input type="submit" class="submit" value="Submit">
+        </div>
     </form>
 </body>
-</html>`;
+</html>
+`;
 
 
 

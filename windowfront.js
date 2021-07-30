@@ -73,6 +73,8 @@ var keyboard_selected=1;
 var toolActive=0;
 var toolSize=0;
 
+var penColor=2;
+
 var mShift=false;
 
 var keyboards={
@@ -270,7 +272,7 @@ function init() {
     keyboardSelectArea.bindBoxes[5]=newBox(0,68,14,14);
     toolActive=1;
     toolSize=1;
-
+    penColor=2;
     drawingToolArea={
         offX:4-2, offY:25+12,
         bindBoxes:[null, null, null, null, null]
@@ -748,6 +750,15 @@ function checkIfInToolArea(cx, cy){
         if (drawingToolArea.bindBoxes[k].inBounds(cx, cy,offX, offY)){
             switch(k){
                 case 1:
+                    if (toolActive==1){
+                        penColor=penColor+1;
+                        if (penColor>5){
+                            penColor=2;
+                        }
+                    }
+                    else{
+                        penColor=2;
+                    }
                     toolActive=1;
                     break;
                 case 2:
@@ -920,6 +931,19 @@ function drawToolsArea(){
     switch (toolActive){
         case 1:
             drawBox(ctx, drawingToolArea, drawingToolArea.bindBoxes[1]);
+            if (penColor>2){
+                if (penColor==3){
+                    ctx.fillStyle = '#ff1717';
+                }
+                if (penColor==4){
+                    ctx.fillStyle = '#003cc8';
+                }
+                if (penColor==5){
+                    ctx.fillStyle = '#008232';
+                }
+                let box= drawingToolArea.bindBoxes[1];
+                ctx.fillRect((offX+box.xpos)*dotsize, (offY+box.ypos)*dotsize, (box.xsize)*dotsize, (box.ysize)*dotsize)
+            }
             break;
         case 2:
             drawBox(ctx,drawingToolArea, drawingToolArea.bindBoxes[2]);
@@ -1109,7 +1133,19 @@ function dotUpdate(cont){
                 if ((row[j]!=null)){
                     if (arr2DChanges[i][j]){
                         if (array2D[i][j]==2){
-                            dctx.fillStyle = "rgb(0, 0, 0)";
+                            dctx.fillStyle = "#141414";
+                            dctx.fillRect((i)*dotsize, (j)*dotsize, 1*dotsize, 1*dotsize);
+                        }
+                        else if (array2D[i][j]==3){
+                            dctx.fillStyle = '#ff1717';
+                            dctx.fillRect((i)*dotsize, (j)*dotsize, 1*dotsize, 1*dotsize);
+                        }
+                        else if (array2D[i][j]==4){
+                            dctx.fillStyle = '#003cc8';
+                            dctx.fillRect((i)*dotsize, (j)*dotsize, 1*dotsize, 1*dotsize);
+                        }
+                        else if (array2D[i][j]==5){
+                            dctx.fillStyle = '#008232';
                             dctx.fillRect((i)*dotsize, (j)*dotsize, 1*dotsize, 1*dotsize);
                         }
                         else{
@@ -1239,19 +1275,20 @@ function drawScrollBar(cont){
         }
         cont.closePath();
 }
+
+
 function scrollTranslate(){
     var div=document.getElementById('outputzone')
-    var el, top, min = 0, els = outputimgs;
+    var top, min = 0;
     let newscrollplace=null;
     var scrollTop=document.getElementById('outputzone').scrollTop;
     toFillIn=[];
-    for (var i=0; i<els.length; i++) {
-        top = (els[i].offsetTop-div.offsetTop);
+    for (var i=0; i<outputimgs.length; i++) {
+        top = (outputimgs[i].offsetTop-div.offsetTop);
         //console.log(top, scrollTop, scrollTop+div.clientHeight);
         if (top > scrollTop && top < scrollTop+div.clientHeight && top>min) {
             min = top;
         //    console.log("OKOK");
-            el = els[i];
             newscrollplace=i;
             toFillIn.push(i);
             //console.log(i);
@@ -1343,20 +1380,22 @@ function dotDraw(cont){
 }
 
 function dotAt(i,j,val){
+    //Color the dot at i, j with the number specified with val.
     if (i <array2D.length && i>=0){
         if (j<array2D[i].length && j>=0){
             if (array2D[i][j]!=val){
                 array2D[i][j]=val;
                 arr2DChanges[i][j]=true;
             }
-
         }
     }
 }
+
 function dotWithTool(i, j){
     //will apply tiik
     if (toolActive==1){
-        dotAt(i,j,2);
+        console.log(penColor);
+        dotAt(i,j,penColor);
 
         dotChange=true;
     }
@@ -1500,8 +1539,20 @@ function cloneCurrentOutput(source){
         //console.log(imX, imY)
         r=data[im*4]; g=data[im*4+1]; b=data[im*4+2]; a=data[im*4+3];
         //console.log(r,g,b);
-        if(r==0 && g==0 && b==0&& a>200){
+        if(r==20 && g==20 && b==20&& a>200){
             dotAt(imX,imY,2);
+            dotChange=true;
+        }
+        if(r==255 && g==23 && b==23&& a>200){
+            dotAt(imX,imY,3);
+            dotChange=true;
+        }
+        if(r==0 && g==60 && b==200 && a>200){
+            dotAt(imX,imY,4);
+            dotChange=true;
+        }
+        if(r==0 && g==130 && b==50 && a>200){
+            dotAt(imX,imY,5);
             dotChange=true;
         }
     }
