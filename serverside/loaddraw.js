@@ -30,7 +30,10 @@ const filetosend=`
    image-rendering: -webkit-crisp-edges;
    image-rendering: pixelated;
    image-rendering: crisp-edges;
-
+   user-select: none;
+   -webkit-user-select: none;
+   -moz-user-select: none; 
+   -ms-user-select: none;
  }
 
 body{
