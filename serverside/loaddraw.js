@@ -35,11 +35,15 @@ const filetosend=`
    -moz-user-select: none;
    -ms-user-select: none;
  }
+ html {
+     display: table;
+     margin: auto;
+ }
 
 body{
     max-width: 300px;
     touch-action: manipulation;
-    
+    vertical-align: middle;
 }
 
  .scrollinit{

@@ -1767,8 +1767,9 @@ function handleMouse(mouseEvent, type) {
     //This function is for the mouse and pen only.
     supermouse.prevX = supermouse.currX;
     supermouse.prevY = supermouse.currY;
-    supermouse.currX = mouseEvent.pageX - canvas.offsetLeft;
-    supermouse.currY = mouseEvent.pageY - canvas.offsetTop;
+     var rect = canvas.getBoundingClientRect();
+    supermouse.currX = mouseEvent.pageX - rect.left;
+    supermouse.currY = mouseEvent.pageY -rect.top;
     if (type=='out' ||type=='in'){
         handleMovementEvent(supermouse, 'up');
     }
@@ -1794,8 +1795,9 @@ function handleTouchPointer(touch, identifier, type){
             supertouch=supertouches[getIndexOfSupertouch(identifier)];
         }
         supertouch.id=identifier;
-        supertouch.currX = touch.pageX - canvas.offsetLeft;
-        supertouch.currY = touch.pageY - canvas.offsetTop;
+             var rect = canvas.getBoundingClientRect();
+        supertouch.currX = touch.pageX - rect.left
+        supertouch.currY = touch.pageY - rect.top;
 
         handleMovementEvent(supertouch,'down');
         supertouches.push(supertouch);
@@ -1812,8 +1814,8 @@ function handleTouchPointer(touch, identifier, type){
         ////console.log(supertouch)
         supertouch.prevX=supertouch.currX;
         supertouch.prevY=supertouch.currY;
-        supertouch.currX = touch.pageX - canvas.offsetLeft;
-        supertouch.currY = touch.pageY - canvas.offsetTop;
+        supertouch.currX = touch.pageX - rect.left
+        supertouch.currY = touch.pageY - rect.top;
         //console.log(supertouch.prevX, supertouch.prevY, supertouch.currX, supertouch.currY)
         handleMovementEvent(supertouch,'move');
         supertouches.splice(index, 1, supertouch);
@@ -1828,8 +1830,8 @@ function handleTouchPointer(touch, identifier, type){
         //console.log(supertouch)
         supertouch.prevX=supertouch.currX;
         supertouch.prevY=supertouch.currY;
-        supertouch.currX = touch.pageX - canvas.offsetLeft;
-        supertouch.currY = touch.pageY - canvas.offsetTop;
+        supertouch.currX = touch.pageX - rect.left
+        supertouch.currY = touch.pageY - rect.top;
         handleMovementEvent(supertouch,'up');
         supertouches.splice(index, 1);
         activetouches=activetouches-1;
