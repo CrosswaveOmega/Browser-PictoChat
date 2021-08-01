@@ -32,16 +32,14 @@ const filetosend=`
    image-rendering: crisp-edges;
    user-select: none;
    -webkit-user-select: none;
-   -moz-user-select: none; 
+   -moz-user-select: none;
    -ms-user-select: none;
  }
 
 body{
     max-width: 300px;
     touch-action: manipulation;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
+    
 }
 
  .scrollinit{
