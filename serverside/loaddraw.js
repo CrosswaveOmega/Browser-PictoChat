@@ -15,7 +15,7 @@ const filetosend=`
 <head>
  <meta name="viewport" charset="UTF-8" content="width=device-width" />
 </head>
-    <script type="text/javascript" src="windowfront.js">
+    <script type="text/javascript" src="/data/windowfront.js">
 
     </script>
     <div id="name"><span style="display:none">%s</span></div>

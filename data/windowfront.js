@@ -44,6 +44,7 @@ var scrollPlace=0;
 var minPos=0;
 var maxPos=0;
 var outputimgs=[inital];
+var lastSent=false;
 
 var overlayColor="rgba(0, 0, 255, 0.5)";
 
@@ -256,7 +257,6 @@ function init() {
         offX:4-2, offY:keyboardOffY+5,
         bindBoxes:[null, null, null, null, null, null]
     };
-
     keyboardSelectArea.Imm0=new Image(14,82); keyboardSelectArea.Imm0.src="data/images/KeyboardSelectOFF.png";
     keyboardSelectArea.ImmAct=CloneImage(keyboardSelectArea.Imm0)
     getimage(keyboardSelectArea.ImmAct, colorMode);
@@ -271,7 +271,7 @@ function init() {
     keyboardSelectArea.bindBoxes[4]=newBox(0,51,14,14);
     keyboardSelectArea.bindBoxes[5]=newBox(0,68,14,14);
     toolActive=1;
-    toolSize=1;
+    toolSize=2;
     penColor=2;
     drawingToolArea={
         offX:4-2, offY:25+12,
@@ -357,6 +357,9 @@ function init() {
 
     PictoString.resetString();
     updateOutput([]);
+
+    //Forces the newly joined PictoChat app to scroll to the bottom.
+    lastSent=true;
 
     setupEvents();
     setInterval(gradualCheck, 1000);
@@ -735,6 +738,7 @@ function checkIfInKeyboardButtons(cx, cy){
 }
 
 function checkIfInKeyboardSelect(cx, cy){
+    //check if a pointer is in the keyboard select.
     var offX=keyboardSelectArea.offX;
     var offY=keyboardSelectArea.offY;
     for (var k=1;k<keyboardSelectArea.bindBoxes.length;k++){
@@ -1183,7 +1187,10 @@ function scrollToElement(override = false){
     if (scrollPlace<0){scrollPlace=0;}
     if (scrollPlace>=outputimgs.length){scrollPlace=outputimgs.length-1;}
     if ((scrolling==false) || override==true){
-        outputimgs[Math.floor(scrollPlace)].scrollIntoView({behavior: "smooth", block:"end", inline:"nearest"});
+        if ((!scrollCheck() || override==true)  && lastSent==false){
+            //I don't want it to interrupt scrolling downwards.
+            outputimgs[Math.floor(scrollPlace)].scrollIntoView({behavior: "auto", block:"end", inline:"nearest"});
+        }
     }
     if (scrollPlace<minPos){
         minPos=scrollPlace;
@@ -1208,17 +1215,22 @@ function updateOutput(elements){
         let img=new Image();
         img.src=elements[i];
         outputimgs.push(img);
-        //document.getElementById('outputzone').appendChild(img);
     }
     var scrollTo=true;
     var lastImage=null;
     for (let i=0; i<outputimgs.length;i++){
         //img
         document.getElementById('outputzone').appendChild(outputimgs[i]);
-        //addScroll=addScroll+outputimgs[i].naturalHeight;
+
         outputimgs[i].onload = function (e){
-            if(scrollTo){
-             scrollPlace=i;  scrollingCountdown=0; scrolling=false; scrollToElement(true);}
+            if(scrollTo || lastSent){
+                scrollPlace=i; scrollingCountdown=0;
+                scrolling=false; scrollToElement(true);
+                }
+                if (lastSent){
+                    document.getElementById('outputzone').scrollBy({top: 1000000, left: 0, behavior: 'smooth'});
+                    lastSent=false;
+                }
          }
     }
     scrollTo=scrollCheck();
@@ -1304,11 +1316,10 @@ function drawOutput(){
     octx.clearRect(0,0,w,h);
     octx.drawImage(topScreen,0,0);
     drawScrollBar(octx);
-    scrollPlace=scrollTranslate();
+
     if (ScrollButtonArea.herePress>0){
         switch(ScrollButtonArea.herePress){
             case 1:
-                console.log("Going up.");
                 scrollPlace=scrollPlace-1;
                 scrollToElement(true);
 
@@ -1317,7 +1328,6 @@ function drawOutput(){
             case 2:
                 scrollPlace=scrollPlace+1;
                 scrollToElement(true);
-                console.log("Going down.");
 
                 ScrollButtonArea.animLoopScroll=2;
                 break;
@@ -1325,17 +1335,12 @@ function drawOutput(){
 
     }
     else{
+        scrollPlace=scrollTranslate();
         if (scrollingCountdown>0){
             scrollingCountdown=scrollingCountdown-1;
-            //console.log(scrollingCountdown)
-
-            console.log(scrollPlace);
-
-
         }
         else{
             scrolling=false;
-
         }
 
         scrollToElement();
@@ -1394,7 +1399,7 @@ function dotAt(i,j,val){
 function dotWithTool(i, j){
     //will apply tiik
     if (toolActive==1){
-        console.log(penColor);
+        //Pen Color is a integer, to determine which color will be used.
         dotAt(i,j,penColor);
 
         dotChange=true;
@@ -1606,6 +1611,8 @@ function sendmatrix() {
         if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
             currentXCount=0;
             countdown=0;
+            lastSent=true;
+            //document.getElementById('outputzone').scrollBy({top: 10000, left: 0, behavior: 'smooth'});
             ////console.log("Finished.");
             // Request finished. Do processing here.
         }
@@ -1768,8 +1775,8 @@ function handleMouse(mouseEvent, type) {
     supermouse.prevX = supermouse.currX;
     supermouse.prevY = supermouse.currY;
      var rect = canvas.getBoundingClientRect();
-    supermouse.currX = mouseEvent.pageX - rect.left;
-    supermouse.currY = mouseEvent.pageY -rect.top;
+    supermouse.currX = mouseEvent.clientX - rect.left;
+    supermouse.currY = mouseEvent.clientY -rect.top;
     if (type=='out' ||type=='in'){
         handleMovementEvent(supermouse, 'up');
     }
@@ -1788,6 +1795,7 @@ function getIndexOfSupertouch(id){ //O(n)
 }
 
 function handleTouchPointer(touch, identifier, type){
+            var rect = canvas.getBoundingClientRect();
     if (type=="start"){
 
         let supertouch=new newSuperEvent();
@@ -1795,9 +1803,8 @@ function handleTouchPointer(touch, identifier, type){
             supertouch=supertouches[getIndexOfSupertouch(identifier)];
         }
         supertouch.id=identifier;
-             var rect = canvas.getBoundingClientRect();
-        supertouch.currX = touch.pageX - rect.left
-        supertouch.currY = touch.pageY - rect.top;
+        supertouch.currX = touch.clientX - rect.left
+        supertouch.currY = touch.clientY - rect.top;
 
         handleMovementEvent(supertouch,'down');
         supertouches.push(supertouch);
@@ -1814,8 +1821,8 @@ function handleTouchPointer(touch, identifier, type){
         ////console.log(supertouch)
         supertouch.prevX=supertouch.currX;
         supertouch.prevY=supertouch.currY;
-        supertouch.currX = touch.pageX - rect.left
-        supertouch.currY = touch.pageY - rect.top;
+        supertouch.currX = touch.clientX - rect.left
+        supertouch.currY = touch.clientY - rect.top;
         //console.log(supertouch.prevX, supertouch.prevY, supertouch.currX, supertouch.currY)
         handleMovementEvent(supertouch,'move');
         supertouches.splice(index, 1, supertouch);
@@ -1830,8 +1837,8 @@ function handleTouchPointer(touch, identifier, type){
         //console.log(supertouch)
         supertouch.prevX=supertouch.currX;
         supertouch.prevY=supertouch.currY;
-        supertouch.currX = touch.pageX - rect.left
-        supertouch.currY = touch.pageY - rect.top;
+        supertouch.currX = touch.clientX - rect.left
+        supertouch.currY = touch.clientY - rect.top;
         handleMovementEvent(supertouch,'up');
         supertouches.splice(index, 1);
         activetouches=activetouches-1;
@@ -1849,11 +1856,6 @@ function handleTouchEvent(touchevent, type){
         let touch = touchevent.changedTouches[i];
         identifier=touch.identifier
         prosessTouch(touch, identifier, type);
-    //    //console.log(touch);
-    //    //console.log(supertouches);
-        //console.log(type)
-
-
     }
     //        //console.log(supertouches);
 }

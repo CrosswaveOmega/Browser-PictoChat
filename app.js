@@ -19,6 +19,8 @@ const sendForm=require('./serverside/entryform.js')
 const {colormod, getUriFromDictionary, doesColorModeExist} = require("./serverside/colormod.js")
 const {addRoom, addMessageToLog, getMessagesFromLog, getRoomWebhook, addPrivateRoom, getPrivateRoomByCipher, postStatusMessageToDiscord} = require("./serverside/rooms.js")
 
+const path = require('path')
+
 
 //initialize the app as an express app
 const app = express();
@@ -29,10 +31,12 @@ const router = express.Router();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true})
 );
-app.use(express.static(__dirname));
+//app.use(express.static(__dirname+ '/data'));
+//app.use(express.static(__dirname));
+app.use('/data', express.static(path.join(__dirname, 'data')))
 app.use(cors());
 app.use(session({
-    secret: "OWAIJFOIHSKJ",
+    secret: "qWpjpuv9sw48aVP3iPP7",
     resave:false,
     store: new MemoryStore({
       checkPeriod: 3600000 // prune expired entries every 24h
