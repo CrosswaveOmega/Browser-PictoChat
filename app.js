@@ -92,7 +92,7 @@ router.post('/theapp', [
         if (displayname == undefined ){throw new Error("You didn't enter anything!");}
         //displayname= new Sanitizer().sanatize(displayname);
         if (displayname.length>10){throw new Error("Your name is too big!");}
-        if (!(displayname.trim()){throw new Error("You didn't enter anything!");}
+        if (!displayname.trim()){throw new Error("You didn't enter anything!");}
         if (doesColorModeExist(req.body.colormode)!=true){throw new Error("Invalid color.")};
         req.session.dispname=displayname;
         req.session.pallate=req.body.colormode;
