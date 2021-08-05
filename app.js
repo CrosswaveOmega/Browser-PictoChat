@@ -113,7 +113,7 @@ router.post('/theapp', [
     catch(err){
         //console.log(err)
         //res.write(startupHead);
-        res.write(sendForm(err))
+        res.write(sendForm(err.message))
         //res.write(util.format(startupBody, err));
         res.end();
     }
