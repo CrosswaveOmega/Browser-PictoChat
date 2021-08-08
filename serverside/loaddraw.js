@@ -31,6 +31,7 @@ const filetosend=`
    image-rendering: pixelated;
    image-rendering: crisp-edges;
    user-select: none;
+   touch-action:none;
    -webkit-user-select: none;
    -moz-user-select: none;
    -ms-user-select: none;
@@ -42,7 +43,6 @@ const filetosend=`
 
 body{
     max-width: 300px;
-    touch-action: manipulation;
     vertical-align: middle;
 }
 
