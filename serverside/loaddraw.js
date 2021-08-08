@@ -35,7 +35,7 @@ const filetosend=`
    -webkit-user-select: none;
    -moz-user-select: none;
    -ms-user-select: none;
-   background-color: #FFFFFF;
+   background-color: #ffffff;
  }
  html {
      display: table;
