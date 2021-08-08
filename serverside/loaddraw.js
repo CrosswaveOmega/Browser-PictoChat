@@ -31,7 +31,7 @@ const filetosend=`
    image-rendering: pixelated;
    image-rendering: crisp-edges;
    user-select: none;
-   touch-action:none;
+   touch-action: pinch-zoom;
    -webkit-user-select: none;
    -moz-user-select: none;
    -ms-user-select: none;
@@ -44,6 +44,7 @@ const filetosend=`
 body{
     max-width: 300px;
     vertical-align: middle;
+    background-color: #000000;
 }
 
  .scrollinit{
