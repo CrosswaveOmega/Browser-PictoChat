@@ -31,11 +31,10 @@ const filetosend=`
    image-rendering: pixelated;
    image-rendering: crisp-edges;
    user-select: none;
-   touch-action: pinch-zoom;
+   touch-action: none;
    -webkit-user-select: none;
    -moz-user-select: none;
    -ms-user-select: none;
-   background-color: #ffffff;
  }
  html {
      display: table;
@@ -85,7 +84,7 @@ body{
 
             </div>
         </div>
-        <div style="width:300px;height:220px">
+        <div style="width:300px;height:220px background-color: #ffffff;">
         <canvas id="drawing" width="270px", height="220px">
                 Sorry, your browser doesn't support canvas technology.
             </canvas>
