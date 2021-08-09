@@ -85,7 +85,7 @@ body{
             </div>
         </div>
         <div style="width:300px;height:220px;">
-        <canvas id="drawing" width="270px", height="220px" style="background-color: #ffffff;">
+        <canvas id="drawing" width="258px", height="192px" style="background-color: #ffffff;">
                 Sorry, your browser doesn't support canvas technology.
             </canvas>
 

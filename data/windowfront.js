@@ -1349,11 +1349,9 @@ function drawOutput(){
 function dotDraw(cont){
     //This draws the entire window.
     cont.clearRect(0, 0, w, h);
-    //drawOutput();
     drawScaledImage(cont, backcomp1, drawOffX-6,drawOffY-6);
 
-    // dotUpdate(cont);
-    drawScaledImage(cont,backgroundImg,drawOffX-3,drawOffY-3);
+    //drawScaledImage(cont,backgroundImg,drawOffX-3,drawOffY-3);
     dotUpdate(cont);
     scrollCheck()
 
