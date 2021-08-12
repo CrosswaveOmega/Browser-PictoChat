@@ -948,7 +948,7 @@ function drawToolsArea(){
                     ctx.fillStyle = '#008232';
                 }
                 if (penColor==6){
-                    ctx.fillStyle = '#ffe6';
+                    ctx.fillStyle = '#ffe600';
                 }
                 let box= drawingToolArea.bindBoxes[1];
                 ctx.fillRect((offX+box.xpos)*dotsize, (offY+box.ypos)*dotsize, (box.xsize)*dotsize, (box.ysize)*dotsize)
