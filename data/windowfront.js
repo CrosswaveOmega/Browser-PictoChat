@@ -75,6 +75,8 @@ var toolActive=0;
 var toolSize=0;
 
 var penColor=2;
+const maxColors=6;
+
 
 var mShift=false;
 
@@ -756,7 +758,7 @@ function checkIfInToolArea(cx, cy){
                 case 1:
                     if (toolActive==1){
                         penColor=penColor+1;
-                        if (penColor>5){
+                        if (penColor>maxColors){
                             penColor=2;
                         }
                     }
@@ -944,6 +946,9 @@ function drawToolsArea(){
                 }
                 if (penColor==5){
                     ctx.fillStyle = '#008232';
+                }
+                if (penColor==6){
+                    ctx.fillStyle = '#ffe6';
                 }
                 let box= drawingToolArea.bindBoxes[1];
                 ctx.fillRect((offX+box.xpos)*dotsize, (offY+box.ypos)*dotsize, (box.xsize)*dotsize, (box.ysize)*dotsize)
@@ -1150,6 +1155,10 @@ function dotUpdate(cont){
                         }
                         else if (array2D[i][j]==5){
                             dctx.fillStyle = '#008232';
+                            dctx.fillRect((i)*dotsize, (j)*dotsize, 1*dotsize, 1*dotsize);
+                        }
+                        else if (array2D[i][j]==6){
+                            dctx.fillStyle = '#ffe600';
                             dctx.fillRect((i)*dotsize, (j)*dotsize, 1*dotsize, 1*dotsize);
                         }
                         else{
@@ -1556,6 +1565,10 @@ function cloneCurrentOutput(source){
         }
         if(r==0 && g==130 && b==50 && a>200){
             dotAt(imX,imY,5);
+            dotChange=true;
+        }
+        if(r==255 && g==230 && b==0 && a>200){
+            dotAt(imX,imY,6);
             dotChange=true;
         }
     }
