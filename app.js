@@ -254,7 +254,7 @@ function postMessage(message, dispname, roomid, begin="yellow"){
 router.post('/sendmatrix', (req, res) => {
     //Creates the image URI, and adds it to the message log.
     try{
--    var dotsize=1;
+    var dotsize=1;
     var parce=JSON.parse(req.body.matrix);
     let most=-1;
     let least=500;
