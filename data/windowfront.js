@@ -511,6 +511,16 @@ function setupEvents(){
         scrollingCountdown=scrollingCountdownMax;
         //console.log(document.getElementById('outputzone').scrollTop);
     });
+    document.getElementById('openhelp').onclick=function(){
+        console.log("HELP.");
+        
+        document.getElementById('helpsection').hidden=!(document.getElementById('helpsection').hidden);
+        //console.log(document.getElementById('outputzone').scrollTop);
+    }
+    document.getElementById('mobilebar').onclick=function(){
+        document.getElementById('manentry').hidden=!(document.getElementById('manentry').hidden);
+        //console.log(document.getElementById('outputzone').scrollTop);
+    }
     //window.onbeforeunload=leaveMe;
 /*
     canvas.addEventListener("touchstart", function(e){
