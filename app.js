@@ -139,11 +139,15 @@ router.post('/leave', (req, res) => {
     res.end();
 })
 
-const discordUrlMain='https://discord.com/api/webhooks/851232711075168266/RgkH5r8_dKtTbv68zEEf444Amkq02mwPXAnDNKfLd3b1ZC6DgzMw3AjyqJHZWD0M4CO6'
 function postMessageToDiscord(message, buffer, webhook="None") {
     //console.log("GO.")
     var discordUrl=webhook;
-    if (webhook=="None"){ discordUrl=discordUrlMain;}
+    if (webhook=="None"){
+        let url= process.env.StatusWebhook;
+        if (url==null){
+            return 
+        }
+        discordUrl=url;}
     const form = new FormData();
     form.append('file', buffer, "tes3.png")
     form.append('payload_json', JSON.stringify({"username":"PictoChat","avatar_url":process.env.ProfileImage}))
@@ -380,6 +384,6 @@ const server=app.listen(process.env.PORT || 3000, () => {
         loadImage('./data/images/Glyphs11y.png').then((glyp) => {glyphy=glyp; });
                 loadImage('./data/images/Glyphs11w.png').then((glyp) => {glyphw=glyp; });
     loadImage('./data/images/Glyphs11b.png').then((glyp) => {glyphb=glyp; });
-    postStatusMessageToDiscord( discordUrlMain, "Turning back on.")
+    postStatusMessageToDiscord( null, "Turning back on.")
     //console.log(`App Started on PORT ${process.env.PORT || 3000}`);
 });
