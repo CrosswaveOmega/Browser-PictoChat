@@ -36,7 +36,7 @@ app.use(bodyParser.urlencoded({extended: true})
 app.use('/data', express.static(path.join(__dirname, 'data')))
 app.use(cors());
 app.use(session({
-    secret: "qWpjpuv9sw48aVP3iPP7",
+    secret: process.env.secret,
     resave:false,
     store: new MemoryStore({
       checkPeriod: 3600000 // prune expired entries every 24h
